@@ -4,7 +4,7 @@ import {immer} from "zustand/middleware/immer";
 // Создаем store
 const useResourcesStore = create()(immer((set) => ({
     // Начальное состояние
-    resources: {},
+    resources: [],
 
     // Функция для установки resources
     setResources: (newViewer) => set(state => state.view = newViewer),
