@@ -48,7 +48,7 @@ export const useApi = (url, method) => {
 
 export const useAsyncApi = (url, method, params, data={}, auto=true) => {
     const {loading, errors, setErrors, request} = useApi(url, method);
-    const [result, setResult] = null;
+    const [result, setResult] = useState(null);
     const reload = () => {
         request(params, data).then(r => setResult(r));
     }
