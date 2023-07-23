@@ -1,11 +1,12 @@
 from django.db import models
-from django.contrib.auth.models import AbstractUser, BaseUserManager
+from django.contrib.auth.models import AbstractUser
 from django.core.validators import MinLengthValidator
+from API.validators import UsernameValidator
 
 
 class User(AbstractUser):
     email = models.EmailField(max_length=128, unique=True)
-    username = models.CharField(max_length=32, unique=True)
+    username = models.CharField(max_length=32, unique=True, validators=[UsernameValidator])
     password = models.CharField(validators=[MinLengthValidator(8)], max_length=128)
 
     REQUIRED_FIELDS = ['email', 'password']
