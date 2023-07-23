@@ -68,6 +68,7 @@ EMAIL_HOST = os.environ.get('EMAIL_HOST')
 EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER')
 EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD')
 EMAIL_PORT = os.environ.get('EMAIL_PORT')
+DEFAULT_FROM_EMAIL = os.environ.get('DEFAULT_FROM_EMAIL')
 
 # JWT settings
 
@@ -76,18 +77,19 @@ SIMPLE_JWT = {
     'REFRESH_TOKEN_LIFETIME': timedelta(hours=int(os.environ.get('REFRESH_TOKEN_LIFETIME'))),
     'UPDATE_LAST_LOGIN': True,
     'SIGNING_KEY': SECRET_KEY,
-    'ACCESS_COOKIE': 'access_token',  # Cookie name. Enables cookies if value is set.
-    'REFRESH_COOKIE': 'refresh_token',
-    'AUTH_COOKIE_DOMAIN': None,  # A string like "example.com", or None for standard domain cookie.
-    'AUTH_COOKIE_SECURE': False,  # Whether the auth cookies should be secure (https:// only).
-    'AUTH_COOKIE_HTTP_ONLY': True,  # Http only cookie flag.It's not fetch by javascript.
-    'AUTH_COOKIE_PATH': '/',  # The path of the auth cookie.
-    'AUTH_COOKIE_SAMESITE': 'Lax',
+    'USER_AUTHENTICATION_RULE': 'API.authenticate.custom_user_authentication_rule',
+    'ACCESS_COOKIE': os.environ.get('ACCESS_COOKIE'),
+    'REFRESH_COOKIE': os.environ.get('REFRESH_COOKIE'),
+    'AUTH_COOKIE_DOMAIN': None,  # !!! os.environ.get('AUTH_COOKIE_DOMAIN')
+    'AUTH_COOKIE_SECURE': os.environ.get('AUTH_COOKIE_SECURE') == 'True',
+    'AUTH_COOKIE_HTTP_ONLY': os.environ.get('AUTH_COOKIE_HTTP_ONLY') == 'True',
+    'AUTH_COOKIE_PATH': os.environ.get('AUTH_COOKIE_PATH'),
+    'AUTH_COOKIE_SAMESITE': os.environ.get('AUTH_COOKIE_SAMESITE'),
 }
 
 PASSWORD_RESET_TIMEOUT = 600
 
-CSRF_COOKIE_AGE = SIMPLE_JWT['ACCESS_TOKEN_LIFETIME']
+CSRF_COOKIE_AGE = SIMPLE_JWT['REFRESH_TOKEN_LIFETIME']
 
 ROOT_URLCONF = 'project.urls'
 

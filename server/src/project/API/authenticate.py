@@ -1,6 +1,5 @@
 from rest_framework_simplejwt.authentication import JWTStatelessUserAuthentication
 from django.conf import settings
-from django.views.decorators.csrf import csrf_protect
 
 from rest_framework.authentication import CSRFCheck
 from rest_framework import exceptions
@@ -18,9 +17,6 @@ def enforce_csrf(request):
 
 
 class JWTStatelessCookieAuthentication(JWTStatelessUserAuthentication):
-    def user_can_authenticate(self, user):
-        # Возвращаем True для разрешения аутентификации даже для неактивных пользователей
-        return True
 
     def authenticate(self, request):
         header = self.get_header(request)
@@ -37,3 +33,5 @@ class JWTStatelessCookieAuthentication(JWTStatelessUserAuthentication):
         return self.get_user(validated_token), validated_token
 
 
+def custom_user_authentication_rule(user):
+    return user is not None

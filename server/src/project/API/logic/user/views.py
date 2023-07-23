@@ -3,10 +3,12 @@ from rest_framework.views import APIView
 from rest_framework.exceptions import ValidationError
 from django.middleware import csrf
 from django.contrib.auth import authenticate
+from rest_framework_simplejwt.views import TokenVerifyView
+from project import settings
 
 from API.logic.functions import get_data
 from API.logic.user.serializers import UserSerializer
-from API.logic.user.services import register, login, activate
+from API.logic.user.services import register, login, activate, verify
 
 
 class UserRegisterView(APIView):
@@ -19,6 +21,7 @@ class UserRegisterView(APIView):
             serializer = self.serializer_class(data=data)
             serializer.is_valid(raise_exception=True)
             response = register(request, serializer.validated_data)
+            csrf.get_token(request)
             return response
         else:
             raise ValidationError({'confirm_password': ['Поле пароль и подтверждение пароля не совпадают']})
@@ -42,4 +45,15 @@ class AccountActivateView(APIView):
 
     def get(self, request, uidb64, token):
         response = activate(uidb64, token)
+        return response
+
+
+class TokenVerify(TokenVerifyView):
+    permission_classes = [AllowAny]
+
+    def get(self, request):
+        raw_access_token = request.COOKIES.get(settings.SIMPLE_JWT['ACCESS_COOKIE'])
+        raw_refresh_token = request.COOKIES.get(settings.SIMPLE_JWT['REFRESH_COOKIE'])
+        response = verify(raw_access_token, raw_refresh_token)
+        csrf.get_token(request)
         return response
