@@ -22,4 +22,5 @@ jobs:
           if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
       - name: Test with Django tests
         run: |
+          cd ./server/src/project/
           python manage.py test
