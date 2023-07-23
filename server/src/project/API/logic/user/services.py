@@ -60,9 +60,9 @@ def convert_token(raw_token, token_class):
 
 def register(request, validated_data):
     user_instance = User.objects.create_user(username=validated_data['username'],
-                                    email=validated_data['email'],
-                                    password=validated_data['password'],
-                                    is_active=False)
+                                             email=validated_data['email'],
+                                             password=validated_data['password'],
+                                             is_active=False)
     current_site = get_current_site(request)
     mail_subject = 'Активация учётной записи'
     message = render_to_string('account_activation.html', {'username': user_instance.username,
