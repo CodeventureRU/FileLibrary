@@ -10,8 +10,9 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/4.2/ref/settings/
 """
 
-from pathlib import Path
 import os
+from datetime import timedelta
+from pathlib import Path
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -41,6 +42,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework',
     'API',
+    'rest_framework_simplejwt',
 ]
 
 MIDDLEWARE = [
@@ -53,7 +55,51 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'API.authenticate.JWTStatelessCookieAuthentication',
+    ]
+}
+
+# Email settings
+
+EMAIL_USE_TLS = os.environ.get('EMAIL_USE_TLS') == "True"
+EMAIL_HOST = os.environ.get('EMAIL_HOST')
+EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER')
+EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD')
+EMAIL_PORT = os.environ.get('EMAIL_PORT')
+DEFAULT_FROM_EMAIL = os.environ.get('DEFAULT_FROM_EMAIL')
+
+# JWT settings
+
+SIMPLE_JWT = {
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=int(os.environ.get('ACCESS_TOKEN_LIFETIME'))),
+    'REFRESH_TOKEN_LIFETIME': timedelta(hours=int(os.environ.get('REFRESH_TOKEN_LIFETIME'))),
+    'UPDATE_LAST_LOGIN': True,
+    'SIGNING_KEY': SECRET_KEY,
+    'USER_AUTHENTICATION_RULE': 'API.authenticate.custom_user_authentication_rule',
+    'ACCESS_COOKIE': os.environ.get('ACCESS_COOKIE'),
+    'REFRESH_COOKIE': os.environ.get('REFRESH_COOKIE'),
+    'AUTH_COOKIE_DOMAIN': None,  # !!! os.environ.get('AUTH_COOKIE_DOMAIN')
+    'AUTH_COOKIE_SECURE': os.environ.get('AUTH_COOKIE_SECURE') == 'True',
+    'AUTH_COOKIE_HTTP_ONLY': os.environ.get('AUTH_COOKIE_HTTP_ONLY') == 'True',
+    'AUTH_COOKIE_PATH': os.environ.get('AUTH_COOKIE_PATH'),
+    'AUTH_COOKIE_SAMESITE': os.environ.get('AUTH_COOKIE_SAMESITE'),
+}
+
+PASSWORD_RESET_TIMEOUT = 600
+
+CSRF_COOKIE_AGE = SIMPLE_JWT['REFRESH_TOKEN_LIFETIME']
+
 ROOT_URLCONF = 'project.urls'
+
+# Backend settings
+
+AUTHENTICATION_BACKENDS = [
+    'django.contrib.auth.backends.AllowAllUsersModelBackend',
+]
+
+# Templates settings
 
 TEMPLATES = [
     {

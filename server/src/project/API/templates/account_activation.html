@@ -1,0 +1,8 @@
+{% autoescape off %}  
+Здравствуйте, {{ username }},
+Пожалуйста, нажмите на ссылку, чтобы подтвердить вашу регистрацию:
+
+http://{{ domain }}{% url 'activation' uidb64=uid token=token %}
+
+Если вы не регистрировались на сайте codeventure.ru, то просто проигнорируйте это сообщение.
+{% endautoescape %}  
