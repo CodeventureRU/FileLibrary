@@ -16,11 +16,11 @@ const LoginForm = () => {
     const {errors, loading, loginRequest} = useLogin();
     const navigate = useNavigate();
 
-    const [email, setEmail] = useState("");
+    const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
 
     const loginHandle = async () => {
-        let res = await loginRequest(email, password);
+        let res = await loginRequest(username, password);
         if (res != null) {
             navigate("/profile");
         }
@@ -40,12 +40,12 @@ const LoginForm = () => {
                                     fullWidth={true}
                                 >
                                     <TextField
-                                        value={email}
-                                        onChange={e => setEmail(e.target.value)}
-                                        label="Email"
+                                        value={username}
+                                        onChange={e => setUsername(e.target.value)}
+                                        label="username"
                                         variant="outlined"
-                                        error={Boolean(errors?.email)}
-                                        helperText ={helperTextError(errors?.email)}
+                                        error={Boolean(errors?.username)}
+                                        helperText ={helperTextError(errors?.username)}
                                     />
                                 </FormControl>
                             </Grid>
