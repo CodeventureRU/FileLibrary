@@ -30,14 +30,17 @@ class UserLoginAndActivationAPITest(APITestCase):
     def setUpTestData(cls):
         cls.user = User.objects.create_user(username=username, email=email, password=password, is_active=False)
 
-    def test_login(self):
-        url = '/api/v1/users/login/'
+    def test_login_and_logout(self):
+        login_url = '/api/v1/users/login/'
+        logout_url = '/api/v1/users/logout/'
         data = {'username': username,
                 'password': password}
-        response = self.client.post(url, data)
-        self.assertEquals(len(response.cookies), 3)
+        response = self.client.post(login_url, data)
         self.assertEquals(response.status_code, status.HTTP_200_OK)
+        self.assertEquals(len(response.cookies), 3)
         self.assertEquals(len(response.data), 3)
+        response = self.client.get(logout_url)
+        self.assertEquals(response.status_code, status.HTTP_204_NO_CONTENT)
 
     def test_activation(self):
         uid = urlsafe_base64_encode(force_bytes(self.user.pk))
@@ -45,6 +48,7 @@ class UserLoginAndActivationAPITest(APITestCase):
         url = f'/api/v1/activation/{uid}/{token}/'
         response = self.client.get(url)
         self.assertEquals(response.status_code, status.HTTP_204_NO_CONTENT)
+
 
 
 class UserVerifyAPITest(APITestCase):
@@ -59,17 +63,27 @@ class UserVerifyAPITest(APITestCase):
 
     def test_verification(self):
         url = '/api/v1/users/verification/'
-        response = self.client.get(url)
+        response = self.client.post(url)
         self.assertEquals(response.status_code, status.HTTP_200_OK)
 
     def test_verification_without_access_token(self):
         url = '/api/v1/users/verification/'
         self.client.cookies.pop('access_token')
-        response = self.client.get(url)
+        response = self.client.post(url)
         self.assertEquals(response.status_code, status.HTTP_200_OK)
+        self.assertEquals(len(self.client.cookies), 3)
+
+    def test_verification_without_refresh_token(self):
+        url = '/api/v1/users/verification/'
+        self.client.cookies.pop('refresh_token')
+        response = self.client.post(url)
+        self.assertEquals(response.status_code, status.HTTP_200_OK)
+        self.assertEquals(len(self.client.cookies), 2)
+
 
     def test_verification_without_anything(self):
         url = '/api/v1/users/verification/'
         self.client.cookies.clear()
-        response = self.client.get(url)
+        response = self.client.post(url)
         self.assertEquals(response.status_code, status.HTTP_401_UNAUTHORIZED)
+        self.assertEquals(len(self.client.cookies), 1)
