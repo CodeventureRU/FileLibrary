@@ -10,6 +10,7 @@ import {
     Typography
 } from "@mui/material";
 import {useNavigate} from "react-router-dom";
+import helperTextError from "../../features/helper-text-error/index.js";
 
 const RegisterForm = () => {
     const {errors, loading, registerRequest} = useRegister();
@@ -45,8 +46,8 @@ const RegisterForm = () => {
                                         onChange={e => setEmail(e.target.value)}
                                         label="Email"
                                         variant="outlined"
-                                        error={errors?.email}
-                                        helperText ={errors?.email}
+                                        error={Boolean(errors?.email)}
+                                        helperText ={helperTextError(errors?.email)}
                                     />
                                 </FormControl>
                             </Grid>
@@ -60,8 +61,8 @@ const RegisterForm = () => {
                                         onChange={e => setUsername(e.target.value)}
                                         label="Имя пользователя"
                                         variant="outlined"
-                                        error={errors?.username}
-                                        helperText ={errors?.username}
+                                        error={Boolean(errors?.username)}
+                                        helperText ={helperTextError(errors?.username)}
                                     />
                                 </FormControl>
                             </Grid>
@@ -75,8 +76,8 @@ const RegisterForm = () => {
                                         label="Пароль"
                                         type="password"
                                         variant="outlined"
-                                        error={errors?.password}
-                                        helperText ={errors?.password}
+                                        error={Boolean(errors?.password)}
+                                        helperText ={helperTextError(errors?.password)}
                                         onCut={e => e.preventDefault()}
                                         onCopy={e => e.preventDefault()}
                                     />
@@ -92,8 +93,8 @@ const RegisterForm = () => {
                                         label="Подтверждение пароля"
                                         type="password"
                                         variant="outlined"
-                                        error={errors?.confirm_password}
-                                        helperText ={errors?.confirm_password}
+                                        error={Boolean(errors?.confirm_password)}
+                                        helperText ={helperTextError(errors?.confirm_password)}
                                         onCut={e => e.preventDefault()}
                                         onCopy={e => e.preventDefault()}
                                         onPaste={e => e.preventDefault()}
