@@ -1,8 +1,7 @@
 from rest_framework_simplejwt.authentication import JWTStatelessUserAuthentication
-from django.conf import settings
-
 from rest_framework.authentication import CSRFCheck
 from rest_framework import exceptions
+from django.conf import settings
 
 
 def enforce_csrf(request):
@@ -13,23 +12,31 @@ def enforce_csrf(request):
     check.process_request(request)
     reason = check.process_view(request, None, (), {})
     if reason:
-        raise exceptions.PermissionDenied('CSRF Failed: %s' % reason)
+        return reason
+
 
 
 class JWTStatelessCookieAuthentication(JWTStatelessUserAuthentication):
 
     def authenticate(self, request):
-        header = self.get_header(request)
+        raw_access_token = request.COOKIES.get(settings.SIMPLE_JWT['ACCESS_COOKIE']) or None
+        raw_refresh_token = request.COOKIES.get(settings.SIMPLE_JWT['REFRESH_COOKIE']) or None
+        raw_csrf_token = request.COOKIES.get('csrftoken')
 
-        if header is None:
-            raw_token = request.COOKIES.get(settings.SIMPLE_JWT['ACCESS_COOKIE']) or None
-        else:
-            raw_token = self.get_raw_token(header)
-
-        if raw_token is None:
+        if raw_csrf_token is None:
             return None
-        validated_token = self.get_validated_token(raw_token)
-        enforce_csrf(request)
+
+        elif raw_csrf_token is not None or raw_access_token is not None or raw_refresh_token is not None:
+            reason = enforce_csrf(request)
+            if reason is not None:
+                raise exceptions.PermissionDenied('CSRF Failed: %s' % reason)
+
+        if raw_access_token is None or raw_refresh_token is None:
+            return None
+        elif raw_access_token is not None or raw_refresh_token is not None:
+            pass
+
+        validated_token = self.get_validated_token(raw_access_token)
         return self.get_user(validated_token), validated_token
 
 

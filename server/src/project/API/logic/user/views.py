@@ -1,14 +1,13 @@
-from rest_framework.permissions import AllowAny
+from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.views import APIView
 from rest_framework.exceptions import ValidationError
 from django.middleware import csrf
 from django.contrib.auth import authenticate
-from rest_framework_simplejwt.views import TokenVerifyView
 from project import settings
 
 from API.logic.functions import get_data
 from API.logic.user.serializers import UserSerializer
-from API.logic.user.services import register, login, activate, verify
+from API.logic.user.services import register, login, activate, verify, logout
 
 
 class UserRegisterView(APIView):
@@ -48,12 +47,20 @@ class AccountActivateView(APIView):
         return response
 
 
-class TokenVerify(TokenVerifyView):
+class TokenVerifyView(APIView):
+    permission_classes = [AllowAny]
+
+    def post(self, request):
+        raw_access_token = request.COOKIES.get(settings.SIMPLE_JWT['ACCESS_COOKIE'])
+        raw_refresh_token = request.COOKIES.get(settings.SIMPLE_JWT['REFRESH_COOKIE'])
+        response = verify(request, raw_access_token, raw_refresh_token)
+        csrf.get_token(request)
+        return response
+
+
+class LogoutView(APIView):
     permission_classes = [AllowAny]
 
     def get(self, request):
-        raw_access_token = request.COOKIES.get(settings.SIMPLE_JWT['ACCESS_COOKIE'])
-        raw_refresh_token = request.COOKIES.get(settings.SIMPLE_JWT['REFRESH_COOKIE'])
-        response = verify(raw_access_token, raw_refresh_token)
-        csrf.get_token(request)
+        response = logout()
         return response
