@@ -11,6 +11,7 @@ import {
     Typography
 } from "@mui/material";
 import {NavLink} from "react-router-dom";
+import {isAuthSelector, useViewerStore, viewerSelector} from "../../entities/viewer/index.js";
 
 const AccountCircleIcon = lazy(() => import("@mui/icons-material/AccountCircle"));
 const CreateNewFolderIcon = lazy(() => import("@mui/icons-material/CreateNewFolder"));
@@ -21,6 +22,8 @@ const PersonIcon = lazy(() => import("@mui/icons-material/Person"));
 const LogoutIcon = lazy(() => import("@mui/icons-material/Logout"));
 
 const Header = () => {
+    const viewer = useViewerStore(viewerSelector);
+    const isAuth = useViewerStore(isAuthSelector);
     const [anchorEl, setAnchorEl] = useState(null);
     const open = Boolean(anchorEl);
     const menuRef = useRef();
@@ -50,16 +53,25 @@ const Header = () => {
                         <Box
                             sx={{display: 'flex', alignItems: 'center'}}
                         >
-                            <Button
-                                sx={{py: 1, px: 2, borderRadius: 200, textTransform: 'none'}}
-                                color="inherit"
-                                endIcon={<Suspense fallback=""><ExpandMoreIcon /></Suspense>}
-                                startIcon={<Suspense fallback=""><AccountCircleIcon /></Suspense>}
-                                onClick={handleOpen}
-                                ref={menuRef}
-                            >
-                                Username
-                            </Button>
+                            {
+                                isAuth ?
+                                    <Button
+                                        sx={{py: 1, px: 2, borderRadius: 200, textTransform: 'none'}}
+                                        color="inherit"
+                                        endIcon={<Suspense fallback=""><ExpandMoreIcon /></Suspense>}
+                                        startIcon={<Suspense fallback=""><AccountCircleIcon /></Suspense>}
+                                        onClick={handleOpen}
+                                        ref={menuRef}
+                                    >
+                                        {viewer.username}
+                                    </Button>
+                                    :
+                                    <>
+                                        <NavLink to={"/login"} style={{textDecoration: 'none', color: 'inherit'}}><Button color="inherit">Войти</Button></NavLink>
+                                        <NavLink to={"/register"} style={{textDecoration: 'none', color: 'inherit'}}><Button color="inherit">Зарегистрироваться</Button></NavLink>
+                                    </>
+                            }
+
                         </Box>
                     </Toolbar>
                 </Container>
