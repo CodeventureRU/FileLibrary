@@ -10,8 +10,8 @@ import {
     Toolbar,
     Typography
 } from "@mui/material";
-import {NavLink} from "react-router-dom";
-import {isAuthSelector, useViewerStore, viewerSelector} from "../../entities/viewer/index.js";
+import {NavLink, useNavigate} from "react-router-dom";
+import {isAuthSelector, logoutSelector, useViewerStore, viewerSelector} from "../../entities/viewer/index.js";
 
 const AccountCircleIcon = lazy(() => import("@mui/icons-material/AccountCircle"));
 const CreateNewFolderIcon = lazy(() => import("@mui/icons-material/CreateNewFolder"));
@@ -24,9 +24,11 @@ const LogoutIcon = lazy(() => import("@mui/icons-material/Logout"));
 const Header = () => {
     const viewer = useViewerStore(viewerSelector);
     const isAuth = useViewerStore(isAuthSelector);
+    const logout = useViewerStore(logoutSelector);
     const [anchorEl, setAnchorEl] = useState(null);
     const open = Boolean(anchorEl);
     const menuRef = useRef();
+    const navigate = useNavigate();
 
     const handleClose = () => {
         setAnchorEl(null);
@@ -34,6 +36,11 @@ const Header = () => {
 
     const handleOpen = () => {
         setAnchorEl(menuRef.current);
+    }
+
+    const handleLogout = () => {
+        logout();
+        navigate("/login");
     }
 
     return (
@@ -122,7 +129,10 @@ const Header = () => {
                     </MenuItem>
                 </NavLink>
                 <Divider />
-                <MenuItem sx={{color: theme => theme.palette.error.main}} onClick={handleClose}>
+                <MenuItem sx={{color: theme => theme.palette.error.main}} onClick={() => {
+                    handleClose();
+                    handleLogout();
+                }}>
                     <ListItemIcon>
                         <Suspense fallback=""><LogoutIcon color="error" fontSize="small" /></Suspense>
                     </ListItemIcon>
