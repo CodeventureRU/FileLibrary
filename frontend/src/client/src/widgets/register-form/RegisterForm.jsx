@@ -77,6 +77,8 @@ const RegisterForm = () => {
                                         variant="outlined"
                                         error={errors?.password}
                                         helperText ={errors?.password}
+                                        onCut={e => e.preventDefault()}
+                                        onCopy={e => e.preventDefault()}
                                     />
                                 </FormControl>
                             </Grid>
@@ -87,11 +89,14 @@ const RegisterForm = () => {
                                     <TextField
                                         value={passwordConfirm}
                                         onChange={e => setPasswordConfirm(e.target.value)}
-                                        label="Подтверждение"
+                                        label="Подтверждение пароля"
                                         type="password"
                                         variant="outlined"
                                         error={errors?.confirm_password}
                                         helperText ={errors?.confirm_password}
+                                        onCut={e => e.preventDefault()}
+                                        onCopy={e => e.preventDefault()}
+                                        onPaste={e => e.preventDefault()}
                                     />
                                 </FormControl>
                             </Grid>

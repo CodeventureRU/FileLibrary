@@ -60,6 +60,8 @@ const LoginForm = () => {
                                         variant="outlined"
                                         error={errors?.password}
                                         helperText ={errors?.password}
+                                        onCut={e => e.preventDefault()}
+                                        onCopy={e => e.preventDefault()}
                                     />
                                 </FormControl>
                             </Grid>
