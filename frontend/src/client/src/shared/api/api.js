@@ -14,32 +14,44 @@ export const useApi = (url, method) => {
 
     const request = async (params, data={}) => {
         setLoading(true);
-        setErrors([]);
+        setErrors({});
         let res = null;
 
         try {
             switch(method) {
                 case "get":
                     res = await $api.get(url, {params});
+                    res = res.data;
                     break;
                 case "post":
                     res = await $api.post(url, data, {params});
+                    res = res.data;
                     break;
                 case "put":
                     res = await $api.put(url, data, {params});
+                    res = res.data;
                     break;
                 case "patch":
                     res = await $api.patch(url, data, {params});
+                    res = res.data;
                     break;
                 case "delete":
                     res = await $api.delete(url, {params});
+                    res = res.data;
                     break;
             }
         } catch (e) {
-            setErrors(e.data);
+            if (e?.response?.data) {
+                setErrors(e.response.data);
+            } else {
+                setErrors({detail: e.message});
+            }
+
         } finally {
             setLoading(false);
         }
+
+        return res;
 
     }
 
