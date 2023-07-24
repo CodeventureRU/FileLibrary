@@ -12,9 +12,9 @@ const useLogin = () => {
     const {request, ...apiHook} = useApi(URLS.login, "post");
     const login = useViewerStore(loginSelector);
 
-    const loginRequest = async (email, password) => {
+    const loginRequest = async (username, password) => {
         let res = await request({}, {
-            email,
+            username,
             password
         });
         if (res != null) {
