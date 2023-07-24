@@ -10,6 +10,7 @@ import {
     Typography
 } from "@mui/material";
 import {useNavigate} from "react-router-dom";
+import helperTextError from "../../features/helper-text-error/index.js";
 
 const LoginForm = () => {
     const {errors, loading, loginRequest} = useLogin();
@@ -43,8 +44,8 @@ const LoginForm = () => {
                                         onChange={e => setEmail(e.target.value)}
                                         label="Email"
                                         variant="outlined"
-                                        error={errors?.email}
-                                        helperText ={errors?.email}
+                                        error={Boolean(errors?.email)}
+                                        helperText ={helperTextError(errors?.email)}
                                     />
                                 </FormControl>
                             </Grid>
@@ -58,8 +59,8 @@ const LoginForm = () => {
                                         label="Пароль"
                                         type="password"
                                         variant="outlined"
-                                        error={errors?.password}
-                                        helperText ={errors?.password}
+                                        error={Boolean(errors?.password)}
+                                        helperText ={helperTextError(errors?.password)}
                                         onCut={e => e.preventDefault()}
                                         onCopy={e => e.preventDefault()}
                                     />
