@@ -23,14 +23,14 @@ class Category(models.Model):
 class Resource(models.Model):
     name = models.CharField(max_length=64)
     description = models.CharField(max_length=32, blank=True)
-    image = models.ImageField(blank=True)
+    image = models.ImageField(upload_to='images/', blank=True)
     privacy_level = models.CharField(max_length=9, choices=[
         ('public', 'Все'),
         ('link_only', 'Люди по ссылке'),
         ('private', 'Только я')
     ], default='public')
     tags = models.TextField(blank=True)
-    type = models.CharField(max_length=9, choices=[
+    type = models.CharField(max_length=5, choices=[
         ('file', 'Файл'),
         ('group', 'Группа')
     ])
@@ -44,7 +44,7 @@ class Group(models.Model):
 
 
 class File(models.Model):
-    file_path = models.FileField()
+    file = models.FileField(upload_to='files/')
     downloads = models.IntegerField(default=0)
     extensions = models.TextField()
     resource = models.OneToOneField(Resource, on_delete=models.CASCADE, related_name='files')

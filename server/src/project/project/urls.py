@@ -15,9 +15,15 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.urls import path, include
+from django.conf import settings
+from django.conf.urls.static import static
 
 ROOT_API_URL = 'api/v1/'
 
 urlpatterns = [
     path(ROOT_API_URL, include('API.logic.user.urls')),
+    path(ROOT_API_URL, include('API.logic.resource.urls')),
 ]
+
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
