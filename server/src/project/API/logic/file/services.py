@@ -13,4 +13,5 @@ def create_file(files, resource_id):
         file.name = f'{file_name}.{extension}'
         default_storage.save(f'{settings.MEDIA_ROOT}/files/{file.name}', ContentFile(file.read()))
         extensions += f'{extension} '
-    File.objects.create(file=file_name, extensions=extensions, resource_id=resource_id)
+    file = File.objects.create(file=file_name, extensions=extensions, resource_id=resource_id)
+    return {'id': file.pk}

@@ -2,14 +2,13 @@ from rest_framework.views import APIView
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from rest_framework import status
+from django.shortcuts import get_object_or_404
 
 from API.logic.resource.serializers import ResourceSerializer
 from API.permissions import IsAuthorAndActive
 from API.logic.functions import get_data
 from API.logic.resource.services import create_resource
 from API.models import Resource
-from API.logic.file.services import create_file
-from API.logic.group.services import create_group
 
 
 class LCResourceView(APIView):
@@ -19,7 +18,7 @@ class LCResourceView(APIView):
         if self.request.method == 'GET':
             return [AllowAny()]
         else:
-            return [IsAuthorAndActive]
+            return [IsAuthorAndActive()]
 
     def get(self, request):
         objects = Resource.objects.all()
@@ -31,10 +30,33 @@ class LCResourceView(APIView):
         data['image'] = request.FILES.get('image')
         serializer = self.serializer_class(data=data)
         serializer.is_valid(raise_exception=True)
-        response = create_resource(serializer.validated_data)
-        if serializer.validated_data['type'] == 'file':
-            files = request.FILES.getlist('files')
-            create_file(files, response.data['id'])
-        elif serializer.validated_data['type'] == 'group':
-            create_group(response.data['id'])
-        return response
+        resource = create_resource(request, serializer.validated_data)
+        return Response(data=resource,
+                        status=status.HTTP_200_OK)
+
+
+class RUDResourceView(APIView):
+    serializer_class = ResourceSerializer
+    permission_classes = [IsAuthorAndActive]
+
+    def get(self, request, id):
+        resource = get_object_or_404(Resource, pk=id)
+        serializer = self.serializer_class(resource, context={'request': request})
+        return Response(data=serializer.data, status=status.HTTP_200_OK)
+
+    def patch(self, request, id):
+        resource = get_object_or_404(Resource, pk=id)
+        self.check_object_permissions(request, resource)
+        data = get_data(request)
+        serializer = self.serializer_class(resource, data=data, partial=True)
+        serializer.is_valid(raise_exception=True)
+        for key, value in serializer.validated_data.items():
+            setattr(resource, key, value)
+        resource.save(update_fields=list(serializer.validated_data.keys()))
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+    def delete(self, request, id):
+        resource = get_object_or_404(Resource, pk=id)
+        self.check_object_permissions(request, resource)
+        resource.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
