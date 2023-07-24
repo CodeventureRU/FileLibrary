@@ -2,10 +2,10 @@ import {useApi} from "../../../shared/api/index.js";
 import {loginSelector, logoutSelector, useViewerStore} from "../model/index.js";
 
 const URLS = {
-    login: "/user/login/",
-    register: "/register",
-    logout: "/logout",
-    verify: "/verify",
+    login: "/users/login/",
+    register: "/users/registration/",
+    logout: "/users/logout/",
+    verify: "/users/verify/",
 }
 
 const useLogin = () => {
@@ -20,6 +20,7 @@ const useLogin = () => {
         if (res != null) {
             login(res);
         }
+        return res;
     }
 
     return {...apiHook, loginRequest};
@@ -34,11 +35,12 @@ const useRegister = () => {
             email,
             username,
             password,
-            passwordConfirm
+            confirm_password: passwordConfirm
         });
         if (res != null) {
             login(res);
         }
+        return res;
     }
 
     return {...apiHook, registerRequest};
@@ -53,6 +55,7 @@ const useLogout = () => {
         if (res != null) {
             logout();
         }
+        return res;
     }
 
     return {...apiHook, logoutRequest};
@@ -70,6 +73,7 @@ const useVerify = () => {
         } else {
             login(res);
         }
+        return res;
     }
 
     return {...apiHook, verifyRequest};
