@@ -1,8 +1,9 @@
 import {create} from 'zustand';
 import {immer} from "zustand/middleware/immer";
+import {persist} from "zustand/middleware";
 
 // Создаем store
-const useViewerStore = create()(immer((set) => ({
+const useViewerStore = create()(persist(immer((set, ) => ({
     // Начальное состояние
     viewer: {},
     isAuth: false,
@@ -20,6 +21,8 @@ const useViewerStore = create()(immer((set) => ({
         state.viewer = {};
         state.isAuth = false;
     }),
-})));
+})), {
+    name: "viewer-storage",
+}));
 
 export { useViewerStore};
