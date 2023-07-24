@@ -16,6 +16,6 @@ export default (errors, helperText="") => {
             strings.push(errors[i]);
         }
 
-        return strings.join("<br/>");
+        return strings.join("; ");
     }
 }
