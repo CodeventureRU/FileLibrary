@@ -10,6 +10,7 @@ from django.core.mail import EmailMessage
 
 from API.tokens import account_activation_token
 from API.models import User
+from API.authenticate import enforce_csrf
 
 
 def get_tokens_for_user(user):
@@ -46,6 +47,14 @@ def set_cookies(response, user_instance):
         samesite=settings.SIMPLE_JWT['AUTH_COOKIE_SAMESITE']
     )
     set_access_cookie(response, tokens['access'])
+    return response
+
+
+def delete_cookie():
+    response = Response(status=status.HTTP_204_NO_CONTENT)
+    response.delete_cookie(settings.SIMPLE_JWT['ACCESS_COOKIE'])
+    response.delete_cookie(settings.SIMPLE_JWT['REFRESH_COOKIE'])
+    response.delete_cookie('csrftoken')
     return response
 
 
@@ -108,7 +117,14 @@ def activate(uidb64, token):
                         status=status.HTTP_400_BAD_REQUEST)
 
 
-def verify(raw_access_token, raw_refresh_token):
+def verify(request, raw_access_token, raw_refresh_token):
+    if raw_access_token is not None or raw_refresh_token is not None:
+        reason = enforce_csrf(request)
+        if reason is not None:
+            response = logout()
+            response.status_code = status.HTTP_403_FORBIDDEN
+            return response
+
     access_token = convert_token(raw_access_token, AccessToken)
     refresh_token = convert_token(raw_refresh_token, RefreshToken)
     try:
@@ -126,8 +142,13 @@ def verify(raw_access_token, raw_refresh_token):
                                   'email': access_token.payload['email'],
                                   'is_active': access_token.payload['is_active']},
                             status=status.HTTP_200_OK)
-        set_access_cookie(response, access_token.__str__())
+        response = set_access_cookie(response, access_token.__str__())
         return response
     except Exception:
         pass
     return Response(status=status.HTTP_401_UNAUTHORIZED)
+
+
+def logout():
+    response = delete_cookie()
+    return response
