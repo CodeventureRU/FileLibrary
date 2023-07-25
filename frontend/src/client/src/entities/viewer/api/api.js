@@ -10,6 +10,7 @@ const URLS = {
     register: "/users/registration/",
     logout: "/users/logout/",
     verify: "/users/verification/",
+    activate: (uidb64, token) => `/activation/${uidb64}/${token}/`,
 }
 
 const useLogin = () => {
@@ -83,4 +84,14 @@ const useVerify = () => {
     return {...apiHook, verifyRequest};
 }
 
-export {useLogin, useRegister, useLogout, useVerify}
+const useActivate = (uidb64, token) => {
+    const {request, ...apiHook} = useApi(URLS.activate(uidb64, token), "get");
+
+    const activateRequest = async () => {
+        return await request({});
+    }
+
+    return {...apiHook, activateRequest};
+}
+
+export {useLogin, useRegister, useLogout, useVerify, useActivate}
