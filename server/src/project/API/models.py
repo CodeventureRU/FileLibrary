@@ -47,7 +47,7 @@ class File(models.Model):
     file = models.FileField(upload_to='files/')
     downloads = models.IntegerField(default=0)
     extensions = models.TextField()
-    resource = models.OneToOneField(Resource, on_delete=models.CASCADE, related_name='files')
+    resource = models.OneToOneField(Resource, on_delete=models.CASCADE, related_name='file')
 
 
 class Favorite(models.Model):
