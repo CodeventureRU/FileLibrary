@@ -37,7 +37,12 @@ class LCResourceView(APIView):
 
 class RUDResourceView(APIView):
     serializer_class = ResourceSerializer
-    permission_classes = [IsAuthorAndActive]
+
+    def get_permissions(self):
+        if self.request.method == 'GET':
+            return [AllowAny()]
+        else:
+            return [IsAuthorAndActive()]
 
     def get(self, request, id):
         resource = get_object_or_404(Resource, pk=id)
