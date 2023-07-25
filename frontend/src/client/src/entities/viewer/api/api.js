@@ -1,11 +1,15 @@
 import {useApi} from "../../../shared/api/index.js";
-import {loginSelector, logoutSelector, useViewerStore} from "../model/index.js";
+import {
+    loginSelector,
+    logoutSelector,
+    useViewerStore
+} from "../model/index.js";
 
 const URLS = {
     login: "/users/login/",
     register: "/users/registration/",
     logout: "/users/logout/",
-    verify: "/users/verify/",
+    verify: "/users/verification/",
 }
 
 const useLogin = () => {
@@ -62,7 +66,7 @@ const useLogout = () => {
 }
 
 const useVerify = () => {
-    const {request, ...apiHook} = useApi(URLS.verify, "GET");
+    const {request, ...apiHook} = useApi(URLS.verify, "post");
     const logout = useViewerStore(logoutSelector);
     const login = useViewerStore(loginSelector);
 
