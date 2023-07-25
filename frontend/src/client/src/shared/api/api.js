@@ -34,6 +34,7 @@ setCsrf();
 export const useApi = (url, method) => {
     const [loading, setLoading] = useState(false);
     const [errors, setErrors] = useState({});
+    const [requested, setRequested] = useState(0);
 
     const request = async (params, data={}) => {
         setLoading(true);
@@ -73,13 +74,14 @@ export const useApi = (url, method) => {
 
         } finally {
             setLoading(false);
+            setRequested(requested + 1);
         }
 
         return res;
 
     }
 
-    return {loading, errors, setErrors, request}
+    return {loading, errors, setErrors, request, requested}
 }
 
 export const useAsyncApi = (url, method, params, data={}, auto=true) => {

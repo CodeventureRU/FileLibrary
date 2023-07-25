@@ -6,7 +6,7 @@ import {isAuthSelector, useVerify, useViewerStore} from "../../entities/viewer/i
 
 const Layout = () => {
     const [isSidebarOpened, setIsSidebarOpened] = useState(false);
-    const {loading, verifyRequest} = useVerify();
+    const {loading, requested, verifyRequest} = useVerify();
     const isAuth = useViewerStore(isAuthSelector);
 
     useEffect(() => {
@@ -20,7 +20,7 @@ const Layout = () => {
             <Header toggleMenu={() => setIsSidebarOpened(!isSidebarOpened)} />
             <Container maxWidth="md">
                 {
-                loading
+                    (loading || requested === 0) && isAuth
                     ?
                     <Box sx={{display: 'flex', justifyContent: 'center', mt: 5}} ><CircularProgress /></Box>
                     :
