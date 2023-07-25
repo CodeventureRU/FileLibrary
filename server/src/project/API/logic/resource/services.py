@@ -3,6 +3,7 @@ from API.logic.file.services import create_file
 from API.logic.group.services import create_group
 from django.utils import timezone
 
+
 def create_resource(request, data):
     data['image'].name = f'{timezone.now().strftime("%d%m%y%f")}{request.user.pk}'
     resource = Resource.objects.create(**data)

@@ -28,11 +28,12 @@ class LCResourceView(APIView):
     def post(self, request):
         data = get_data(request)
         data['image'] = request.FILES.get('image')
+        data['author'] = request.user.pk
         serializer = self.serializer_class(data=data)
         serializer.is_valid(raise_exception=True)
         resource = create_resource(request, serializer.validated_data)
         return Response(data=resource,
-                        status=status.HTTP_200_OK)
+                        status=status.HTTP_201_CREATED)
 
 
 class RUDResourceView(APIView):
