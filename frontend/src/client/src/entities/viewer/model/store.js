@@ -9,7 +9,7 @@ const useViewerStore = create()(persist(immer((set, ) => ({
     isAuth: false,
 
     // Функции для установки viewer и isAuth
-    setViewer: (newViewer) => set(state => state.view = newViewer),
+    setViewer: (newViewer) => set(state => state.viewer = newViewer),
     setIsAuth: (isAuthenticated) => set(state => state.isAuth = isAuthenticated),
 
     // Функции login и logout
