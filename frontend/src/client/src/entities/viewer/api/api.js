@@ -1,11 +1,16 @@
 import {useApi} from "../../../shared/api/index.js";
-import {loginSelector, logoutSelector, useViewerStore} from "../model/index.js";
+import {
+    loginSelector,
+    logoutSelector,
+    useViewerStore
+} from "../model/index.js";
 
 const URLS = {
     login: "/users/login/",
     register: "/users/registration/",
     logout: "/users/logout/",
-    verify: "/users/verify/",
+    verify: "/users/verification/",
+    activate: (uidb64, token) => `/activation/${uidb64}/${token}/`,
 }
 
 const useLogin = () => {
@@ -62,7 +67,7 @@ const useLogout = () => {
 }
 
 const useVerify = () => {
-    const {request, ...apiHook} = useApi(URLS.verify, "GET");
+    const {request, ...apiHook} = useApi(URLS.verify, "post");
     const logout = useViewerStore(logoutSelector);
     const login = useViewerStore(loginSelector);
 
@@ -79,4 +84,14 @@ const useVerify = () => {
     return {...apiHook, verifyRequest};
 }
 
-export {useLogin, useRegister, useLogout, useVerify}
+const useActivate = (uidb64, token) => {
+    const {request, ...apiHook} = useApi(URLS.activate(uidb64, token), "get");
+
+    const activateRequest = async () => {
+        return await request({});
+    }
+
+    return {...apiHook, activateRequest};
+}
+
+export {useLogin, useRegister, useLogout, useVerify, useActivate}

@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {useRegister} from "../../entities/viewer/index.js";
 import {
     Box,
@@ -11,9 +11,14 @@ import {
 } from "@mui/material";
 import {useNavigate} from "react-router-dom";
 import helperTextError from "../../features/helper-text-error/index.js";
+import {ErrorsBag} from "../../features/errors-bag/ErrorsBag.jsx";
 
 const RegisterForm = () => {
-    const {errors, loading, registerRequest} = useRegister();
+    const {errors, loading, registerRequest, requested} = useRegister();
+    const [detailsErrors, setDetailsErrors] = useState([]);
+    useEffect(() => {
+        setDetailsErrors(errors?.detail ? [errors.detail] : []);
+    }, [errors, requested]);
     const navigate = useNavigate();
 
     const [email, setEmail] = useState("");
@@ -100,6 +105,9 @@ const RegisterForm = () => {
                                         onPaste={e => e.preventDefault()}
                                     />
                                 </FormControl>
+                            </Grid>
+                            <Grid item xs={12}>
+                                <ErrorsBag errors={detailsErrors} setErrors={setDetailsErrors}></ErrorsBag>
                             </Grid>
                         </Grid>
                         <Box
