@@ -8,6 +8,7 @@ from API.logic.resource.serializers import ResourceSerializer
 from API.permissions import IsAuthorAndActive
 from API.logic.functions import get_data
 from API.logic.resource.services import create_resource, delete_resource_files
+from API.logic.file.services import add_new_files, delete_files
 from API.models import Resource
 
 
@@ -68,4 +69,30 @@ class RUDResourceView(APIView):
         self.check_object_permissions(request=request, obj=resource)
         delete_resource_files(resource)
         resource.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+class ResourceFileView(APIView):
+    serializer_class = ResourceSerializer
+    permission_classes = [IsAuthorAndActive]
+
+    def post(self, request, id):
+        resource = Resource.objects.prefetch_related('file').filter(pk=id)[0]
+        if resource is None:
+            return Response(data={'detail': 'Объекта с таким id не существует'}, status=status.HTTP_404_NOT_FOUND)
+        self.check_object_permissions(request=request, obj=resource)
+        file_instance = resource.file
+        files = request.FILES.getlist('files')
+        add_new_files(file_instance, files)
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+    def delete(self, request, id):
+        resource = Resource.objects.prefetch_related('file').filter(pk=id)[0]
+        if resource is None:
+            return Response(data={'detail': 'Объекта с таким id не существует'}, status=status.HTTP_404_NOT_FOUND)
+        self.check_object_permissions(request=request, obj=resource)
+        data = get_data(request)
+        file_instance = resource.file
+        extensions = data['extensions']
+        delete_files(file_instance, extensions)
         return Response(status=status.HTTP_204_NO_CONTENT)
