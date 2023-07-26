@@ -57,7 +57,7 @@ const LoginForm = () => {
                                     onCopy: e => e.preventDefault(),
                                     type: "password"
                                 }}
-                                errors={errors?.username}
+                                errors={errors?.password}
                             />
 
                             <Grid item xs={12}>

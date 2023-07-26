@@ -65,7 +65,7 @@ const RegisterForm = () => {
                                     onCopy: e => e.preventDefault(),
                                     type: "password"
                                 }}
-                                errors={errors?.username}
+                                errors={errors?.password}
                             />
 
                             <GridFormControl
@@ -79,7 +79,7 @@ const RegisterForm = () => {
                                     onPaste: e => e.preventDefault(),
                                     type: "password"
                                 }}
-                                errors={errors?.username}
+                                errors={errors?.confirm_password}
                             />
 
                             <Grid item xs={12}>
