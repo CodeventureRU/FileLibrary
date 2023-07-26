@@ -1,24 +1,24 @@
 import React from 'react';
-import {Box, Button, Grid, Paper, Typography} from "@mui/material";
-import {useViewerStore, viewerSelector} from "../../entities/viewer/index.js";
+import {Box, Paper, Typography} from "@mui/material";
+import {useResendEmail} from "../../entities/viewer/index.js";
+import {LoadingButton} from "../../shared/ui/loading-button/index.js";
+import {useThrottleTimer} from "../../features/throttle-timer/index.js";
 
 const ActivationWaiting = () => {
-    const viewer = useViewerStore(viewerSelector);
+    const {resendRequest, errors, loading, requested} = useResendEmail();
+    const {remains, remainsText} = useThrottleTimer(errors, requested);
 
     return (
-        <Grid container sx={{justifyContent: 'center', mt: 5}}>
-            <Grid item xs={12} md={12}>
-                <Paper sx={{p: 5}}>
-                    <Typography variant="h5" sx={{textAlign: 'center'}}>Ожидание подтверждения</Typography>
-                    <Typography variant="body1" sx={{textAlign: 'center', mt: 5}}>Для полного доступа к сервису, пожалуйста, подтвердите активацию учетной записи по почте. На Вашу почту {viewer.email} отправлено письмо с ссылкой для активации.</Typography>
-                    <Typography variant="body2" color="text.secondary" sx={{textAlign: 'center', mt: 5}}>Если Вы не получили письмо, то можете повторить отправку</Typography>
-                    <Box sx={{display: 'flex', justifyContent: 'center', mt: 2}}>
-                        <Button variant="contained">Отправить повторно</Button>
-                    </Box>
-                    <Typography variant="body2" color="text.secondary" sx={{textAlign: 'center', mt: 2}}>Если Вы уже подтвердили активацию учетной записи, обновите страницу</Typography>
-                </Paper>
-            </Grid>
-        </Grid>
+        <Box sx={{mt: 5}}>
+            <Typography variant="h6">Ожидание подтверждения</Typography>
+            <Paper sx={{p: 3, mt: 2}} variant="outlined">
+                <Typography variant="body1">Для полного доступа к сервису, пожалуйста, подтвердите активацию учетной записи по почте. На Вашу почту отправлено письмо с ссылкой для активации.</Typography>
+                <Box sx={{display: 'flex', justifyContent: 'flex-start', alignItems: 'center', mt: 3}}>
+                    <LoadingButton disabled={remains > 0} loading={loading} onClick={resendRequest}>Отправить повторно</LoadingButton>
+                    {remains > 0 ? <Typography variant="body2" color="text.secondary" sx={{ml: 3}}>{remainsText}</Typography> : ""}
+                </Box>
+            </Paper>
+        </Box>
     );
 };
 
