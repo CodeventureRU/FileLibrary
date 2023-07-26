@@ -11,7 +11,7 @@ import {
 } from "@mui/material";
 import {useNavigate} from "react-router-dom";
 import helperTextError from "../../features/helper-text-error/index.js";
-import {ErrorsBag} from "../../features/errors-bag/ErrorsBag.jsx";
+import {ErrorsBag} from "../../features/errors-bag/index";
 
 const RegisterForm = () => {
     const {errors, loading, registerRequest, requested} = useRegister();
