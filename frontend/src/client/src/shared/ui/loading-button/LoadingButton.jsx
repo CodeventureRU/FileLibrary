@@ -1,17 +1,17 @@
 import React from 'react';
 import {Box, Button, CircularProgress} from "@mui/material";
 
-const LoadingButton = ({children, onClick, loading}) => {
+const LoadingButton = ({children, onClick, loading, disabled=false}) => {
     return (
         <Box sx={{ m: 1, position: 'relative' }}>
             <Button
                 variant="contained"
                 onClick={onClick}
-                disabled={loading}
+                disabled={loading || disabled}
             >
                 {children}
             </Button>
-            {loading && (
+            {(loading) ? (
                 <CircularProgress
                     size={24}
                     sx={{
@@ -23,7 +23,7 @@ const LoadingButton = ({children, onClick, loading}) => {
                         marginLeft: '-12px',
                     }}
                 />
-            )}
+            ) : ""}
         </Box>
     );
 };
