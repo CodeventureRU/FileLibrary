@@ -23,7 +23,7 @@ class Category(models.Model):
 class Resource(models.Model):
     name = models.CharField(max_length=64)
     description = models.CharField(max_length=32, blank=True)
-    image = models.ImageField(upload_to='images/', blank=True)
+    image = models.ImageField(upload_to='images/', blank=True, null=True)
     privacy_level = models.CharField(max_length=9, choices=[
         ('public', 'Все'),
         ('link_only', 'Люди по ссылке'),
@@ -40,7 +40,8 @@ class Resource(models.Model):
 
 
 class Group(models.Model):
-    resource = models.ForeignKey(Resource, on_delete=models.CASCADE)
+    resource = models.OneToOneField(Resource, on_delete=models.CASCADE, related_name='groups')
+    resources = models.ManyToManyField(Resource, through='ResourceGroup')
 
 
 class File(models.Model):

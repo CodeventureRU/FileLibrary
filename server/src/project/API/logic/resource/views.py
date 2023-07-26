@@ -3,11 +3,13 @@ from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from rest_framework import status
 from django.shortcuts import get_object_or_404
+from django.http.response import Http404
 
+from API.logic.file.serializers import FileSerializer
 from API.logic.resource.serializers import ResourceSerializer
 from API.permissions import IsAuthorAndActive
 from API.logic.functions import get_data
-from API.logic.resource.services import create_resource, delete_resource_files
+from API.logic.resource.services import create_resource, delete_resource
 from API.logic.file.services import add_new_files, delete_files
 from API.models import Resource
 
@@ -23,18 +25,23 @@ class LCResourceView(APIView):
 
     def get(self, request):
         objects = Resource.objects.all()
-        serializer = self.serializer_class(objects, many=True, context={'request': request})
+        serializer = self.serializer_class(objects, many=True)
         return Response(data=serializer.data, status=status.HTTP_200_OK)
 
     def post(self, request):
         data = get_data(request)
-        data['image'] = request.FILES.get('image')
+        image = request.FILES.get('image')
+        if image is not None:
+            data['image'] = image
         data['author'] = request.user.pk
         serializer = self.serializer_class(data=data)
         serializer.is_valid(raise_exception=True)
-        resource = create_resource(request, serializer.validated_data)
-        return Response(data=resource,
-                        status=status.HTTP_201_CREATED)
+        try:
+            resource = create_resource(request, serializer.validated_data)
+            return Response(data=resource,
+                            status=status.HTTP_201_CREATED)
+        except Exception:
+            return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 class RUDResourceView(APIView):
@@ -63,36 +70,94 @@ class RUDResourceView(APIView):
         return Response(status=status.HTTP_204_NO_CONTENT)
 
     def delete(self, request, id):
-        resource = Resource.objects.prefetch_related('file').filter(pk=id)[0]
-        if resource is None:
-            return Response(data={'detail': 'Объекта с таким id не существует'}, status=status.HTTP_404_NOT_FOUND)
+        try:
+            resource = Resource.objects.prefetch_related('file').filter(pk=id)[0]
+        except IndexError:
+            raise Http404
+        except Exception:
+            return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         self.check_object_permissions(request=request, obj=resource)
-        delete_resource_files(resource)
+        serializer = self.serializer_class(resource)
+        try:
+            delete_resource(serializer.data, resource)
+        except Exception:
+            return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         resource.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
 class ResourceFileView(APIView):
-    serializer_class = ResourceSerializer
+    serializer_class = FileSerializer
     permission_classes = [IsAuthorAndActive]
 
     def post(self, request, id):
-        resource = Resource.objects.prefetch_related('file').filter(pk=id)[0]
-        if resource is None:
-            return Response(data={'detail': 'Объекта с таким id не существует'}, status=status.HTTP_404_NOT_FOUND)
+        try:
+            resource = Resource.objects.prefetch_related('file').filter(pk=id)[0]
+            file_instance = resource.file
+        except IndexError:
+            raise Http404
+        except Exception:
+            return Response(data={'detail': "Был передан объект с типом 'group', вместо 'file'"},
+                            status=status.HTTP_400_BAD_REQUEST)
         self.check_object_permissions(request=request, obj=resource)
-        file_instance = resource.file
         files = request.FILES.getlist('files')
-        add_new_files(file_instance, files)
+        try:
+            add_new_files(file_instance, files)
+        except Exception:
+            return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         return Response(status=status.HTTP_204_NO_CONTENT)
 
     def delete(self, request, id):
-        resource = Resource.objects.prefetch_related('file').filter(pk=id)[0]
-        if resource is None:
-            return Response(data={'detail': 'Объекта с таким id не существует'}, status=status.HTTP_404_NOT_FOUND)
+        try:
+            resource = Resource.objects.prefetch_related('file').filter(pk=id)[0]
+            file_instance = resource.file
+        except IndexError:
+            raise Http404
+        except Exception:
+            return Response(data={'detail': "Был передан объект с типом 'group', вместо 'file'"},
+                            status=status.HTTP_400_BAD_REQUEST)
         self.check_object_permissions(request=request, obj=resource)
         data = get_data(request)
-        file_instance = resource.file
         extensions = data['extensions']
-        delete_files(file_instance, extensions)
+        try:
+            delete_files(file_instance, extensions)
+        except Exception:
+            return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+class ResourceGroupView(APIView):
+    serializer_class = ResourceSerializer
+    permission_classes = [IsAuthorAndActive]
+
+    def post(self, request, resource_id, group_id):
+        resource_file = get_object_or_404(Resource, pk=resource_id)
+        if resource_file.type != 'file':
+            return Response(data={'detail': 'Нельзя добавить группу в группу'}, status=status.HTTP_400_BAD_REQUEST)
+        try:
+            resource_with_group = Resource.objects.prefetch_related('groups').filter(pk=group_id)[0]
+            group_instance = resource_with_group.groups
+        except IndexError:
+            raise Http404
+        except Exception:
+            return Response(data={'detail': "Был передан объект с типом 'file', вместо 'group'"},
+                            status=status.HTTP_400_BAD_REQUEST)
+        self.check_object_permissions(request=request, obj=resource_with_group)
+        group_instance.resources.add(resource_id)
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+    def delete(self, request, resource_id, group_id):
+        resource_file = get_object_or_404(Resource, pk=resource_id)
+        if resource_file.type != 'file':
+            return Response(data={'detail': 'Нельзя добавить группу в группу'}, status=status.HTTP_400_BAD_REQUEST)
+        try:
+            resource_with_group = Resource.objects.prefetch_related('groups').filter(pk=group_id)[0]
+            group_instance = resource_with_group.groups
+        except IndexError:
+            raise Http404
+        except Exception:
+            return Response(data={'detail': "Был передан объект с типом 'file', вместо 'group'"},
+                            status=status.HTTP_400_BAD_REQUEST)
+        self.check_object_permissions(request=request, obj=resource_with_group)
+        group_instance.resources.remove(resource_id)
         return Response(status=status.HTTP_204_NO_CONTENT)
