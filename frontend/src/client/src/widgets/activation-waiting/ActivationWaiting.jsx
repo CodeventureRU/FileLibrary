@@ -15,6 +15,7 @@ const ActivationWaiting = () => {
                     <Box sx={{display: 'flex', justifyContent: 'center', mt: 2}}>
                         <Button variant="contained">Отправить повторно</Button>
                     </Box>
+                    <Typography variant="body2" color="text.secondary" sx={{textAlign: 'center', mt: 2}}>Если Вы уже подтвердили активацию учетной записи, обновите страницу</Typography>
                 </Paper>
             </Grid>
         </Grid>
