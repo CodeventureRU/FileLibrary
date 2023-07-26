@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {useLogin} from "../../entities/viewer/index.js";
 import {
     Box,
@@ -11,9 +11,14 @@ import {
 } from "@mui/material";
 import {useNavigate} from "react-router-dom";
 import helperTextError from "../../features/helper-text-error/index.js";
+import {ErrorsBag} from "../../features/errors-bag/index";
 
 const LoginForm = () => {
-    const {errors, loading, loginRequest} = useLogin();
+    const {errors, loading, loginRequest, requested} = useLogin();
+    const [detailsErrors, setDetailsErrors] = useState([]);
+    useEffect(() => {
+        setDetailsErrors(errors?.detail ? [errors.detail] : []);
+    }, [errors, requested]);
     const navigate = useNavigate();
 
     const [username, setUsername] = useState("");
@@ -25,6 +30,7 @@ const LoginForm = () => {
             navigate("/profile");
         }
     }
+
 
     return (
         <Grid container sx={{justifyContent: 'center', mt: 5}}>
@@ -42,7 +48,7 @@ const LoginForm = () => {
                                     <TextField
                                         value={username}
                                         onChange={e => setUsername(e.target.value)}
-                                        label="username"
+                                        label="Имя пользователя"
                                         variant="outlined"
                                         error={Boolean(errors?.username)}
                                         helperText ={helperTextError(errors?.username)}
@@ -66,7 +72,9 @@ const LoginForm = () => {
                                     />
                                 </FormControl>
                             </Grid>
-
+                            <Grid item xs={12}>
+                                <ErrorsBag errors={detailsErrors} setErrors={setDetailsErrors}></ErrorsBag>
+                            </Grid>
                         </Grid>
                         <Box
                             sx={{display: 'flex', alignItems: 'center', justifyContent: 'space-between', mt: 5}}
