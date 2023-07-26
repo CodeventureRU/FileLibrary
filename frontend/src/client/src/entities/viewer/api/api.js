@@ -11,6 +11,7 @@ const URLS = {
     logout: "/users/logout/",
     verify: "/users/verification/",
     activate: (uidb64, token) => `/activation/${uidb64}/${token}/`,
+    resend: `/resent/`,
 }
 
 const useLogin = () => {
@@ -94,4 +95,14 @@ const useActivate = (uidb64, token) => {
     return {...apiHook, activateRequest};
 }
 
-export {useLogin, useRegister, useLogout, useVerify, useActivate}
+const useResendEmail = () => {
+    const {request, ...apiHook} = useApi(URLS.resend, "post");
+
+    const resendRequest = async () => {
+        return await request({});
+    }
+
+    return {...apiHook, resendRequest};
+}
+
+export {useLogin, useRegister, useLogout, useVerify, useActivate, useResendEmail}
