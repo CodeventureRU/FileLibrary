@@ -3,16 +3,14 @@ import {useRegister} from "../../entities/viewer/index.js";
 import {
     Box,
     Button,
-    FormControl,
     Grid,
     Paper,
-    TextField,
     Typography
 } from "@mui/material";
 import {useNavigate} from "react-router-dom";
-import helperTextError from "../../features/helper-text-error/index.js";
 import {ErrorsBag} from "../../features/errors-bag/index";
 import {LoadingButton} from "../../shared/ui/loading-button/index.js";
+import {GridFormControl} from "../../shared/ui/grid-form-control/index.js";
 
 const RegisterForm = () => {
     const {errors, loading, registerRequest, requested} = useRegister();
@@ -43,70 +41,47 @@ const RegisterForm = () => {
                         sx={{my: 5}}
                     >
                         <Grid container spacing={2}>
-                            <Grid item xs={12}>
-                                <FormControl
-                                    fullWidth={true}
-                                >
-                                    <TextField
-                                        value={email}
-                                        onChange={e => setEmail(e.target.value)}
-                                        label="Email"
-                                        variant="outlined"
-                                        error={Boolean(errors?.email)}
-                                        helperText ={helperTextError(errors?.email)}
-                                    />
-                                </FormControl>
-                            </Grid>
+                            <GridFormControl
+                                field={email}
+                                setField={setEmail}
+                                label="Email"
+                                errors={errors?.email}
+                            />
 
-                            <Grid item xs={12}>
-                                <FormControl
-                                    fullWidth={true}
-                                >
-                                    <TextField
-                                        value={username}
-                                        onChange={e => setUsername(e.target.value)}
-                                        label="Имя пользователя"
-                                        variant="outlined"
-                                        error={Boolean(errors?.username)}
-                                        helperText ={helperTextError(errors?.username)}
-                                    />
-                                </FormControl>
-                            </Grid>
-                            <Grid item xs={12} md={6}>
-                                <FormControl
-                                    fullWidth={true}
-                                >
-                                    <TextField
-                                        value={password}
-                                        onChange={e => setPassword(e.target.value)}
-                                        label="Пароль"
-                                        type="password"
-                                        variant="outlined"
-                                        error={Boolean(errors?.password)}
-                                        helperText ={helperTextError(errors?.password)}
-                                        onCut={e => e.preventDefault()}
-                                        onCopy={e => e.preventDefault()}
-                                    />
-                                </FormControl>
-                            </Grid>
-                            <Grid item xs={12} md={6}>
-                                <FormControl
-                                    fullWidth={true}
-                                >
-                                    <TextField
-                                        value={passwordConfirm}
-                                        onChange={e => setPasswordConfirm(e.target.value)}
-                                        label="Подтверждение пароля"
-                                        type="password"
-                                        variant="outlined"
-                                        error={Boolean(errors?.confirm_password)}
-                                        helperText ={helperTextError(errors?.confirm_password)}
-                                        onCut={e => e.preventDefault()}
-                                        onCopy={e => e.preventDefault()}
-                                        onPaste={e => e.preventDefault()}
-                                    />
-                                </FormControl>
-                            </Grid>
+                            <GridFormControl
+                                field={username}
+                                setField={setUsername}
+                                label="Имя пользователя"
+                                errors={errors?.username}
+                            />
+
+                            <GridFormControl
+                                gridOptions={{xs: 12, md: 6}}
+                                field={password}
+                                setField={setPassword}
+                                label="Пароль"
+                                textFieldOptions={{
+                                    onCut: e => e.preventDefault(),
+                                    onCopy: e => e.preventDefault(),
+                                    type: "password"
+                                }}
+                                errors={errors?.username}
+                            />
+
+                            <GridFormControl
+                                gridOptions={{xs: 12, md: 6}}
+                                field={passwordConfirm}
+                                setField={setPasswordConfirm}
+                                label="Подтверждение"
+                                textFieldOptions={{
+                                    onCut: e => e.preventDefault(),
+                                    onCopy: e => e.preventDefault(),
+                                    onPaste: e => e.preventDefault(),
+                                    type: "password"
+                                }}
+                                errors={errors?.username}
+                            />
+
                             <Grid item xs={12}>
                                 <ErrorsBag errors={detailsErrors} setErrors={setDetailsErrors}></ErrorsBag>
                             </Grid>
