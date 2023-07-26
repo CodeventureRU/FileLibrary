@@ -11,7 +11,7 @@ from API.permissions import IsAuthorAndActive
 from API.logic.functions import get_data
 from API.logic.resource.services import create_resource, delete_resource
 from API.logic.file.services import add_new_files, delete_files
-from API.models import Resource
+from API.models import Resource, ResourceGroup
 
 
 class LCResourceView(APIView):
@@ -142,14 +142,14 @@ class ResourceGroupView(APIView):
         except Exception:
             return Response(data={'detail': "Был передан объект с типом 'file', вместо 'group'"},
                             status=status.HTTP_400_BAD_REQUEST)
+        if len(ResourceGroup.objects.filter(group_id=group_id, resource_id=resource_id)):
+            return Response(data={'detail': 'Этот ресурс уже есть в группе'}, status=status.HTTP_400_BAD_REQUEST)
         self.check_object_permissions(request=request, obj=resource_with_group)
         group_instance.resources.add(resource_id)
         return Response(status=status.HTTP_204_NO_CONTENT)
 
     def delete(self, request, resource_id, group_id):
-        resource_file = get_object_or_404(Resource, pk=resource_id)
-        if resource_file.type != 'file':
-            return Response(data={'detail': 'Нельзя добавить группу в группу'}, status=status.HTTP_400_BAD_REQUEST)
+        get_object_or_404(Resource, pk=resource_id)
         try:
             resource_with_group = Resource.objects.prefetch_related('groups').filter(pk=group_id)[0]
             group_instance = resource_with_group.groups
@@ -158,6 +158,8 @@ class ResourceGroupView(APIView):
         except Exception:
             return Response(data={'detail': "Был передан объект с типом 'file', вместо 'group'"},
                             status=status.HTTP_400_BAD_REQUEST)
+        if not len(ResourceGroup.objects.filter(group_id=group_id, resource_id=resource_id)):
+            return Response(data={'detail': 'Запрашиваемого ресурса нет в группе'}, status=status.HTTP_400_BAD_REQUEST)
         self.check_object_permissions(request=request, obj=resource_with_group)
         group_instance.resources.remove(resource_id)
         return Response(status=status.HTTP_204_NO_CONTENT)

@@ -27,7 +27,7 @@ def create_resource(request, data):
 def delete_resource(data, resource_instance):
     if 'image' in data:
         try:
-            os.remove(os.path.join(settings.MEDIA_ROOT, data['image'].split('/')[-1]))
+            os.remove(os.path.join(settings.MEDIA_ROOT + '\\files', data['image'].split('/')[-1]))
         except FileNotFoundError:
             pass
 
