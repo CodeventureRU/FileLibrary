@@ -2,7 +2,7 @@ import React, {useEffect, useState} from 'react';
 import {useRegister} from "../../entities/viewer/index.js";
 import {
     Box,
-    Button, CircularProgress,
+    Button,
     FormControl,
     Grid,
     Paper,
@@ -12,6 +12,7 @@ import {
 import {useNavigate} from "react-router-dom";
 import helperTextError from "../../features/helper-text-error/index.js";
 import {ErrorsBag} from "../../features/errors-bag/index";
+import {LoadingButton} from "../../shared/ui/loading-button/index.js";
 
 const RegisterForm = () => {
     const {errors, loading, registerRequest, requested} = useRegister();
@@ -114,28 +115,7 @@ const RegisterForm = () => {
                             sx={{display: 'flex', alignItems: 'center', justifyContent: 'space-between', mt: 5}}
                         >
                             <Button href="/login">Войти</Button>
-                            <Box sx={{ m: 1, position: 'relative' }}>
-                                <Button
-                                    variant="contained"
-                                    onClick={registerHandle}
-                                    disabled={loading}
-                                >
-                                    Зарегистрироваться
-                                </Button>
-                                {loading && (
-                                    <CircularProgress
-                                        size={24}
-                                        sx={{
-                                            color: 'primary',
-                                            position: 'absolute',
-                                            top: '50%',
-                                            left: '50%',
-                                            marginTop: '-12px',
-                                            marginLeft: '-12px',
-                                        }}
-                                    />
-                                )}
-                            </Box>
+                            <LoadingButton loading={loading} onClick={registerHandle}>Зарегистрироваться</LoadingButton>
                         </Box>
                     </Box>
 

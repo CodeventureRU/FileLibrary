@@ -2,7 +2,7 @@ import React, {useEffect, useState} from 'react';
 import {useLogin} from "../../entities/viewer/index.js";
 import {
     Box,
-    Button, CircularProgress,
+    Button,
     FormControl,
     Grid,
     Paper,
@@ -12,6 +12,7 @@ import {
 import {useNavigate} from "react-router-dom";
 import helperTextError from "../../features/helper-text-error/index.js";
 import {ErrorsBag} from "../../features/errors-bag/index";
+import {LoadingButton} from "../../shared/ui/loading-button/index.js";
 
 const LoginForm = () => {
     const {errors, loading, loginRequest, requested} = useLogin();
@@ -80,28 +81,7 @@ const LoginForm = () => {
                             sx={{display: 'flex', alignItems: 'center', justifyContent: 'space-between', mt: 5}}
                         >
                             <Button href="/register">Зарегистрироваться</Button>
-                            <Box sx={{ m: 1, position: 'relative' }}>
-                                <Button
-                                    variant="contained"
-                                    onClick={loginHandle}
-                                    disabled={loading}
-                                >
-                                    Войти
-                                </Button>
-                                {loading && (
-                                    <CircularProgress
-                                        size={24}
-                                        sx={{
-                                            color: 'primary',
-                                            position: 'absolute',
-                                            top: '50%',
-                                            left: '50%',
-                                            marginTop: '-12px',
-                                            marginLeft: '-12px',
-                                        }}
-                                    />
-                                )}
-                            </Box>
+                            <LoadingButton loading={loading} onClick={loginHandle}>Войти</LoadingButton>
                         </Box>
                     </Box>
 
