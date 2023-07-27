@@ -76,6 +76,7 @@ const ResourceInfoForm = ({
                                         <input
                                             type="file"
                                             onChange={handleImageChange}
+                                            accept="image/png,image/jpeg,image/gif,image/bmp"
                                             hidden
                                         />
                                     </Button>
