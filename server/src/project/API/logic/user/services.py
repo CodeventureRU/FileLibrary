@@ -128,7 +128,7 @@ def verify(request, raw_access_token, raw_refresh_token):
     try:
         # verifying access token #
         access_token.verify()
-        user_instance = User.objects.get(pk=access_token.payload['user_id'])
+        user_instance = User.objects.get(pk=access_token.payload['pk'])
         user_data = {'username': user_instance.username,
                      'email': user_instance.email,
                      'is_active': user_instance.is_active}
@@ -142,7 +142,7 @@ def verify(request, raw_access_token, raw_refresh_token):
     try:
         # verifying refresh token #
         refresh_token.verify()
-        user_instance = User.objects.get(pk=refresh_token.payload['user_id'])
+        user_instance = User.objects.get(pk=refresh_token.payload['pk'])
         user_data = {'username': user_instance.username,
                      'email': user_instance.email,
                      'is_active': user_instance.is_active}
