@@ -78,6 +78,7 @@ SIMPLE_JWT = {
     'REFRESH_TOKEN_LIFETIME': timedelta(hours=int(os.environ.get('REFRESH_TOKEN_LIFETIME'))),
     'UPDATE_LAST_LOGIN': True,
     'SIGNING_KEY': SECRET_KEY,
+    'USER_ID_CLAIM': 'pk',
     'USER_AUTHENTICATION_RULE': 'API.authenticate.custom_user_authentication_rule',
     'ACCESS_COOKIE': os.environ.get('ACCESS_COOKIE'),
     'REFRESH_COOKIE': os.environ.get('REFRESH_COOKIE'),

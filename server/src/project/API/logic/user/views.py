@@ -9,7 +9,7 @@ from project import settings
 
 from API.logic.functions import get_data
 from API.logic.user.serializers import UserSerializer
-from API.logic.user.services import register, activate, verify, set_cookies, delete_cookie, set_access_cookie
+from API.logic.user.services import register, activate, verify, set_cookies, delete_cookie, set_access_cookie, send_account_activation_message
 
 
 class UserRegisterView(APIView):
@@ -95,3 +95,14 @@ class LogoutView(APIView):
         response = Response(status=status.HTTP_204_NO_CONTENT)
         response = delete_cookie(response)
         return response
+
+
+class ResendEmailMessageView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        user_instance = request.user
+        if not user_instance.is_active:
+            send_account_activation_message(request, user_instance)
+            return Response(status=status.HTTP_204_NO_CONTENT)
+        return Response(data={'detail': 'Ваш учётная запись уже активирована'}, status=status.HTTP_400_BAD_REQUEST)

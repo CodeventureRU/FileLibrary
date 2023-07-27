@@ -1,8 +1,9 @@
-from API.logic.user.views import UserRegisterView, UserLoginView, AccountActivateView, UserVerificationView, LogoutView
+from API.logic.user.views import UserRegisterView, UserLoginView, AccountActivateView, UserVerificationView, LogoutView, ResendEmailMessageView
 from django.urls import path
 
 urlpatterns = [
     path('users/registration/', UserRegisterView.as_view()),
+    path('users/resend/', ResendEmailMessageView.as_view()),
     path('users/login/', UserLoginView.as_view()),
     path('users/verification/', UserVerificationView.as_view()),
     path('users/logout/', LogoutView.as_view()),
