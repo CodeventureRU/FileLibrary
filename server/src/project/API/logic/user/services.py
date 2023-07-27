@@ -1,7 +1,6 @@
 from rest_framework_simplejwt.tokens import AccessToken, RefreshToken
-from rest_framework.response import Response
+
 from django.conf import settings
-from rest_framework import status
 from django.contrib.sites.shortcuts import get_current_site
 from django.template.loader import render_to_string
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
@@ -50,8 +49,7 @@ def set_cookies(response, user_instance):
     return response
 
 
-def delete_cookie():
-    response = Response(status=status.HTTP_204_NO_CONTENT)
+def delete_cookie(response):
     response.delete_cookie(settings.SIMPLE_JWT['ACCESS_COOKIE'])
     response.delete_cookie(settings.SIMPLE_JWT['REFRESH_COOKIE'])
     response.delete_cookie('csrftoken')
@@ -67,11 +65,7 @@ def convert_token(raw_token, token_class):
     return token
 
 
-def register(request, validated_data):
-    user_instance = User.objects.create_user(username=validated_data['username'],
-                                             email=validated_data['email'],
-                                             password=validated_data['password'],
-                                             is_active=False)
+def send_account_activation_message(request, user_instance):
     current_site = get_current_site(request)
     mail_subject = 'Активация учётной записи'
     message = render_to_string('account_activation.html', {'username': user_instance.username,
@@ -81,74 +75,77 @@ def register(request, validated_data):
     to_email = user_instance.email
     email = EmailMessage(subject=mail_subject, body=message, from_email='Codeventure', to=[to_email])
     email.send()
-    response = Response(data={'username': user_instance.username,
-                              'email': user_instance.email,
-                              'is_active': user_instance.is_active},
-                        status=status.HTTP_201_CREATED)
-    set_cookies(response, user_instance)
-    return response
 
 
-def login(user_instance):
-    if user_instance is not None:
-        response = Response(data={'username': user_instance.username,
-                                  'email': user_instance.email,
-                                  'is_active': user_instance.is_active},
-                            status=status.HTTP_200_OK)
-        set_cookies(response, user_instance)
-        return response
-    else:
-        return Response(data={'detail': 'Неправильный логин или пароль'},
-                        status=status.HTTP_401_UNAUTHORIZED)
+def register(request, validated_data):
+    user_instance = User.objects.create_user(username=validated_data['username'],
+                                             email=validated_data['email'],
+                                             password=validated_data['password'],
+                                             is_active=False)
+    # sending email message with account activation link #
+    send_account_activation_message(request, user_instance)
+    return user_instance
 
 
 def activate(uidb64, token):
     try:
+        # getting object of user with id from link #
         uid = force_str(urlsafe_base64_decode(uidb64))
         user = User.objects.get(pk=uid)
     except Exception:
-        user = None
-    if user is not None and account_activation_token.check_token(user, token):
+        return False
+    # checking token and activating account #
+    if account_activation_token.check_token(user, token):
         user.is_active = True
         user.save()
-        return Response(status=status.HTTP_204_NO_CONTENT)
-    else:
-        return Response({'detail': 'Неправильная ссылка или срок действия ссылки истёк'},
-                        status=status.HTTP_400_BAD_REQUEST)
+        return True
+    return False
 
 
 def verify(request, raw_access_token, raw_refresh_token):
+    def check_user_data(token_payload, user_data):
+        is_updated = False
+        for key in user_data.keys():
+            if token_payload[key] != user_data[key]:
+                token_payload.update({key: user_data[key]})
+                is_updated = True
+        return is_updated
+
+    # enforcing csrf if user trying to verify #
     if raw_access_token is not None or raw_refresh_token is not None:
         reason = enforce_csrf(request)
         if reason is not None:
-            response = logout()
-            response.status_code = status.HTTP_403_FORBIDDEN
-            return response
+            return False, reason, None
 
+    # getting token instances #
     access_token = convert_token(raw_access_token, AccessToken)
     refresh_token = convert_token(raw_refresh_token, RefreshToken)
+
     try:
+        # verifying access token #
         access_token.verify()
-        return Response(data={'username': access_token.payload['username'],
-                              'email': access_token.payload['email'],
-                              'is_active': access_token.payload['is_active']},
-                        status=status.HTTP_200_OK)
-    except Exception:
+        user_instance = User.objects.get(pk=access_token.payload['user_id'])
+        user_data = {'username': user_instance.username,
+                     'email': user_instance.email,
+                     'is_active': user_instance.is_active}
+        # checking the relevance of the data in the token and updating (if needed) #
+        raw_access_token = None
+        if check_user_data(access_token.payload, user_data):
+            raw_access_token = access_token.__str__()
+        return True, raw_access_token, user_data
+    except Exception as ex:
         pass
     try:
+        # verifying refresh token #
         refresh_token.verify()
-        access_token = refresh_token.access_token
-        response = Response(data={'username': access_token.payload['username'],
-                                  'email': access_token.payload['email'],
-                                  'is_active': access_token.payload['is_active']},
-                            status=status.HTTP_200_OK)
-        response = set_access_cookie(response, access_token.__str__())
-        return response
+        user_instance = User.objects.get(pk=refresh_token.payload['user_id'])
+        user_data = {'username': user_instance.username,
+                     'email': user_instance.email,
+                     'is_active': user_instance.is_active}
+        # checking the relevance of the data in the token and updating (if needed) #
+        check_user_data(refresh_token.payload, user_data)
+        # generating new access token #
+        raw_access_token = refresh_token.access_token.__str__()
+        return True, raw_access_token, user_data
     except Exception:
-        pass
-    return Response(status=status.HTTP_401_UNAUTHORIZED)
-
-
-def logout():
-    response = delete_cookie()
-    return response
+        return False, None, None
