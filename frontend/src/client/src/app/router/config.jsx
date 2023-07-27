@@ -10,6 +10,7 @@ import Group from "../../pages/group/index.js";
 import {AuthGuard, GuestGuard, IsActiveGuard} from "../../features/auth-guards/index.js";
 import {Activation} from "../../pages/activaion/index";
 import {CreatingFile} from "../../pages/creating-file/index.js";
+import {CreatingGroup} from "../../pages/creating-group/index.js";
 
 export const router = createBrowserRouter([
     {
@@ -30,7 +31,7 @@ export const router = createBrowserRouter([
             },
             {
                 path: "/creating-group",
-                element: <AuthGuard><IsActiveGuard><CreatingFile/></IsActiveGuard></AuthGuard>,
+                element: <AuthGuard><IsActiveGuard><CreatingGroup/></IsActiveGuard></AuthGuard>,
             },
             {
                 path: "/user/:username",
