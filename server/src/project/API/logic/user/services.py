@@ -1,11 +1,13 @@
-from rest_framework_simplejwt.tokens import AccessToken, RefreshToken
+from datetime import datetime
 
+from rest_framework_simplejwt.tokens import AccessToken, RefreshToken
 from django.conf import settings
 from django.contrib.sites.shortcuts import get_current_site
 from django.template.loader import render_to_string
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.utils.encoding import force_bytes, force_str
 from django.core.mail import EmailMessage
+from django.utils import timezone
 
 from API.tokens import account_activation_token
 from API.models import User
@@ -24,10 +26,11 @@ def get_tokens_for_user(user):
 
 
 def set_access_cookie(response, raw_access_token):
+    expires = AccessToken(token=raw_access_token).payload['exp']
     response.set_cookie(
         key=settings.SIMPLE_JWT['ACCESS_COOKIE'],
         value=raw_access_token,
-        max_age=settings.SIMPLE_JWT['ACCESS_TOKEN_LIFETIME'],
+        expires=datetime.fromtimestamp(expires),
         secure=settings.SIMPLE_JWT['AUTH_COOKIE_SECURE'],
         httponly=settings.SIMPLE_JWT['AUTH_COOKIE_HTTP_ONLY'],
         samesite=settings.SIMPLE_JWT['AUTH_COOKIE_SAMESITE']
@@ -37,10 +40,11 @@ def set_access_cookie(response, raw_access_token):
 
 def set_cookies(response, user_instance):
     tokens = get_tokens_for_user(user_instance)
+    expires = RefreshToken(token=tokens['refresh']).payload['exp']
     response.set_cookie(
         key=settings.SIMPLE_JWT['REFRESH_COOKIE'],
         value=tokens['refresh'],
-        max_age=settings.SIMPLE_JWT['REFRESH_TOKEN_LIFETIME'],
+        expires=datetime.fromtimestamp(expires),
         secure=settings.SIMPLE_JWT['AUTH_COOKIE_SECURE'],
         httponly=settings.SIMPLE_JWT['AUTH_COOKIE_HTTP_ONLY'],
         samesite=settings.SIMPLE_JWT['AUTH_COOKIE_SAMESITE']
