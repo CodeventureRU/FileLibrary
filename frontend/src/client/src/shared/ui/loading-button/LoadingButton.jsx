@@ -3,7 +3,7 @@ import {Box, Button, CircularProgress} from "@mui/material";
 
 const LoadingButton = ({children, onClick, loading, disabled=false}) => {
     return (
-        <Box sx={{ m: 1, position: 'relative' }}>
+        <Box sx={{ position: 'relative' }}>
             <Button
                 variant="contained"
                 onClick={onClick}
