@@ -9,7 +9,9 @@ from project import settings
 
 from API.logic.functions import get_data
 from API.logic.user.serializers import UserSerializer
-from API.logic.user.services import register, activate, verify, set_cookies, delete_cookie, set_access_cookie, send_account_activation_message
+from API.logic.user.services import register, activate, verify, set_cookies, delete_cookie, set_access_cookie, \
+    send_account_activation_message
+from API.throttling import ResendEmailMessageThrottle
 
 
 class UserRegisterView(APIView):
@@ -99,6 +101,7 @@ class LogoutView(APIView):
 
 class ResendEmailMessageView(APIView):
     permission_classes = [IsAuthenticated]
+    throttle_classes = [ResendEmailMessageThrottle]
 
     def post(self, request):
         user_instance = request.user

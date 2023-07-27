@@ -59,7 +59,8 @@ MIDDLEWARE = [
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
         'API.authenticate.JWTStatelessCookieAuthentication',
-    ]
+    ],
+    'EXCEPTION_HANDLER': 'API.exception_handler.custom_exception_handler'
 }
 
 # Email settings
@@ -80,6 +81,7 @@ SIMPLE_JWT = {
     'SIGNING_KEY': SECRET_KEY,
     'USER_ID_CLAIM': 'pk',
     'USER_AUTHENTICATION_RULE': 'API.authenticate.custom_user_authentication_rule',
+    'TOKEN_USER_CLASS': 'API.models.CustomTokenUser',
     'ACCESS_COOKIE': os.environ.get('ACCESS_COOKIE'),
     'REFRESH_COOKIE': os.environ.get('REFRESH_COOKIE'),
     'AUTH_COOKIE_DOMAIN': None,  # !!! os.environ.get('AUTH_COOKIE_DOMAIN')
