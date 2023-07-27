@@ -21,16 +21,16 @@ const useFetchResources = (url) => {
 
     const loadMore = useCallback(async (options, pagination, reset=false) => {
         let result = await request({
+            params: {
+                // Передача настройки пагинации
+                page: pagination?.page,
+                limit: pagination?.limit,
 
-            // Передача настройки пагинации
-            page: pagination?.page,
-            limit: pagination?.limit,
-
-            // Передача настройки сортировки и фильтрации
-            sort: options?.filter?.sort,
-            search: options?.filter?.search ? options?.filter?.search : "",
-            type: options?.filter?.type,
-
+                // Передача настройки сортировки и фильтрации
+                sort: options?.filter?.sort,
+                search: options?.filter?.search ? options?.filter?.search : "",
+                type: options?.filter?.type,
+            }
         });
 
         if (result != null) {
@@ -61,4 +61,42 @@ const useUpdateResource = (id) => {
     return useApi(URLS.resource(id), "put");
 }
 
-export {useFetchedResource, useFetchMainResources, useFetchUserResources, useFetchMyResources, useUpdateResource}
+const useCreateResourceFile = () => {
+    const {request, ...apiHook} = useApi(URLS.resources, "post");
+
+    const createRequest = async ({
+        name,
+        description,
+        image,
+        privacyLevel,
+        files,
+                           }) => {
+
+        let fd = new FormData();
+        fd.append("type", "file");
+        fd.append("name", name);
+        fd.append("description", description);
+        fd.append("privacy_level", privacyLevel);
+
+        if (image !== null) {
+            fd.append("image", image);
+        }
+
+
+        files.forEach(f => {
+            console.log(f.file);
+            fd.append("files", f.file);
+        });
+
+        return await request({
+            headers: {
+                "Content-Type": "multipart/form-data"
+            }
+        }, fd);
+
+    }
+
+    return {...apiHook, createRequest};
+}
+
+export {useFetchedResource, useFetchMainResources, useFetchUserResources, useFetchMyResources, useUpdateResource, useCreateResourceFile}
