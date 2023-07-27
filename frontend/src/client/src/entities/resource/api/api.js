@@ -99,4 +99,35 @@ const useCreateResourceFile = () => {
     return {...apiHook, createRequest};
 }
 
-export {useFetchedResource, useFetchMainResources, useFetchUserResources, useFetchMyResources, useUpdateResource, useCreateResourceFile}
+const useCreateResourceGroup = () => {
+    const {request, ...apiHook} = useApi(URLS.resources, "post");
+
+    const createRequest = async ({
+                                     name,
+                                     description,
+                                     image,
+                                     privacyLevel,
+                                 }) => {
+
+        let fd = new FormData();
+        fd.append("type", "group");
+        fd.append("name", name);
+        fd.append("description", description);
+        fd.append("privacy_level", privacyLevel);
+
+        if (image !== null) {
+            fd.append("image", image);
+        }
+
+        return await request({
+            headers: {
+                "Content-Type": "multipart/form-data"
+            }
+        }, fd);
+
+    }
+
+    return {...apiHook, createRequest};
+}
+
+export {useFetchedResource, useFetchMainResources, useFetchUserResources, useFetchMyResources, useUpdateResource, useCreateResourceFile, useCreateResourceGroup}
