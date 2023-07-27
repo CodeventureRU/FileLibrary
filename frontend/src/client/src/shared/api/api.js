@@ -44,23 +44,23 @@ export const useApi = (url, method) => {
         try {
             switch(method) {
                 case "get":
-                    res = await $api.get(url, {params});
+                    res = await $api.get(url, {...params});
                     res = res.data;
                     break;
                 case "post":
-                    res = await $api.post(url, data, {params});
+                    res = await $api.post(url, data, {...params});
                     res = res.data;
                     break;
                 case "put":
-                    res = await $api.put(url, data, {params});
+                    res = await $api.put(url, data, {...params});
                     res = res.data;
                     break;
                 case "patch":
-                    res = await $api.patch(url, data, {params});
+                    res = await $api.patch(url, data, {...params});
                     res = res.data;
                     break;
                 case "delete":
-                    res = await $api.delete(url, {params});
+                    res = await $api.delete(url, {...params});
                     res = res.data;
                     break;
             }

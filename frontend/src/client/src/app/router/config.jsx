@@ -7,8 +7,9 @@ import Login from "../../pages/login/index.js";
 import Registration from "../../pages/registration/index.js";
 import File from "../../pages/file/index.js";
 import Group from "../../pages/group/index.js";
-import {AuthGuard, GuestGuard} from "../../features/auth-guards/index.js";
+import {AuthGuard, GuestGuard, IsActiveGuard} from "../../features/auth-guards/index.js";
 import {Activation} from "../../pages/activaion/index";
+import {CreatingFile} from "../../pages/creating-file/index.js";
 
 export const router = createBrowserRouter([
     {
@@ -22,6 +23,14 @@ export const router = createBrowserRouter([
             {
                 path: "/profile",
                 element: <AuthGuard><Profile/></AuthGuard>,
+            },
+            {
+                path: "/creating-file",
+                element: <AuthGuard><IsActiveGuard><CreatingFile/></IsActiveGuard></AuthGuard>,
+            },
+            {
+                path: "/creating-group",
+                element: <AuthGuard><IsActiveGuard><CreatingFile/></IsActiveGuard></AuthGuard>,
             },
             {
                 path: "/user/:username",

@@ -2,6 +2,7 @@ import React from 'react';
 import {useViewerStore, viewerSelector} from "../../entities/viewer/index.js";
 import {ActivationWaiting} from "../../widgets/activation-waiting/index.js";
 import {ProfileData} from "../../widgets/profile-data/index.js";
+import {ArchiveHeader} from "../../widgets/archive-header/index";
 
 const Profile = () => {
     const viewer = useViewerStore(viewerSelector);
@@ -13,7 +14,9 @@ const Profile = () => {
             ?
             <ActivationWaiting />
             :
-                ""
+            <>
+                <ArchiveHeader />
+            </>
             }
         </div>
     );
