@@ -48,7 +48,7 @@ const ArchiveHeader = () => {
                     </MenuItem>
                 </NavLink>
 
-                <NavLink to="/profile" style={{textDecoration: 'none', color: 'inherit'}}>
+                <NavLink to="/creating-group" style={{textDecoration: 'none', color: 'inherit'}}>
                     <MenuItem onClick={handleClose}>
                         <ListItemIcon>
                             <Suspense fallback=""><CreateNewFolderIcon fontSize="small" /></Suspense>
