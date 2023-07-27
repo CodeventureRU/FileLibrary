@@ -58,9 +58,9 @@ const MultipleFileUpload = ({files, setFiles}) => {
 
             <List sx={{my: 2}}>
                 {files.map((file, index) => (
-                    <>
+                    <React.Fragment key={file.type}>
                         {index === 0 ? <Divider /> : ""}
-                        <ListItem key={index}>
+                        <ListItem>
                             <ListItemText primary={
                                 <Box sx={{display: 'flex', gap: 1, alignItems: 'center'}}>
                                     <Typography color="primary" sx={{textTransform: 'uppercase', borderRadius: '5px', padding: '3px 5px', bgcolor: theme => alpha(theme.palette.primary.main, 0.1)}}>{file.type}</Typography>
@@ -72,8 +72,7 @@ const MultipleFileUpload = ({files, setFiles}) => {
                             </IconButton>
                         </ListItem>
                         <Divider />
-                    </>
-
+                    </React.Fragment>
                 ))}
             </List>
             <ErrorsBag setErrors={setErrors} errors={errors} />
