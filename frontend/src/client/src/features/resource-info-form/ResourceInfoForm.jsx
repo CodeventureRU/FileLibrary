@@ -7,6 +7,7 @@ const ResourceInfoForm = ({
                             name, setName,
                             description, setDescription,
                             usingImage, setUsingImage,
+                            setImageFile,
                             image, setImage,
                             imageError, setImageError,
                             errors
@@ -28,6 +29,7 @@ const ResourceInfoForm = ({
             return;
         }
 
+        setImageFile(file);
         const reader = new FileReader();
         reader.onloadend = () => {
             setImage(reader.result);
@@ -38,6 +40,7 @@ const ResourceInfoForm = ({
 
     const handleRemoveImage = () => {
         setImage(null);
+        setImageFile(null);
     };
 
     return (
