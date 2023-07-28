@@ -29,7 +29,7 @@ def set_access_cookie(response, raw_access_token):
     response.set_cookie(
         key=settings.SIMPLE_JWT['ACCESS_COOKIE'],
         value=raw_access_token,
-        expires=datetime.fromtimestamp(expires),
+        expires=datetime.utcfromtimestamp(expires),
         secure=settings.SIMPLE_JWT['AUTH_COOKIE_SECURE'],
         httponly=settings.SIMPLE_JWT['AUTH_COOKIE_HTTP_ONLY'],
         samesite=settings.SIMPLE_JWT['AUTH_COOKIE_SAMESITE']
@@ -43,7 +43,7 @@ def set_cookies(response, user_instance):
     response.set_cookie(
         key=settings.SIMPLE_JWT['REFRESH_COOKIE'],
         value=tokens['refresh'],
-        expires=datetime.fromtimestamp(expires),
+        expires=datetime.utcfromtimestamp(expires),
         secure=settings.SIMPLE_JWT['AUTH_COOKIE_SECURE'],
         httponly=settings.SIMPLE_JWT['AUTH_COOKIE_HTTP_ONLY'],
         samesite=settings.SIMPLE_JWT['AUTH_COOKIE_SAMESITE']
