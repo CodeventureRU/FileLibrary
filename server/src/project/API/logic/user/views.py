@@ -11,9 +11,10 @@ from project import settings
 
 from API.logic.functions import get_data
 from API.models import User
-from API.logic.user.serializers import UserSerializer
+from API.logic.user.serializers import UserSerializer, RUDUserSerializer
 from API.logic.user.services import register, activate, verify, set_cookies, delete_cookie, set_access_cookie, \
-    send_account_activation_message, send_reset_password_message, reset_password
+    send_account_activation_message, send_reset_password_message, reset_password, send_email_confirmation_message, \
+    confirm_email
 from API.throttling import ResendEmailMessageThrottle
 
 
@@ -94,6 +95,55 @@ class UserVerificationView(APIView):
             raise NotAuthenticated
 
 
+class UpdateUserDataView(APIView):
+    serializer_class = RUDUserSerializer
+    permission_classes = [IsAuthenticated]
+
+    def patch(self, request):
+        data = get_data(request)
+        user_instance = get_object_or_404(User, pk=request.user.pk)
+        serializer = self.serializer_class(data=data)
+        serializer.is_valid(raise_exception=True)
+
+        if 'username' in data:
+            setattr(user_instance, 'username', serializer.validated_data['username'])
+            user_instance.save(update_fields=['username'])
+            return Response(data={'detail': 'Имя пользователя успешно изменено'},
+                            status=status.HTTP_200_OK)
+
+        elif 'password' in data:
+            password = serializer.validated_data['password']
+            confirm_password = data['confirm_password']
+            current_password = data['current_password']
+            if user_instance.check_password(current_password):
+                if current_password == password:
+                    raise ValidationError({'password': 'Вас текущий пароль совпадает с новым паролем'})
+                elif password == confirm_password:
+                    user_instance.set_password(data['password'])
+                    user_instance.save(update_fields=['password'])
+                    return Response(data={'detail': 'Пароль успешно изменён'},
+                                    status=status.HTTP_200_OK)
+                else:
+                    raise ValidationError({'confirm_password': ['Поле пароль и подтверждение пароля не совпадают']})
+            else:
+                raise ValidationError({'current_password': ['Неправильный пароль']})
+
+
+class UpdateUserEmailView(APIView):
+    serializer_class = RUDUserSerializer
+    permission_classes = [IsAuthenticated]
+    throttle_classes = [ResendEmailMessageThrottle]
+
+    def patch(self, request):
+        data = get_data(request)
+        user_instance = get_object_or_404(User, pk=request.user.pk)
+        serializer = self.serializer_class(data=data)
+        serializer.is_valid(raise_exception=True)
+        send_email_confirmation_message(request, user_instance, serializer.validated_data['email'])
+        return Response(data={'detail': 'Письмо с подтверждением смены почты было отправлено на новый почтовый адрес'},
+                        status=status.HTTP_200_OK)
+
+
 class ResetPasswordView(APIView):
     permission_classes = [AllowAny]
 
@@ -110,6 +160,26 @@ class ResetPasswordView(APIView):
             raise ValidationError({'confirm_password': ['Поле пароль и подтверждение пароля не совпадают']})
 
 
+class ConfirmUserEmailView(APIView):
+    serializer_class = UserSerializer
+    permission_classes = [AllowAny]
+
+    def post(self, request, uidb64, email64, token):
+        data = get_data(request)
+        user_instance = authenticate(username=data['login'], password=data['password'])
+        if user_instance is None:
+            return Response(status=status.HTTP_401_UNAUTHORIZED)
+        if confirm_email(data, uidb64, email64, token):
+            return Response(data={'detail': 'Ваш почта успешна изменена'},
+                            status=status.HTTP_200_OK)
+        elif confirm_email(user_instance, uidb64, email64, token) is None:
+            return Response({'detail': 'Вы вошли не в тот аккаунт, у которого хотите поменять почту'},
+                            status=status.HTTP_400_BAD_REQUEST)
+        else:
+            return Response({'detail': 'Неправильная ссылка или срок действия ссылки истёк'},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+
 class LogoutView(APIView):
     permission_classes = [AllowAny]
 
@@ -117,18 +187,6 @@ class LogoutView(APIView):
         response = Response(status=status.HTTP_204_NO_CONTENT)
         response = delete_cookie(response)
         return response
-
-
-class ResendEmailMessageView(APIView):
-    permission_classes = [IsAuthenticated]
-    throttle_classes = [ResendEmailMessageThrottle]
-
-    def post(self, request):
-        user_instance = request.user
-        if not user_instance.is_active:
-            send_account_activation_message(request, user_instance)
-            return Response(status=status.HTTP_204_NO_CONTENT)
-        return Response(data={'detail': 'Ваша учётная запись уже активирована'}, status=status.HTTP_400_BAD_REQUEST)
 
 
 class SendResetPasswordMessageView(APIView):
@@ -149,3 +207,15 @@ class SendResetPasswordMessageView(APIView):
         except Exception:
             return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+class ResendEmailMessageView(APIView):
+    permission_classes = [IsAuthenticated]
+    throttle_classes = [ResendEmailMessageThrottle]
+
+    def post(self, request):
+        user_instance = request.user
+        if not user_instance.is_active:
+            send_account_activation_message(request, user_instance)
+            return Response(status=status.HTTP_204_NO_CONTENT)
+        return Response(data={'detail': 'Ваша учётная запись уже активирована'}, status=status.HTTP_400_BAD_REQUEST)

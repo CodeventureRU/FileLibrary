@@ -12,3 +12,4 @@ class TokenGenerator(PasswordResetTokenGenerator):
 
 account_activation_token = TokenGenerator()
 reset_password_token = TokenGenerator()
+confirm_email_token = TokenGenerator()

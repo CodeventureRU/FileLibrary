@@ -1,0 +1,6 @@
+{% autoescape off %}
+Здравствуйте, {{ username }},
+Для подтверждения смены почты с {{ old_email }} на {{ email }} пройдите по ссылке ниже:
+
+http://{{ domain }}/email-confirmation/{{uid}}/{{email64}}/{{token}}/
+{% endautoescape %}
