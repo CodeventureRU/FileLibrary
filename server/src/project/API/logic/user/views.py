@@ -1,16 +1,19 @@
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.views import APIView
-from rest_framework.exceptions import ValidationError, NotAuthenticated
+from rest_framework.exceptions import ValidationError, NotAuthenticated, PermissionDenied
 from rest_framework.response import Response
 from rest_framework import status
 from django.middleware import csrf
 from django.contrib.auth import authenticate
+from django.core.validators import validate_email
+from django.shortcuts import get_object_or_404
 from project import settings
 
 from API.logic.functions import get_data
+from API.models import User
 from API.logic.user.serializers import UserSerializer
 from API.logic.user.services import register, activate, verify, set_cookies, delete_cookie, set_access_cookie, \
-    send_account_activation_message
+    send_account_activation_message, send_reset_password_message, reset_password
 from API.throttling import ResendEmailMessageThrottle
 
 
@@ -44,7 +47,7 @@ class UserLoginView(APIView):
 
     def post(self, request):
         data = get_data(request)
-        user_instance = authenticate(username=data['username'], password=data['password'])
+        user_instance = authenticate(username=data['login'], password=data['password'])
         if user_instance is not None:
             response = Response(data={'username': user_instance.username,
                                       'email': user_instance.email,
@@ -63,7 +66,8 @@ class AccountActivateView(APIView):
 
     def get(self, request, uidb64, token):
         if activate(uidb64, token):
-            return Response(status=status.HTTP_204_NO_CONTENT)
+            return Response(data={'detail': 'Ваша учётная запись успешно активирована'},
+                            status=status.HTTP_204_NO_CONTENT)
         else:
             return Response({'detail': 'Неправильная ссылка или срок действия ссылки истёк'},
                             status=status.HTTP_400_BAD_REQUEST)
@@ -86,7 +90,7 @@ class UserVerificationView(APIView):
             return response
         else:
             if info is not None:
-                raise info
+                raise PermissionDenied(f'CSRF Failed: {info}')
             raise NotAuthenticated
 
 
@@ -99,6 +103,22 @@ class LogoutView(APIView):
         return response
 
 
+class ResetPasswordView(APIView):
+    permission_classes = [AllowAny]
+
+    def post(self, request, uidb64, token):
+        data = get_data(request)
+        if data['password'] == data['confirm_password']:
+            if reset_password(data['password'], uidb64, token):
+                return Response(data={'detail': 'Ваш пароль успешно изменён'},
+                                status=status.HTTP_200_OK)
+            else:
+                return Response({'detail': 'Неправильная ссылка или срок действия ссылки истёк'},
+                                status=status.HTTP_400_BAD_REQUEST)
+        else:
+            raise ValidationError({'confirm_password': ['Поле пароль и подтверждение пароля не совпадают']})
+
+
 class ResendEmailMessageView(APIView):
     permission_classes = [IsAuthenticated]
     throttle_classes = [ResendEmailMessageThrottle]
@@ -108,4 +128,24 @@ class ResendEmailMessageView(APIView):
         if not user_instance.is_active:
             send_account_activation_message(request, user_instance)
             return Response(status=status.HTTP_204_NO_CONTENT)
-        return Response(data={'detail': 'Ваш учётная запись уже активирована'}, status=status.HTTP_400_BAD_REQUEST)
+        return Response(data={'detail': 'Ваша учётная запись уже активирована'}, status=status.HTTP_400_BAD_REQUEST)
+
+
+class SendResetPasswordMessageView(APIView):
+    permission_classes = [AllowAny]
+    throttle_classes = [ResendEmailMessageThrottle]
+
+    def post(self, request):
+        data = get_data(request)
+        login = data['login']
+        try:
+            validate_email(login)
+            kwargs = {'email': login}
+        except Exception:
+            kwargs = {'username': login}
+        user_instance = get_object_or_404(User, **kwargs)
+        try:
+            send_reset_password_message(request, user_instance)
+        except Exception:
+            return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        return Response(status=status.HTTP_204_NO_CONTENT)

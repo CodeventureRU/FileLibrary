@@ -8,7 +8,7 @@ from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.utils.encoding import force_bytes, force_str
 from django.core.mail import EmailMessage
 
-from API.tokens import account_activation_token
+from API.tokens import account_activation_token, reset_password_token
 from API.models import User
 from API.authentication import enforce_csrf
 
@@ -75,6 +75,18 @@ def send_account_activation_message(request, user_instance):
                                                            'domain': current_site.domain,
                                                            'uid': urlsafe_base64_encode(force_bytes(user_instance.pk)),
                                                            'token': account_activation_token.make_token(user_instance)})
+    to_email = user_instance.email
+    email = EmailMessage(subject=mail_subject, body=message, from_email='Codeventure', to=[to_email])
+    email.send()
+
+
+def send_reset_password_message(request, user_instance):
+    current_site = get_current_site(request)
+    mail_subject = 'Сброс пароля'
+    message = render_to_string('reset_password.html', {'username': user_instance.username,
+                                                       'domain': current_site.domain,
+                                                       'uid': urlsafe_base64_encode(force_bytes(user_instance.pk)),
+                                                       'token': account_activation_token.make_token(user_instance)})
     to_email = user_instance.email
     email = EmailMessage(subject=mail_subject, body=message, from_email='Codeventure', to=[to_email])
     email.send()
@@ -152,3 +164,18 @@ def verify(request, raw_access_token, raw_refresh_token):
         return True, raw_access_token, user_data
     except Exception:
         return False, None, None
+
+
+def reset_password(new_password, uidb64, token):
+    try:
+        # getting object of user with id from link #
+        uid = force_str(urlsafe_base64_decode(uidb64))
+        user = User.objects.get(pk=uid)
+    except Exception:
+        return False
+    # checking token and activating account #
+    if reset_password_token.check_token(user, token):
+        user.set_password(new_password)
+        user.save()
+        return True
+    return False
