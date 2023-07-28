@@ -96,11 +96,10 @@ class UserVerifyAPITest(APITestCase):
 
 class CreateResourceAPITest(APITestCase):
     def setUp(self):
-        url = '/api/v1/users/registration/'
+        User.objects.create_user(username=username, password=password)
+        url = '/api/v1/users/login/'
         data = {'username': username,
-                'email': email,
-                'password': password,
-                'confirm_password': password}
+                'password': password}
         self.client.post(path=url, data=data)
 
     def generate_test_image(self):
