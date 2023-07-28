@@ -14,20 +14,20 @@ import {MultipleFileUpload} from "../../features/multiple-file-upload/index.js";
 import {ResourceInfoForm, useResourceInfoForm} from "../../features/resource-info-form/index.js";
 import {ResourcePrivacyForm, useResourcePrivacy} from "../../features/resource-privacy-form/index.js";
 import {LoadingButton} from "../../shared/ui/loading-button/index.js";
-import {useCreateResourceFile} from "../../entities/resource/index.js";
+import {useCreateResource} from "../../entities/resource/index.js";
 import {NavLink} from "react-router-dom";
 
-const CreatingFileForm = () => {
+const CreatingResourceForm = ({type}) => {
     // Ошибки
-    const {errors, loading, createRequest} = useCreateResourceFile();
+    const {errors, loading, createRequest} = useCreateResource();
     const [success, setSuccess] = useState(false);
 
     // Функции по обеспечению работы пошаговой формы
     const [activeStep, setActiveStep] = useState(0);
     const [stepCompleted, setStepCompleted] = useState({
-        first: false,
-        second: false,
-        third: true,
+        files: false,
+        info: false,
+        privacy: true,
     });
     const handleNext = () => {
         setActiveStep(activeStep + 1);
@@ -36,26 +36,29 @@ const CreatingFileForm = () => {
         setActiveStep(activeStep - 1);
     };
 
-
-    // Первый шаг
+    // Шаг с файлами
     const [files, setFiles] = useState([]);
-    useEffect(() => {
-        setStepCompleted({...stepCompleted, first: files.length > 0})
-    }, [files]);
-
-    // Второй шаг
-    const resourceInfo = useResourceInfoForm({});
-
     useEffect(() => {
         setStepCompleted(
             {
                 ...stepCompleted,
-                second: resourceInfo.name !== "" && (!resourceInfo.usingImage || resourceInfo.image !== null)
+                files: files.length > 0
+            }
+        )
+    }, [files]);
+
+    // Шаг с основной информации
+    const resourceInfo = useResourceInfoForm({});
+    useEffect(() => {
+        setStepCompleted(
+            {
+                ...stepCompleted,
+                info: resourceInfo.name !== "" && (!resourceInfo.usingImage || resourceInfo.image !== null)
             }
         )
     }, [resourceInfo.name, resourceInfo.image, resourceInfo.usingImage]);
 
-    // Третий шаг
+    // Шаг с настройкой приватности
     const resourcePrivacy = useResourcePrivacy({});
 
     // Отправка формы
@@ -66,6 +69,7 @@ const CreatingFileForm = () => {
             image: resourceInfo.usingImage ? resourceInfo.imageFile : null,
             privacyLevel: resourcePrivacy.privacyLevel,
             files: files,
+            type
         });
 
         if (res !== null) {
@@ -80,6 +84,8 @@ const CreatingFileForm = () => {
             <Typography variant="h6">Добавление файла</Typography>
             <Paper variant="outlined" sx={{p: 3, mt: 2}}>
                 <Stepper activeStep={activeStep} orientation="vertical">
+                    { type === "file"
+                        ?
                     <Step>
                         <StepLabel error={errors?.files}>
                             Загрузка файла
@@ -94,7 +100,7 @@ const CreatingFileForm = () => {
                                     <Button
                                         onClick={handleNext}
                                         sx={{ mt: 1, mr: 1 }}
-                                        disabled={!stepCompleted.first}
+                                        disabled={!stepCompleted.files}
                                         variant="outlined"
                                     >
                                         Далее
@@ -103,6 +109,7 @@ const CreatingFileForm = () => {
                             </Box>
                         </StepContent>
                     </Step>
+                        : ""}
                     <Step>
                         <StepLabel error={Boolean(errors?.name) || Boolean(errors?.image) || Boolean(errors?.description)}>
                             Основная информация
@@ -114,7 +121,7 @@ const CreatingFileForm = () => {
                                     <Button
                                         onClick={handleNext}
                                         sx={{ mt: 1, mr: 1 }}
-                                        disabled={!stepCompleted.second}
+                                        disabled={!stepCompleted.info}
                                         variant="outlined"
                                     >
                                         Далее
@@ -173,4 +180,4 @@ const CreatingFileForm = () => {
     );
 };
 
-export default CreatingFileForm;
+export default CreatingResourceForm;
