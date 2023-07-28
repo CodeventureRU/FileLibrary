@@ -140,7 +140,7 @@ class UpdateUserEmailView(APIView):
         serializer = self.serializer_class(data=data)
         serializer.is_valid(raise_exception=True)
         send_email_confirmation_message(request, user_instance, serializer.validated_data['email'])
-        return Response(data={'detail': 'Письмо с подтверждением смены почты было отправлено на новый почтовый адрес'},
+        return Response(data={'detail': 'Письмо с ссылкой для подтверждения смены почты было отправлено на новый почтовый адрес'},
                         status=status.HTTP_200_OK)
 
 
@@ -169,12 +169,12 @@ class ConfirmUserEmailView(APIView):
         user_instance = authenticate(username=data['login'], password=data['password'])
         if user_instance is None:
             return Response(status=status.HTTP_401_UNAUTHORIZED)
-        if confirm_email(data, uidb64, email64, token):
+        if confirm_email(user_instance, uidb64, email64, token):
             return Response(data={'detail': 'Ваш почта успешна изменена'},
                             status=status.HTTP_200_OK)
         elif confirm_email(user_instance, uidb64, email64, token) is None:
             return Response({'detail': 'Вы вошли не в тот аккаунт, у которого хотите поменять почту'},
-                            status=status.HTTP_400_BAD_REQUEST)
+                            status=status.HTTP_401_UNAUTHORIZED)
         else:
             return Response({'detail': 'Неправильная ссылка или срок действия ссылки истёк'},
                             status=status.HTTP_400_BAD_REQUEST)
@@ -204,9 +204,10 @@ class SendResetPasswordMessageView(APIView):
         user_instance = get_object_or_404(User, **kwargs)
         try:
             send_reset_password_message(request, user_instance)
+            return Response(data={'detail': 'Письмо с ссылкой для сброса пароля было отправлено на почтовый адрес'},
+                            status=status.HTTP_200_OK)
         except Exception:
             return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-        return Response(status=status.HTTP_204_NO_CONTENT)
 
 
 class ResendEmailMessageView(APIView):
@@ -217,5 +218,6 @@ class ResendEmailMessageView(APIView):
         user_instance = request.user
         if not user_instance.is_active:
             send_account_activation_message(request, user_instance)
-            return Response(status=status.HTTP_204_NO_CONTENT)
+            return Response(data={'detail': 'Письмо с ссылкой для активации учётной записи было отправлено на почтовый адрес'},
+                            status=status.HTTP_200_OK)
         return Response(data={'detail': 'Ваша учётная запись уже активирована'}, status=status.HTTP_400_BAD_REQUEST)
