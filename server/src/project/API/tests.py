@@ -40,7 +40,7 @@ class UserLoginAndActivationAPITest(APITestCase):
     def test_login_and_logout(self):
         login_url = '/api/v1/users/login/'
         logout_url = '/api/v1/users/logout/'
-        data = {'username': username,
+        data = {'login': username,
                 'password': password}
         response = self.client.post(login_url, data)
         self.assertEquals(response.status_code, status.HTTP_200_OK)
@@ -71,6 +71,7 @@ class UserVerifyAPITest(APITestCase):
         url = '/api/v1/users/verification/'
         response = self.client.post(url)
         self.assertEquals(response.status_code, status.HTTP_200_OK)
+        self.assertEquals(len(self.client.cookies), 3)
 
     def test_verification_without_access_token(self):
         url = '/api/v1/users/verification/'
@@ -98,7 +99,7 @@ class CreateResourceAPITest(APITestCase):
     def setUp(self):
         User.objects.create_user(username=username, password=password)
         url = '/api/v1/users/login/'
-        data = {'username': username,
+        data = {'login': username,
                 'password': password}
         self.client.post(path=url, data=data)
 
