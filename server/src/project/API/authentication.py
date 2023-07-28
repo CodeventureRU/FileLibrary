@@ -2,10 +2,8 @@ from rest_framework_simplejwt.authentication import JWTStatelessUserAuthenticati
 from rest_framework.authentication import CSRFCheck
 from django.contrib.auth import get_user_model
 from django.contrib.auth.backends import ModelBackend
-from rest_framework_simplejwt.exceptions import TokenError
-from rest_framework import status
-from rest_framework.response import Response
 from rest_framework.exceptions import NotAuthenticated
+from rest_framework.exceptions import PermissionDenied
 
 
 def enforce_csrf(request):
@@ -31,8 +29,12 @@ class JWTStatelessCSRFUserAuthentication(JWTStatelessUserAuthentication):
             if raw_token is None:
                 return None
             validated_token = self.get_validated_token(raw_token)
-            enforce_csrf(request)
+            reason = enforce_csrf(request)
+            if reason is not None:
+                raise PermissionDenied()
             return self.get_user(validated_token), validated_token
+        except PermissionDenied:
+            raise PermissionDenied(f'CSRF Failed: {reason}')
         except Exception:
             exception = NotAuthenticated
             exception.default_detail = 'Access токен был изменён, пожалуйста, переавторизуйтесь на сайте'
