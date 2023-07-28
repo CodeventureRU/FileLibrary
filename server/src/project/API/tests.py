@@ -3,7 +3,7 @@ from rest_framework import status
 from API.models import User
 from django.utils.http import urlsafe_base64_encode
 from django.utils.encoding import force_bytes
-from API.tokens import account_activation_token
+from API.tokens import account_activation_token, reset_password_token, confirm_email_token
 import io
 from PIL import Image
 from API.models import File, Group
@@ -11,8 +11,11 @@ from django.shortcuts import get_object_or_404
 
 # User test data
 username = 'Test'
+new_username = 'Test2'
 email = 'test@test.com'
+new_email = 'test2@test.com'
 password = 'test_password'
+new_password = 'test_password2'
 
 # Resource test data
 name = 'test name'
@@ -40,12 +43,13 @@ class UserLoginAndActivationAPITest(APITestCase):
     def test_login_and_logout(self):
         login_url = '/api/v1/users/login/'
         logout_url = '/api/v1/users/logout/'
-        data = {'login': username,
-                'password': password}
-        response = self.client.post(login_url, data)
-        self.assertEquals(response.status_code, status.HTTP_200_OK)
-        self.assertEquals(len(response.cookies), 3)
-        self.assertEquals(len(response.data), 3)
+        for login in [username, email]:
+            data = {'login': login,
+                    'password': password}
+            response = self.client.post(login_url, data)
+            self.assertEquals(response.status_code, status.HTTP_200_OK)
+            self.assertEquals(len(response.cookies), 3)
+            self.assertEquals(len(response.data), 3)
         response = self.client.get(logout_url)
         self.assertEquals(response.status_code, status.HTTP_204_NO_CONTENT)
 
@@ -93,6 +97,80 @@ class UserVerifyAPITest(APITestCase):
         response = self.client.post(url)
         self.assertEquals(response.status_code, status.HTTP_401_UNAUTHORIZED)
         self.assertEquals(len(self.client.cookies), 1)
+
+
+class UserEmailMessagesAPITest(APITestCase):
+    def setUp(self):
+        User.objects.create_user(username=username, password=password, is_active=False)
+        url = '/api/v1/users/login/'
+        data = {'login': username,
+                'password': password}
+        self.client.post(path=url, data=data)
+
+    def test_resend_email_message(self):
+        url = '/api/v1/users/resend-account-activation/'
+        response = self.client.post(path=url)
+        self.assertEquals(response.status_code, status.HTTP_200_OK)
+
+    def test_send_reset_password(self):
+        url = '/api/v1/users/send-reset-password/'
+        for login in [username, email]:
+            response = self.client.post(path=url, data={'login': login})
+            self.assertTrue(response.status_code.__str__() in '200 429')
+
+    def test_update_email(self):
+        url = '/api/v1/users/update-user-email/'
+        response = self.client.patch(path=url, data={'email': new_email})
+        self.assertEquals(response.status_code, status.HTTP_200_OK)
+
+
+class UserDataUpdateAPITest(APITestCase):
+    def setUp(self):
+        self.user = User.objects.create_user(email=email, username=username, password=password)
+        url = '/api/v1/users/login/'
+        self.client.post(path=url, data={'login': username,
+                                         'password': password})
+
+    def test_reset_password(self):
+        uid = urlsafe_base64_encode(force_bytes(self.user.pk))
+        token = reset_password_token.make_token(self.user)
+        url = f'/api/v1/reset-password/{uid}/{token}/'
+        data = {'password': new_password,
+                'confirm_password': new_password}
+        response = self.client.post(path=url, data=data)
+        user = User.objects.get(username=username)
+        self.assertEquals(response.status_code, status.HTTP_200_OK)
+        self.assertTrue(user.check_password(new_password))
+
+    def test_confirm_email(self):
+        uid = urlsafe_base64_encode(force_bytes(self.user.pk))
+        email64 = urlsafe_base64_encode(force_bytes(new_email))
+        token = confirm_email_token.make_token(self.user)
+        url = f'/api/v1/email-confirmation/{uid}/{email64}/{token}/'
+        data = {'login': username,
+                'password': password}
+        response = self.client.post(path=url, data=data)
+        user = User.objects.get(username=username)
+        self.assertEquals(response.status_code, status.HTTP_200_OK)
+        self.assertEquals(user.email, new_email)
+
+    def test_set_new_password(self):
+        url = '/api/v1/users/update-user-data/'
+        data = {'current_password': password,
+                'password': new_password,
+                'confirm_password': new_password}
+        response = self.client.patch(path=url, data=data)
+        user = User.objects.get(username=username)
+        self.assertEquals(response.status_code, status.HTTP_200_OK)
+        self.assertTrue(user.check_password(new_password))
+
+    def test_set_new_username(self):
+        url = '/api/v1/users/update-user-data/'
+        data = {'username': new_username}
+        response = self.client.patch(path=url, data=data)
+        user = User.objects.get(email=email)
+        self.assertEquals(response.status_code, status.HTTP_200_OK)
+        self.assertEquals(user.username, new_username)
 
 
 class CreateResourceAPITest(APITestCase):
