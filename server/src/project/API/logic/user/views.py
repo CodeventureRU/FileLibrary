@@ -94,15 +94,6 @@ class UserVerificationView(APIView):
             raise NotAuthenticated
 
 
-class LogoutView(APIView):
-    permission_classes = [AllowAny]
-
-    def get(self, request):
-        response = Response(status=status.HTTP_204_NO_CONTENT)
-        response = delete_cookie(response)
-        return response
-
-
 class ResetPasswordView(APIView):
     permission_classes = [AllowAny]
 
@@ -117,6 +108,15 @@ class ResetPasswordView(APIView):
                                 status=status.HTTP_400_BAD_REQUEST)
         else:
             raise ValidationError({'confirm_password': ['Поле пароль и подтверждение пароля не совпадают']})
+
+
+class LogoutView(APIView):
+    permission_classes = [AllowAny]
+
+    def get(self, request):
+        response = Response(status=status.HTTP_204_NO_CONTENT)
+        response = delete_cookie(response)
+        return response
 
 
 class ResendEmailMessageView(APIView):
