@@ -61,7 +61,7 @@ const useUpdateResource = (id) => {
     return useApi(URLS.resource(id), "put");
 }
 
-const useCreateResourceFile = () => {
+const useCreateResource = () => {
     const {request, ...apiHook} = useApi(URLS.resources, "post");
 
     const createRequest = async ({
@@ -69,11 +69,12 @@ const useCreateResourceFile = () => {
         description,
         image,
         privacyLevel,
-        files,
+        type,
+        files=[],
                            }) => {
 
         let fd = new FormData();
-        fd.append("type", "file");
+        fd.append("type", type);
         fd.append("name", name);
         fd.append("description", description);
         fd.append("privacy_level", privacyLevel);
@@ -82,41 +83,11 @@ const useCreateResourceFile = () => {
             fd.append("image", image);
         }
 
-
-        files.forEach(f => {
-            console.log(f.file);
-            fd.append("files", f.file);
-        });
-
-        return await request({
-            headers: {
-                "Content-Type": "multipart/form-data"
-            }
-        }, fd);
-
-    }
-
-    return {...apiHook, createRequest};
-}
-
-const useCreateResourceGroup = () => {
-    const {request, ...apiHook} = useApi(URLS.resources, "post");
-
-    const createRequest = async ({
-                                     name,
-                                     description,
-                                     image,
-                                     privacyLevel,
-                                 }) => {
-
-        let fd = new FormData();
-        fd.append("type", "group");
-        fd.append("name", name);
-        fd.append("description", description);
-        fd.append("privacy_level", privacyLevel);
-
-        if (image !== null) {
-            fd.append("image", image);
+        if (files.length > 0) {
+            files.forEach(f => {
+                console.log(f.file);
+                fd.append("files", f.file);
+            });
         }
 
         return await request({
@@ -130,4 +101,6 @@ const useCreateResourceGroup = () => {
     return {...apiHook, createRequest};
 }
 
-export {useFetchedResource, useFetchMainResources, useFetchUserResources, useFetchMyResources, useUpdateResource, useCreateResourceFile, useCreateResourceGroup}
+
+
+export {useFetchedResource, useFetchMainResources, useFetchUserResources, useFetchMyResources, useUpdateResource, useCreateResource}
