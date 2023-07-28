@@ -44,7 +44,6 @@ INSTALLED_APPS = [
     'API',
     'rest_framework_simplejwt',
 ]
-
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -54,11 +53,12 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'API.middlewares.CookieToAuthorizationHeaderMiddleware',
 ]
 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
-        'API.authenticate.JWTStatelessCookieAuthentication',
+        'API.authentication.JWTStatelessCSRFUserAuthentication',
     ],
     'EXCEPTION_HANDLER': 'API.exception_handler.custom_exception_handler'
 }
@@ -80,7 +80,7 @@ SIMPLE_JWT = {
     'UPDATE_LAST_LOGIN': True,
     'SIGNING_KEY': SECRET_KEY,
     'USER_ID_CLAIM': 'pk',
-    'USER_AUTHENTICATION_RULE': 'API.authenticate.custom_user_authentication_rule',
+    'USER_AUTHENTICATION_RULE': 'API.authentication.custom_user_authentication_rule',
     'TOKEN_USER_CLASS': 'API.models.CustomTokenUser',
     'ACCESS_COOKIE': os.environ.get('ACCESS_COOKIE'),
     'REFRESH_COOKIE': os.environ.get('REFRESH_COOKIE'),
@@ -108,7 +108,7 @@ ROOT_URLCONF = 'project.urls'
 # Backend settings
 
 AUTHENTICATION_BACKENDS = [
-    'django.contrib.auth.backends.AllowAllUsersModelBackend',
+    'API.authentication.EmailUsernameBackend',
 ]
 
 # Templates settings
