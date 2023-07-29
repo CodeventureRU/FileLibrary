@@ -3,6 +3,7 @@ import {useViewerStore, viewerSelector} from "../../entities/viewer/index.js";
 import {ActivationWaiting} from "../../widgets/activation-waiting/index.js";
 import {ProfileData} from "../../widgets/profile-data/index.js";
 import {ArchiveHeader} from "../../widgets/archive-header/index";
+import {ProfileResourcesList} from "../../widgets/profile-resources-list/index.js";
 
 const Profile = () => {
     const viewer = useViewerStore(viewerSelector);
@@ -16,6 +17,7 @@ const Profile = () => {
             :
             <>
                 <ArchiveHeader />
+                <ProfileResourcesList />
             </>
             }
         </div>
