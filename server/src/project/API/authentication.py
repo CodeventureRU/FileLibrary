@@ -2,8 +2,7 @@ from rest_framework_simplejwt.authentication import JWTStatelessUserAuthenticati
 from rest_framework.authentication import CSRFCheck
 from django.contrib.auth import get_user_model
 from django.contrib.auth.backends import ModelBackend
-from rest_framework.exceptions import NotAuthenticated
-from rest_framework.exceptions import PermissionDenied
+from rest_framework.exceptions import NotAuthenticated, PermissionDenied
 
 
 def enforce_csrf(request):
