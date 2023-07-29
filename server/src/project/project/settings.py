@@ -60,6 +60,8 @@ REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
         'API.authentication.JWTStatelessCSRFUserAuthentication',
     ],
+    'DEFAULT_PAGINATION_CLASS': 'API.pagination.CustomPagination',
+    'PAGE_SIZE': 5,
     'EXCEPTION_HANDLER': 'API.exception_handler.custom_exception_handler'
 }
 

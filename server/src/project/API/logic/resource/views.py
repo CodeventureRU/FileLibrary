@@ -13,11 +13,13 @@ from API.logic.functions import get_data
 from API.logic.resource.services import create_resource, delete_resource
 from API.logic.file.services import add_new_files, delete_files
 from API.models import Resource, ResourceGroup
+from API.pagination import MyPaginationMixin
+from rest_framework.settings import api_settings
 
 
-
-class LCResourceView(APIView):
+class LCResourceView(APIView, MyPaginationMixin):
     serializer_class = ResourceSerializer
+    pagination_class = api_settings.DEFAULT_PAGINATION_CLASS
 
     def get_permissions(self):
         if self.request.method == 'GET':
@@ -26,9 +28,10 @@ class LCResourceView(APIView):
             return [IsAuthorAndActive()]
 
     def get(self, request):
-        objects = Resource.objects.filter(privacy_level='public')
-        serializer = self.serializer_class(objects, many=True)
-        return Response(data=serializer.data, status=status.HTTP_200_OK)
+        queryset = Resource.objects.filter(privacy_level='public')
+        queryset = self.paginate_queryset(queryset)
+        serializer = self.serializer_class(queryset, many=True)
+        return self.get_paginated_response(serializer.data)
 
     def post(self, request):
         data = get_data(request)
@@ -92,15 +95,16 @@ class RUDResourceView(APIView):
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
-class UserResourcesView(APIView):
+class UserResourcesView(MyPaginationMixin, APIView):
     serializer_class = ResourceSerializer
     permission_classes = [IsAuthenticated]
+    pagination_class = api_settings.DEFAULT_PAGINATION_CLASS
 
     def get(self, request):
-        user = request.user
-        objects = Resource.objects.filter(author_id=user.id)
-        serializer = self.serializer_class(objects, many=True)
-        return Response(data=serializer.data, status=status.HTTP_200_OK)
+        queryset = Resource.objects.filter(author_id=request.user.id)
+        queryset = self.paginate_queryset(queryset)
+        serializer = self.serializer_class(queryset, many=True)
+        return self.get_paginated_response(serializer.data)
 
 
 class ResourceFileView(APIView):
