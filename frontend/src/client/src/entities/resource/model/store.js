@@ -7,10 +7,14 @@ const useResourcesStore = create()(immer((set) => ({
     resources: [],
 
     // Функция для установки resources
-    setResources: (newViewer) => set(state => state.view = newViewer),
+    setResources: (resources) => set(state => {
+        state.resources = resources
+    }),
 
     // Функция для добавления новых ресурсов
-    addResources: (newResources) => set(state => state.push(...newResources)),
+    addResources: (newResources) => set(state => {
+        state.resources.push(...newResources)
+    }),
 })));
 
 export { useResourcesStore };
