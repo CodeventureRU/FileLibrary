@@ -1,6 +1,7 @@
 from rest_framework.views import APIView
-from rest_framework.permissions import AllowAny
+from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
+from rest_framework.exceptions import PermissionDenied
 from rest_framework import status
 from django.shortcuts import get_object_or_404
 from django.http.response import Http404
@@ -12,6 +13,7 @@ from API.logic.functions import get_data
 from API.logic.resource.services import create_resource, delete_resource
 from API.logic.file.services import add_new_files, delete_files
 from API.models import Resource, ResourceGroup
+
 
 
 class LCResourceView(APIView):
@@ -56,6 +58,9 @@ class RUDResourceView(APIView):
 
     def get(self, request, id):
         resource = get_object_or_404(Resource, slug=id)
+        user = request.user
+        if resource.privacy_level == 'private' and user != resource.author:
+            raise PermissionDenied
         serializer = self.serializer_class(resource, context={'request': request})
         return Response(data=serializer.data, status=status.HTTP_200_OK)
 
@@ -85,6 +90,17 @@ class RUDResourceView(APIView):
             return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         resource.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+class UserResourcesView(APIView):
+    serializer_class = ResourceSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        user = request.user
+        objects = Resource.objects.filter(author_id=user.id)
+        serializer = self.serializer_class(objects, many=True)
+        return Response(data=serializer.data, status=status.HTTP_200_OK)
 
 
 class ResourceFileView(APIView):
