@@ -44,7 +44,6 @@ INSTALLED_APPS = [
     'API',
     'rest_framework_simplejwt',
 ]
-
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -54,12 +53,14 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'API.middlewares.CookieToAuthorizationHeaderMiddleware',
 ]
 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
-        'API.authenticate.JWTStatelessCookieAuthentication',
-    ]
+        'API.authentication.JWTStatelessCSRFUserAuthentication',
+    ],
+    'EXCEPTION_HANDLER': 'API.exception_handler.custom_exception_handler'
 }
 
 # Email settings
@@ -78,7 +79,9 @@ SIMPLE_JWT = {
     'REFRESH_TOKEN_LIFETIME': timedelta(hours=int(os.environ.get('REFRESH_TOKEN_LIFETIME'))),
     'UPDATE_LAST_LOGIN': True,
     'SIGNING_KEY': SECRET_KEY,
-    'USER_AUTHENTICATION_RULE': 'API.authenticate.custom_user_authentication_rule',
+    'USER_ID_CLAIM': 'pk',
+    'USER_AUTHENTICATION_RULE': 'API.authentication.custom_user_authentication_rule',
+    'TOKEN_USER_CLASS': 'API.models.CustomTokenUser',
     'ACCESS_COOKIE': os.environ.get('ACCESS_COOKIE'),
     'REFRESH_COOKIE': os.environ.get('REFRESH_COOKIE'),
     'AUTH_COOKIE_DOMAIN': None,  # !!! os.environ.get('AUTH_COOKIE_DOMAIN')
@@ -90,14 +93,22 @@ SIMPLE_JWT = {
 
 PASSWORD_RESET_TIMEOUT = 600
 
+# CSRF settings
+
 CSRF_COOKIE_AGE = SIMPLE_JWT['REFRESH_TOKEN_LIFETIME']
+CSRF_TRUSTED_ORIGIN = [*os.environ.get('ALLOWED_ORIGINS').split(' ')]
+
+# CORS settings
+
+CORS_ALLOWED_ORIGINS = [*os.environ.get('ALLOWED_ORIGINS').split(' ')]
+CORS_ALLOW_CREDENTIALS = os.environ.get('CORS_ALLOW_CREDENTIALS') == 'True'
 
 ROOT_URLCONF = 'project.urls'
 
 # Backend settings
 
 AUTHENTICATION_BACKENDS = [
-    'django.contrib.auth.backends.AllowAllUsersModelBackend',
+    'API.authentication.EmailUsernameBackend',
 ]
 
 # Templates settings
@@ -163,7 +174,7 @@ TIME_ZONE = 'UTC'
 
 USE_I18N = True
 
-USE_TZ = True
+USE_TZ = False
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.2/howto/static-files/
@@ -179,6 +190,3 @@ MEDIA_URL = 'media/'
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
-
-CORS_ORIGIN_ALLOW_ALL = os.environ.get('CORS_ORIGIN_ALLOW_ALL') == 'True'
-CORS_ALLOW_CREDENTIALS = os.environ.get('CORS_ALLOW_CREDENTIALS') == 'True'

@@ -2,6 +2,8 @@ from django.db import models
 from django.contrib.auth.models import AbstractUser
 from django.core.validators import MinLengthValidator
 from API.validators import UsernameValidator
+from django.utils.functional import cached_property
+from rest_framework_simplejwt.models import TokenUser
 
 
 class User(AbstractUser):
@@ -64,3 +66,10 @@ class ResourceCategory(models.Model):
 class ResourceGroup(models.Model):
     resource = models.ForeignKey(Resource, on_delete=models.CASCADE)
     group = models.ForeignKey(Group, on_delete=models.CASCADE)
+
+
+class CustomTokenUser(TokenUser):
+
+    @cached_property
+    def is_active(self):
+        return self.token.get("is_active", False)
