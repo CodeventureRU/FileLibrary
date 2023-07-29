@@ -13,6 +13,7 @@ from API.models import User
 from API.authentication import enforce_csrf
 
 
+# Secondary functions #
 def get_tokens_for_user(user):
     refresh = RefreshToken.for_user(user)
     refresh.payload.update({'username': user.username,
@@ -68,6 +69,7 @@ def convert_token(raw_token, token_class):
     return token
 
 
+# Email functions #
 def send_account_activation_message(request, user_instance):
     current_site = get_current_site(request)
     mail_subject = 'Активация учётной записи'
@@ -107,6 +109,7 @@ def send_email_confirmation_message(request, user_instance, new_email):
     email.send()
 
 
+# User auth functions #
 def register(request, validated_data):
     user_instance = User.objects.create_user(username=validated_data['username'],
                                              email=validated_data['email'],
@@ -115,21 +118,6 @@ def register(request, validated_data):
     # sending email message with account activation link #
     send_account_activation_message(request, user_instance)
     return user_instance
-
-
-def activate(uidb64, token):
-    try:
-        # getting object of user with id from link #
-        uid = force_str(urlsafe_base64_decode(uidb64))
-        user = User.objects.get(pk=uid)
-    except Exception:
-        return False
-    # checking token and activating account #
-    if account_activation_token.check_token(user, token):
-        user.is_active = True
-        user.save(update_fields=['is_active'])
-        return True
-    return False
 
 
 def verify(request, raw_access_token, raw_refresh_token):
@@ -179,6 +167,22 @@ def verify(request, raw_access_token, raw_refresh_token):
         return True, raw_access_token, user_data
     except Exception:
         return False, None, None
+
+
+# Functions for interacting with links from mail #
+def activate(uidb64, token):
+    try:
+        # getting object of user with id from link #
+        uid = force_str(urlsafe_base64_decode(uidb64))
+        user = User.objects.get(pk=uid)
+    except Exception:
+        return False
+    # checking token and activating account #
+    if account_activation_token.check_token(user, token):
+        user.is_active = True
+        user.save(update_fields=['is_active'])
+        return True
+    return False
 
 
 def reset_password(new_password, uidb64, token):

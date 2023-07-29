@@ -1,18 +1,18 @@
-from API.logic.user.views import UserRegisterView, UserLoginView, AccountActivateView, UserVerificationView, LogoutView,\
-    ResendEmailMessageView, ResetPasswordView, SendResetPasswordMessageView, UpdateUserEmailView, UpdateUserDataView, \
-    ConfirmUserEmailView
+from API.logic.user.views import RegistrationView, LoginView, AccountActivationView, VerificationView, LogoutView,\
+    ResendingEmailMessageView, ResetPasswordView, SendingResetPasswordMessageView, UpdatingEmailView, UpdatingDataView, \
+    EmailConfirmationView
 from django.urls import path
 
 urlpatterns = [
-    path('users/registration/', UserRegisterView.as_view()),
-    path('users/resend-account-activation/', ResendEmailMessageView.as_view()),
-    path('users/send-reset-password/', SendResetPasswordMessageView.as_view()),
-    path('users/update-user-data/', UpdateUserDataView.as_view()),
-    path('users/update-user-email/', UpdateUserEmailView.as_view()),
-    path('users/login/', UserLoginView.as_view()),
-    path('users/verification/', UserVerificationView.as_view()),
+    path('users/registration/', RegistrationView.as_view()),
+    path('users/resend-account-activation/', ResendingEmailMessageView.as_view()),
+    path('users/send-reset-password/', SendingResetPasswordMessageView.as_view()),
+    path('users/update-user-data/', UpdatingDataView.as_view()),
+    path('users/update-user-email/', UpdatingEmailView.as_view()),
+    path('users/login/', LoginView.as_view()),
+    path('users/verification/', VerificationView.as_view()),
     path('users/logout/', LogoutView.as_view()),
-    path('activation/<uidb64>/<token>/', AccountActivateView.as_view(), name='activation'),
+    path('activation/<uidb64>/<token>/', AccountActivationView.as_view(), name='activation'),
     path('reset-password/<uidb64>/<token>/', ResetPasswordView.as_view(), name='reset-password'),
-    path('email-confirmation/<uidb64>/<email64>/<token>/', ConfirmUserEmailView.as_view(), name='confirm-email'),
+    path('email-confirmation/<uidb64>/<email64>/<token>/', EmailConfirmationView.as_view(), name='confirm-email'),
 ]
