@@ -13,7 +13,7 @@ def create_resource(request, data):
         extension = image.name.split('.')[-1]
         image.name = f'{timezone.now().strftime("%d%m%y%f")}{request.user.pk}.{extension}'
     resource = Resource.objects.create(**data)
-    response = {'resource_id': resource.id}
+    response = {'resource_id': resource.slug}
     if data['type'] == 'file':
         files = request.FILES.getlist('files')
         file = create_file(files, resource.pk)

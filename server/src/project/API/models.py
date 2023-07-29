@@ -4,6 +4,7 @@ from django.core.validators import MinLengthValidator
 from API.validators import UsernameValidator
 from django.utils.functional import cached_property
 from rest_framework_simplejwt.models import TokenUser
+import uuid
 
 
 class User(AbstractUser):
@@ -23,6 +24,7 @@ class Category(models.Model):
 
 
 class Resource(models.Model):
+    slug = models.SlugField(unique=True, default=uuid.uuid4)
     name = models.CharField(max_length=64)
     description = models.CharField(max_length=32, blank=True)
     image = models.ImageField(upload_to='images/', blank=True, null=True)

@@ -46,6 +46,7 @@ class LCResourceView(APIView):
 
 class RUDResourceView(APIView):
     serializer_class = ResourceSerializer
+    lookup_field = 'slug'
 
     def get_permissions(self):
         if self.request.method == 'GET':
@@ -54,12 +55,12 @@ class RUDResourceView(APIView):
             return [IsAuthorAndActive()]
 
     def get(self, request, id):
-        resource = get_object_or_404(Resource, pk=id)
+        resource = get_object_or_404(Resource, slug=id)
         serializer = self.serializer_class(resource, context={'request': request})
         return Response(data=serializer.data, status=status.HTTP_200_OK)
 
     def patch(self, request, id):
-        resource = get_object_or_404(Resource, pk=id)
+        resource = get_object_or_404(Resource, slug=id)
         self.check_object_permissions(request, resource)
         data = get_data(request)
         serializer = self.serializer_class(resource, data=data, partial=True)
@@ -71,7 +72,7 @@ class RUDResourceView(APIView):
 
     def delete(self, request, id):
         try:
-            resource = Resource.objects.prefetch_related('file').filter(pk=id)[0]
+            resource = Resource.objects.prefetch_related('file').filter(slug=id)[0]
         except IndexError:
             raise Http404
         except Exception:
@@ -89,10 +90,11 @@ class RUDResourceView(APIView):
 class ResourceFileView(APIView):
     serializer_class = FileSerializer
     permission_classes = [IsAuthorAndActive]
+    lookup_field = 'slug'
 
     def post(self, request, id):
         try:
-            resource = Resource.objects.prefetch_related('file').filter(pk=id)[0]
+            resource = Resource.objects.prefetch_related('file').filter(slug=id)[0]
             file_instance = resource.file
         except IndexError:
             raise Http404
@@ -109,7 +111,7 @@ class ResourceFileView(APIView):
 
     def delete(self, request, id):
         try:
-            resource = Resource.objects.prefetch_related('file').filter(pk=id)[0]
+            resource = Resource.objects.prefetch_related('file').filter(slug=id)[0]
             file_instance = resource.file
         except IndexError:
             raise Http404
@@ -129,13 +131,14 @@ class ResourceFileView(APIView):
 class ResourceGroupView(APIView):
     serializer_class = ResourceSerializer
     permission_classes = [IsAuthorAndActive]
+    lookup_field = 'slug'
 
     def post(self, request, resource_id, group_id):
-        resource_file = get_object_or_404(Resource, pk=resource_id)
+        resource_file = get_object_or_404(Resource, slug=resource_id)
         if resource_file.type != 'file':
             return Response(data={'detail': 'Нельзя добавить группу в группу'}, status=status.HTTP_400_BAD_REQUEST)
         try:
-            resource_with_group = Resource.objects.prefetch_related('groups').filter(pk=group_id)[0]
+            resource_with_group = Resource.objects.prefetch_related('groups').filter(slug=group_id)[0]
             group_instance = resource_with_group.groups
         except IndexError:
             raise Http404
@@ -149,9 +152,9 @@ class ResourceGroupView(APIView):
         return Response(status=status.HTTP_204_NO_CONTENT)
 
     def delete(self, request, resource_id, group_id):
-        get_object_or_404(Resource, pk=resource_id)
+        get_object_or_404(Resource, slug=resource_id)
         try:
-            resource_with_group = Resource.objects.prefetch_related('groups').filter(pk=group_id)[0]
+            resource_with_group = Resource.objects.prefetch_related('groups').filter(slug=group_id)[0]
             group_instance = resource_with_group.groups
         except IndexError:
             raise Http404

@@ -6,7 +6,7 @@ class ResourceSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Resource
-        fields = ['id', 'name', 'description', 'image', 'privacy_level', 'tags', 'type', 'author',
+        fields = ['slug', 'name', 'description', 'image', 'privacy_level', 'tags', 'type', 'author',
                   'updated_at', 'created_at']
         extra_kwargs = {
             'image': {'required': False},
