@@ -24,7 +24,7 @@ class LCResourceView(APIView):
             return [IsAuthorAndActive()]
 
     def get(self, request):
-        objects = Resource.objects.all()
+        objects = Resource.objects.filter(privacy_level='public')
         serializer = self.serializer_class(objects, many=True)
         return Response(data=serializer.data, status=status.HTTP_200_OK)
 
