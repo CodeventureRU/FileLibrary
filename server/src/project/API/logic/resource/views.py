@@ -158,31 +158,31 @@ class ResourceGroupView(APIView):
         if resource_file.type != 'file':
             return Response(data={'detail': 'Нельзя добавить группу в группу'}, status=status.HTTP_400_BAD_REQUEST)
         try:
-            resource_with_group = Resource.objects.prefetch_related('groups').filter(slug=group_id)[0]
-            group_instance = resource_with_group.groups
+            resource_group = Resource.objects.prefetch_related('groups').filter(slug=group_id)[0]
+            group_instance = resource_group.groups
         except IndexError:
             raise Http404
         except Exception:
             return Response(data={'detail': "Был передан объект с типом 'file', вместо 'group'"},
                             status=status.HTTP_400_BAD_REQUEST)
-        if len(ResourceGroup.objects.filter(group_id=group_id, resource_id=resource_id)):
+        if len(ResourceGroup.objects.filter(group_id=resource_group.pk, resource_id=resource_file.pk)):
             return Response(data={'detail': 'Этот ресурс уже есть в группе'}, status=status.HTTP_400_BAD_REQUEST)
-        self.check_object_permissions(request=request, obj=resource_with_group)
-        group_instance.resources.add(resource_id)
+        self.check_object_permissions(request=request, obj=resource_group)
+        group_instance.resources.add(resource_file.pk)
         return Response(status=status.HTTP_204_NO_CONTENT)
 
     def delete(self, request, resource_id, group_id):
-        get_object_or_404(Resource, slug=resource_id)
+        resource_file = get_object_or_404(Resource, slug=resource_id)
         try:
-            resource_with_group = Resource.objects.prefetch_related('groups').filter(slug=group_id)[0]
-            group_instance = resource_with_group.groups
+            resource_group = Resource.objects.prefetch_related('groups').filter(slug=group_id)[0]
+            group_instance = resource_group.groups
         except IndexError:
             raise Http404
         except Exception:
             return Response(data={'detail': "Был передан объект с типом 'file', вместо 'group'"},
                             status=status.HTTP_400_BAD_REQUEST)
-        if not len(ResourceGroup.objects.filter(group_id=group_id, resource_id=resource_id)):
+        if not len(ResourceGroup.objects.filter(group_id=resource_group.pk, resource_id=resource_file.pk)):
             return Response(data={'detail': 'Запрашиваемого ресурса нет в группе'}, status=status.HTTP_400_BAD_REQUEST)
-        self.check_object_permissions(request=request, obj=resource_with_group)
-        group_instance.resources.remove(resource_id)
+        self.check_object_permissions(request=request, obj=resource_group)
+        group_instance.resources.remove(resource_file.pk)
         return Response(status=status.HTTP_204_NO_CONTENT)
