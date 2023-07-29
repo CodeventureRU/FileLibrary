@@ -8,7 +8,7 @@ import {
     Typography
 } from "@mui/material";
 import {useNavigate} from "react-router-dom";
-import {ErrorsBag} from "../../features/errors-bag/index";
+import {ErrorsBag} from "../../shared/ui/errors-bag/index";
 import {LoadingButton} from "../../shared/ui/loading-button/index.js";
 import {GridFormControl} from "../../shared/ui/grid-form-control/index.js";
 

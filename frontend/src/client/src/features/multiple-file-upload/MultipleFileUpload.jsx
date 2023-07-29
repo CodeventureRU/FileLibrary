@@ -1,7 +1,7 @@
 import React, {useState} from 'react';
 import {alpha, Box, Button, Divider, IconButton, List, ListItem, ListItemText, Typography} from "@mui/material";
 import {Close, FileUpload} from "@mui/icons-material";
-import {ErrorsBag} from "../errors-bag/index.js";
+import {ErrorsBag} from "../../shared/ui/errors-bag/index.js";
 
 const MultipleFileUpload = ({files, setFiles}) => {
 

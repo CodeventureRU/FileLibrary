@@ -13,7 +13,7 @@ import {
     MenuItem,
     Typography
 } from "@mui/material";
-import {ErrorsBag} from "../../features/errors-bag/index.js";
+import {ErrorsBag} from "../../shared/ui/errors-bag/index.js";
 import ResourceListItem from "../../entities/resource/ui/ResourceListItem.jsx";
 import ResourceGrid from "../../entities/resource/ui/ResourceGrid.jsx";
 import ResourceGridItem from "../../entities/resource/ui/ResourceGridItem.jsx";
