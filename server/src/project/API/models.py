@@ -38,10 +38,15 @@ class Resource(models.Model):
         ('file', 'Файл'),
         ('group', 'Группа')
     ])
-    favorites = models.ManyToManyField(User, db_table='API_favorite')
+    favorites = models.ManyToManyField(User, through='Favorite')
     author = models.ForeignKey(User, on_delete=models.CASCADE, related_name='resources')
     updated_at = models.DateTimeField(auto_now=True)
     created_at = models.DateTimeField(auto_now_add=True)
+
+
+class Favorite(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    resource = models.ForeignKey(Resource, on_delete=models.CASCADE)
 
 
 class Group(models.Model):

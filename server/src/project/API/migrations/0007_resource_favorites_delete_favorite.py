@@ -11,13 +11,10 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.DeleteModel(
-            name='Favorite',
-        ),
         migrations.AddField(
             model_name='resource',
             name='favorites',
-            field=models.ManyToManyField(db_table='API_favorite', to=settings.AUTH_USER_MODEL),
+            field=models.ManyToManyField(through='API.Favorite', to=settings.AUTH_USER_MODEL),
         ),
 
     ]
