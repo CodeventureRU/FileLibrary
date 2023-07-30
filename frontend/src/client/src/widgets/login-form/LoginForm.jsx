@@ -20,11 +20,11 @@ const LoginForm = () => {
     }, [errors, requested]);
     const navigate = useNavigate();
 
-    const [username, setUsername] = useState("");
+    const [login, setLogin] = useState("");
     const [password, setPassword] = useState("");
 
     const loginHandle = async () => {
-        let res = await loginRequest(username, password);
+        let res = await loginRequest(login, password);
         if (res != null) {
             navigate("/profile");
         }
@@ -42,9 +42,9 @@ const LoginForm = () => {
                         <Grid container spacing={2}>
 
                             <GridFormControl
-                                field={username}
-                                setField={setUsername}
-                                label="Имя пользователя"
+                                field={login}
+                                setField={setLogin}
+                                label="Логин (email или имя пользователя)"
                                 errors={errors?.username}
                             />
 

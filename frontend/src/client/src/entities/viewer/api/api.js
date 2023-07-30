@@ -16,15 +16,15 @@ const URLS = {
 
 const useLogin = () => {
     const {request, ...apiHook} = useApi(URLS.login, "post");
-    const login = useViewerStore(loginSelector);
+    const loginFunc = useViewerStore(loginSelector); // Переименовал, чтобы не перебивалось с аргументом "login"
 
-    const loginRequest = async (username, password) => {
+    const loginRequest = async (login, password) => {
         let res = await request({}, {
-            username,
+            login,
             password
         });
         if (res != null) {
-            login(res);
+            loginFunc(res);
         }
         return res;
     }
