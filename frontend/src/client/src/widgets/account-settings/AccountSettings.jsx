@@ -1,5 +1,6 @@
 import React from 'react';
 import {Box, Paper, Tab, Tabs, Typography} from "@mui/material";
+import {UsernameForm} from "../../features/profile-settings/username-form/index.js";
 
 function TabPanel(props) {
     const { children, value, index, ...other } = props;
@@ -11,6 +12,7 @@ function TabPanel(props) {
             id={`vertical-tabpanel-${index}`}
             aria-labelledby={`vertical-tab-${index}`}
             {...other}
+            style={{width: "100%"}}
         >
             {value === index && (
                 <Box sx={{ py: 1, px: 3 }}>
@@ -29,7 +31,9 @@ function a11yProps(index) {
 
             flexDirection: "row",
             justifyContent: "flex-start",
-            textTransform: 'none'
+            textAlign: "left",
+            textTransform: 'none',
+            pl: 0,
         }
     };
 }
@@ -64,6 +68,7 @@ const AccountSettings = () => {
                         </Tabs>
                         <TabPanel value={value} index={0}>
                             <Typography>Редактирование имени пользователя</Typography>
+                            <UsernameForm />
                         </TabPanel>
                         <TabPanel value={value} index={1}>
                             <Typography>Редактирование Email</Typography>

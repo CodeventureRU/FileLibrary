@@ -12,6 +12,7 @@ const URLS = {
     verify: "/users/verification/",
     activate: (uidb64, token) => `/activation/${uidb64}/${token}/`,
     resend: `/users/resend-account-activation/`,
+    updateUsername: '/users/update-user-data/',
 }
 
 const useLogin = () => {
@@ -105,4 +106,16 @@ const useResendEmail = () => {
     return {...apiHook, resendRequest};
 }
 
-export {useLogin, useRegister, useLogout, useVerify, useActivate, useResendEmail}
+const useUpdateUsername = () => {
+    const {request, ...apiHook} = useApi(URLS.updateUsername, "patch");
+
+    const updateUsernameRequest = async (username) => {
+        return await request({}, {
+            username
+        });
+    }
+
+    return {...apiHook, updateUsernameRequest};
+}
+
+export {useLogin, useRegister, useLogout, useVerify, useActivate, useResendEmail, useUpdateUsername}
