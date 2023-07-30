@@ -11,7 +11,7 @@ const URLS = {
     logout: "/users/logout/",
     verify: "/users/verification/",
     activate: (uidb64, token) => `/activation/${uidb64}/${token}/`,
-    resend: `/resent/`,
+    resend: `/users/resend-account-activation/`,
 }
 
 const useLogin = () => {

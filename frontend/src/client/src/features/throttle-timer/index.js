@@ -7,7 +7,7 @@ const createRemainsText = (time) => {
         if (seconds >= 11 && seconds <= 19) {
             return 'секунд';
         } else if (lastDigit === 1) {
-            return 'секунда';
+            return 'секунду';
         } else if (lastDigit >= 2 && lastDigit <= 4) {
             return 'секунды';
         } else {
@@ -18,38 +18,51 @@ const createRemainsText = (time) => {
     return `Повторите через ${time} ${getSecondsText(time)}`;
 }
 
+const STANDARD_THROTTLE_TIME = 300;
+
 export const useThrottleTimer = (errors, requested) => {
-    const [remains, setRemains] = useState(0);
     const [remainsText, setRemainsText] = useState("");
+    const [isWaiting, setIsWaiting] = useState(false);
 
     // Функция для установки состояния remains и remainsText
     const setRemainsValue = time => {
-        setRemains(time);
         setRemainsText(createRemainsText(time));
     }
 
     // Эффект, который будет запускаться при изменении errors или requested (прошел новый запрос)
     useEffect(() => {
         if (requested > 0) {
+            setIsWaiting(true);
+            let remains = STANDARD_THROTTLE_TIME; // По умолчанию ставим remains на основе стандартного времени ожидания для троттлинга
+            // Но если запрос пришел с ошибкой, и в нем передано время, то переставляем его на переданное значение
             if (errors?.remains) {
-                // Устанавливаем состояния remains и remainsText на основе ошибки remains из объекта errors
-                setRemainsValue(Number(errors.remains));
-                // Запускаем таймер для обновления remains каждую секунду
-                setTimeout(() => remainTimer(Number(errors.remains)), 1000);
+                remains = errors.remains
             }
+
+            // Устанавливаем состояние remainsText на основе remains
+            setRemainsValue(remains);
+            let requestedAt = Math.floor(Date.now() / 1000)
+
+            // Запускаем таймер для обновления remainsText каждую секунду
+            setTimeout(() => remainTimer(remains, requestedAt), 1001);
         }
     }, [errors, requested]);
 
-    // Функция для запуска таймера, уменьшающего время и обновляющего состояние remains и remainsText
-    const remainTimer = (time) => {
-        setRemainsValue(time - 1);
+    // Функция для запуска таймера, уменьшающего время и обновляющего состояние remainsText и isWaiting
+    const remainTimer = (time, requestedAt) => {
+        const currentTime = Math.floor(Date.now() / 1000);
+        const diff = currentTime - requestedAt;
+        const remainsSeconds = time - diff;
+        setRemainsValue(remainsSeconds);
 
         // Если осталось больше 1 секунды, запускаем таймер снова
-        if (time > 1) {
-            setTimeout(() => remainTimer(time - 1), 1000);
+        if (remainsSeconds > 0) {
+            setTimeout(() => remainTimer(time, requestedAt), 1000);
+        } else {
+            setIsWaiting(false);
         }
     }
 
     // Возвращаем состояния remains и remainsText
-    return {remains, remainsText};
+    return {isWaiting, remainsText};
 }
