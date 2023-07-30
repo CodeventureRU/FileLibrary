@@ -15,6 +15,8 @@ const URLS = {
     updateUsername: '/users/update-user-data/',
     updatePassword: '/users/update-user-data/',
     updateEmail: '/users/update-user-email/',
+    sendResetPassword: "/users/send-reset-password/",
+    resetPassword: (uidb64, token) => `/reset-password/${uidb64}/${token}/`,
 }
 
 const useLogin = () => {
@@ -146,6 +148,31 @@ const useUpdatePassword = () => {
     return {...apiHook, updatePasswordRequest};
 }
 
+const useSendResetPassword = () => {
+    const {request, ...apiHook} = useApi(URLS.sendResetPassword, "post");
+
+    const sendResetPasswordRequest = async (login) => {
+        return await request({}, {
+            login
+        });
+    }
+
+    return {...apiHook, sendResetPasswordRequest};
+}
+
+const useResetPassword = (uidb64, token) => {
+    const {request, ...apiHook} = useApi(URLS.resetPassword(uidb64, token), "post");
+
+    const resetPasswordRequest = async (password, passwordConfirm) => {
+        return await request({}, {
+            password,
+            confirm_password: passwordConfirm,
+        });
+    }
+
+    return {...apiHook, resetPasswordRequest};
+}
+
 export {
     useLogin,
     useRegister,
@@ -155,5 +182,7 @@ export {
     useResendEmail,
     useUpdateUsername,
     useUpdateEmail,
-    useUpdatePassword
+    useUpdatePassword,
+    useSendResetPassword,
+    useResetPassword
 }
