@@ -17,6 +17,7 @@ const URLS = {
     updateEmail: '/users/update-user-email/',
     sendResetPassword: "/users/send-reset-password/",
     resetPassword: (uidb64, token) => `/reset-password/${uidb64}/${token}/`,
+    confirmEmail: (uidb64, token, email) => `/email-confirmation/${uidb64}/${email}/${token}/`,
 }
 
 const useLogin = () => {
@@ -173,6 +174,19 @@ const useResetPassword = (uidb64, token) => {
     return {...apiHook, resetPasswordRequest};
 }
 
+const useConfirmEmail = (uidb64, token, email) => {
+    const {request, ...apiHook} = useApi(URLS.confirmEmail(uidb64, token, email), "post");
+
+    const confirmEmailRequest = async (login, password) => {
+        return await request({}, {
+            login,
+            password,
+        });
+    }
+
+    return {...apiHook, confirmEmailRequest};
+}
+
 export {
     useLogin,
     useRegister,
@@ -184,5 +198,6 @@ export {
     useUpdateEmail,
     useUpdatePassword,
     useSendResetPassword,
-    useResetPassword
+    useResetPassword,
+    useConfirmEmail
 }
