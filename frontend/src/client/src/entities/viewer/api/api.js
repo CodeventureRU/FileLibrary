@@ -13,6 +13,7 @@ const URLS = {
     activate: (uidb64, token) => `/activation/${uidb64}/${token}/`,
     resend: `/users/resend-account-activation/`,
     updateUsername: '/users/update-user-data/',
+    updatePassword: '/users/update-user-data/',
     updateEmail: '/users/update-user-email/',
 }
 
@@ -131,4 +132,28 @@ const useUpdateEmail = () => {
     return {...apiHook, updateEmailRequest};
 }
 
-export {useLogin, useRegister, useLogout, useVerify, useActivate, useResendEmail, useUpdateUsername, useUpdateEmail}
+const useUpdatePassword = () => {
+    const {request, ...apiHook} = useApi(URLS.updatePassword, "patch");
+
+    const updatePasswordRequest = async (currentPassword, password, passwordConfirm) => {
+        return await request({}, {
+            current_password: currentPassword,
+            password: password,
+            confirm_password: passwordConfirm,
+        });
+    }
+
+    return {...apiHook, updatePasswordRequest};
+}
+
+export {
+    useLogin,
+    useRegister,
+    useLogout,
+    useVerify,
+    useActivate,
+    useResendEmail,
+    useUpdateUsername,
+    useUpdateEmail,
+    useUpdatePassword
+}
