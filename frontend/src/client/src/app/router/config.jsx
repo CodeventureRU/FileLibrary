@@ -11,6 +11,7 @@ import {AuthGuard, GuestGuard, IsActiveGuard} from "../../features/auth-guards/i
 import {Activation} from "../../pages/activaion/index";
 import {CreatingFile} from "../../pages/creating-file/index.js";
 import {CreatingGroup} from "../../pages/creating-group/index.js";
+import {ProfileSettings} from "../../pages/profile-settings/index.js";
 
 export const router = createBrowserRouter([
     {
@@ -24,6 +25,10 @@ export const router = createBrowserRouter([
             {
                 path: "/profile",
                 element: <AuthGuard><Profile/></AuthGuard>,
+            },
+            {
+                path: "/profile/settings",
+                element: <AuthGuard><ProfileSettings/></AuthGuard>,
             },
             {
                 path: "/creating-file",
