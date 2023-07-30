@@ -11,6 +11,10 @@ import {AuthGuard, GuestGuard, IsActiveGuard} from "../../features/auth-guards/i
 import {Activation} from "../../pages/activaion/index";
 import {CreatingFile} from "../../pages/creating-file/index.js";
 import {CreatingGroup} from "../../pages/creating-group/index.js";
+import {ProfileSettings} from "../../pages/profile-settings/index.js";
+import {SendResetPassword} from "../../pages/send-reset-password/index.js";
+import {ResetPassword} from "../../pages/reset-password/index.js";
+import {ConfirmEmail} from "../../pages/confirm-email/index.js";
 
 export const router = createBrowserRouter([
     {
@@ -24,6 +28,10 @@ export const router = createBrowserRouter([
             {
                 path: "/profile",
                 element: <AuthGuard><Profile/></AuthGuard>,
+            },
+            {
+                path: "/profile/settings",
+                element: <AuthGuard><ProfileSettings/></AuthGuard>,
             },
             {
                 path: "/creating-file",
@@ -42,6 +50,10 @@ export const router = createBrowserRouter([
                 element: <GuestGuard><Login/></GuestGuard>,
             },
             {
+                path: "/send-reset-password",
+                element: <GuestGuard><SendResetPassword/></GuestGuard>,
+            },
+            {
                 path: "/register",
                 element: <GuestGuard><Registration/></GuestGuard>,
             },
@@ -56,6 +68,14 @@ export const router = createBrowserRouter([
             {
                 path: "/activation/:uidb64/:token",
                 element: <Activation />,
+            },
+            {
+                path: "/reset-password/:uidb64/:token",
+                element: <GuestGuard><ResetPassword/></GuestGuard>,
+            },
+            {
+                path: "/email-confirmation/:uidb64/:email/:token",
+                element: <GuestGuard><ConfirmEmail/></GuestGuard>,
             },
         ]
     },

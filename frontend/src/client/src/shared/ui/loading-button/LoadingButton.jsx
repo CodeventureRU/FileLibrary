@@ -1,13 +1,14 @@
 import React from 'react';
 import {Box, Button, CircularProgress} from "@mui/material";
 
-const LoadingButton = ({children, onClick, loading, disabled=false}) => {
+const LoadingButton = ({children, onClick, loading, disabled=false, buttonProps={}}) => {
     return (
         <Box sx={{ position: 'relative' }}>
             <Button
                 variant="contained"
                 onClick={onClick}
                 disabled={loading || disabled}
+                {...buttonProps}
             >
                 {children}
             </Button>
