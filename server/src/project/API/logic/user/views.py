@@ -6,7 +6,6 @@ from rest_framework import status
 from django.middleware import csrf
 from django.contrib.auth import authenticate
 from django.core.validators import validate_email
-from django.shortcuts import get_object_or_404
 from project import settings
 
 from API.logic.functions import get_data
@@ -121,7 +120,12 @@ class UpdatingDataView(APIView):
 
     def patch(self, request):
         data = get_data(request)
-        user_instance = get_object_or_404(User, pk=request.user.pk)
+        try:
+            user_instance = User.objects.get(pk=request.user.pk)
+        except User.DoesNotExist:
+            return Response(data={'detail': 'Пользователь не найден'}, status=status.HTTP_404_NOT_FOUND)
+        except Exception:
+            return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         serializer = self.serializer_class(data=data)
         serializer.is_valid(raise_exception=True)
 
@@ -147,6 +151,8 @@ class UpdatingDataView(APIView):
                     raise ValidationError({'confirm_password': ['Поле пароль и подтверждение пароля не совпадают']})
             else:
                 raise ValidationError({'current_password': ['Неправильный пароль']})
+        else:
+            return Response(data={'detail': 'Вы не передали данных для изменения'},status=status.HTTP_400_BAD_REQUEST)
 
 
 # Update email #
@@ -175,7 +181,12 @@ class UpdatingEmailView(APIView):
 
     def patch(self, request):
         data = get_data(request)
-        user_instance = get_object_or_404(User, pk=request.user.pk)
+        try:
+            user_instance = User.objects.get(pk=request.user.pk)
+        except User.DoesNotExist:
+            return Response(data={'detail': 'Пользователь не найден'}, status=status.HTTP_404_NOT_FOUND)
+        except Exception:
+            return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         serializer = self.serializer_class(data=data)
         serializer.is_valid(raise_exception=True)
         self.check_throttles(request)
@@ -191,7 +202,12 @@ class AccountDeletionView(APIView):
     permission_classes = [IsAuthenticated]
 
     def delete(self, request):
-        user_instance = get_object_or_404(User, pk=request.user.id)
+        try:
+            user_instance = User.objects.get(pk=request.user.pk)
+        except User.DoesNotExist:
+            return Response(data={'detail': 'Пользователь не найден'}, status=status.HTTP_404_NOT_FOUND)
+        except Exception:
+            return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         user_instance.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
@@ -230,7 +246,12 @@ class SendingResetPasswordMessageView(APIView):
             kwargs = {'email': login}
         except Exception:
             kwargs = {'username': login}
-        user_instance = get_object_or_404(User, **kwargs)
+        try:
+            user_instance = User.objects.filter(**kwargs)[0]
+        except IndexError:
+            return Response(data={'detail': 'Пользователь не найден'}, status=status.HTTP_404_NOT_FOUND)
+        except Exception:
+            return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         try:
             send_reset_password_message(request, user_instance)
             return Response(data={'detail': 'Письмо с ссылкой для сброса пароля было отправлено на почтовый адрес'},
