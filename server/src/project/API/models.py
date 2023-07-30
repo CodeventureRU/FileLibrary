@@ -38,6 +38,7 @@ class Resource(models.Model):
         ('file', 'Файл'),
         ('group', 'Группа')
     ])
+    favorites = models.ManyToManyField(User, db_table='API_favorite')
     author = models.ForeignKey(User, on_delete=models.CASCADE, related_name='resources')
     updated_at = models.DateTimeField(auto_now=True)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -53,11 +54,6 @@ class File(models.Model):
     downloads = models.IntegerField(default=0)
     extensions = models.TextField()
     resource = models.OneToOneField(Resource, on_delete=models.CASCADE, related_name='file')
-
-
-class Favorite(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
-    resource = models.ForeignKey(Resource, on_delete=models.CASCADE)
 
 
 class ResourceCategory(models.Model):

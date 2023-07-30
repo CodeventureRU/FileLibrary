@@ -5,12 +5,14 @@ from rest_framework.exceptions import PermissionDenied
 from rest_framework import status
 from django.shortcuts import get_object_or_404
 from django.http.response import Http404
+from django.core.exceptions import FieldError
+from django.db.models import Count, F
 
 from API.logic.file.serializers import FileSerializer
-from API.logic.resource.serializers import ResourceSerializer
+from API.logic.resource.serializers import ListResourceSerializer, CUDResourceSerializer, GroupResourceSerializer, FileResourceSerializer
 from API.permissions import IsAuthorAndActive
 from API.logic.functions import get_data
-from API.logic.resource.services import create_resource, delete_resource
+from API.logic.resource.services import create_resource, delete_resource, resource_filtering
 from API.logic.file.services import add_new_files, delete_files
 from API.models import Resource, ResourceGroup
 from API.pagination import MyPaginationMixin
@@ -18,7 +20,7 @@ from rest_framework.settings import api_settings
 
 
 class LCResourceView(APIView, MyPaginationMixin):
-    serializer_class = ResourceSerializer
+    serializer_class = ListResourceSerializer
     pagination_class = api_settings.DEFAULT_PAGINATION_CLASS
 
     def get_permissions(self):
@@ -29,8 +31,12 @@ class LCResourceView(APIView, MyPaginationMixin):
 
     def get(self, request):
         queryset = Resource.objects.filter(privacy_level='public')
+        try:
+            queryset = resource_filtering(request, queryset)
+        except FieldError:
+            return Response(data={'detail': 'Недопустимое имя фильтра'}, status=status.HTTP_400_BAD_REQUEST)
         queryset = self.paginate_queryset(queryset)
-        serializer = self.serializer_class(queryset, many=True)
+        serializer = self.serializer_class(queryset, many=True, context={'request': request})
         return self.get_paginated_response(serializer.data)
 
     def post(self, request):
@@ -39,7 +45,7 @@ class LCResourceView(APIView, MyPaginationMixin):
         if image is not None:
             data['image'] = image
         data['author'] = request.user.pk
-        serializer = self.serializer_class(data=data)
+        serializer = CUDResourceSerializer(data=data)
         serializer.is_valid(raise_exception=True)
         try:
             resource = create_resource(request, serializer.validated_data)
@@ -50,7 +56,7 @@ class LCResourceView(APIView, MyPaginationMixin):
 
 
 class RUDResourceView(APIView):
-    serializer_class = ResourceSerializer
+    serializer_class = CUDResourceSerializer
     lookup_field = 'slug'
 
     def get_permissions(self):
@@ -60,11 +66,27 @@ class RUDResourceView(APIView):
             return [IsAuthorAndActive()]
 
     def get(self, request, id):
-        resource = get_object_or_404(Resource, slug=id)
+        try:
+            queryset = Resource.objects.filter(slug=id)
+            queryset = queryset.prefetch_related('favorites', 'file', 'groups')
+            queryset = queryset.annotate(num_favorites=Count('favorites'))
+            queryset = queryset.annotate(downloads=F('file__downloads'))
+            resource = queryset[0]
+        except IndexError:
+            raise Http404
+        except Exception:
+            return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
         user = request.user
+
         if resource.privacy_level == 'private' and user != resource.author:
             raise PermissionDenied
-        serializer = self.serializer_class(resource, context={'request': request})
+
+        if resource.type == 'group':
+            serializer = GroupResourceSerializer(resource, context={'request': request})
+        else:
+            serializer = FileResourceSerializer(resource, context={'request': request})
+
         return Response(data=serializer.data, status=status.HTTP_200_OK)
 
     def patch(self, request, id):
@@ -96,14 +118,21 @@ class RUDResourceView(APIView):
 
 
 class UserResourcesView(MyPaginationMixin, APIView):
-    serializer_class = ResourceSerializer
+    serializer_class = ListResourceSerializer
     permission_classes = [IsAuthenticated]
     pagination_class = api_settings.DEFAULT_PAGINATION_CLASS
 
-    def get(self, request):
-        queryset = Resource.objects.filter(author_id=request.user.id)
+    def get(self, request, username):
+        if username == request.user.username:
+            queryset = Resource.objects.filter(author_id=request.user.id)
+        else:
+            queryset = Resource.objects.filter(author__username=username, privacy_level='public')
+        try:
+            queryset = resource_filtering(request, queryset)
+        except FieldError:
+            return Response(data={'detail': 'Недопустимое имя фильтра'}, status=status.HTTP_400_BAD_REQUEST)
         queryset = self.paginate_queryset(queryset)
-        serializer = self.serializer_class(queryset, many=True)
+        serializer = self.serializer_class(queryset, many=True, context={'request': request})
         return self.get_paginated_response(serializer.data)
 
 
@@ -149,7 +178,7 @@ class ResourceFileView(APIView):
 
 
 class ResourceGroupView(APIView):
-    serializer_class = ResourceSerializer
+    serializer_class = CUDResourceSerializer
     permission_classes = [IsAuthorAndActive]
     lookup_field = 'slug'
 
@@ -165,7 +194,7 @@ class ResourceGroupView(APIView):
         except Exception:
             return Response(data={'detail': "Был передан объект с типом 'file', вместо 'group'"},
                             status=status.HTTP_400_BAD_REQUEST)
-        if len(ResourceGroup.objects.filter(group_id=resource_group.pk, resource_id=resource_file.pk)):
+        if len(ResourceGroup.objects.filter(group_id=group_instance.pk, resource_id=resource_file.pk)):
             return Response(data={'detail': 'Этот ресурс уже есть в группе'}, status=status.HTTP_400_BAD_REQUEST)
         self.check_object_permissions(request=request, obj=resource_group)
         group_instance.resources.add(resource_file.pk)
@@ -181,7 +210,7 @@ class ResourceGroupView(APIView):
         except Exception:
             return Response(data={'detail': "Был передан объект с типом 'file', вместо 'group'"},
                             status=status.HTTP_400_BAD_REQUEST)
-        if not len(ResourceGroup.objects.filter(group_id=resource_group.pk, resource_id=resource_file.pk)):
+        if not len(ResourceGroup.objects.filter(group_id=group_instance.pk, resource_id=resource_file.pk)):
             return Response(data={'detail': 'Запрашиваемого ресурса нет в группе'}, status=status.HTTP_400_BAD_REQUEST)
         self.check_object_permissions(request=request, obj=resource_group)
         group_instance.resources.remove(resource_file.pk)
