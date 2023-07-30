@@ -185,6 +185,17 @@ class UpdatingEmailView(APIView):
             status=status.HTTP_200_OK)
 
 
+# Account deletion #
+class AccountDeletionView(APIView):
+    serializer_class = UserSerializer
+    permission_classes = [IsAuthenticated]
+
+    def delete(self, request):
+        user_instance = get_object_or_404(User, pk=request.user.id)
+        user_instance.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+
 # Confirm email change with link from email #
 class EmailConfirmationView(APIView):
     serializer_class = UserSerializer
