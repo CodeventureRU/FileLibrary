@@ -8,11 +8,26 @@ from project import settings
 from django.db.models import Q, Count, F
 
 
-def create_resource(request, data):
-    if 'image' in data:
-        image = data['image']
+def image_processing(request, image):
+    if image is not None:
         extension = image.name.split('.')[-1]
         image.name = f'{timezone.now().strftime("%d%m%y%f")}{request.user.pk}.{extension}'
+        return image
+    return None
+
+
+def delete_image(resource):
+    try:
+        image = resource.image.__str__()
+        os.remove(os.path.join(settings.MEDIA_ROOT, image))
+    except FileNotFoundError as ex:
+        print('УДАЛЕНИЕ ФАЙЛА', ex)
+        pass
+
+
+def create_resource(request, data):
+    if data['image'] is not None:
+        data['image'] = image_processing(request, data['image'])
     resource = Resource.objects.create(**data)
     response = {'resource_id': resource.slug}
     if data['type'] == 'file':

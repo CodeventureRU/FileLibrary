@@ -12,7 +12,7 @@ from API.logic.file.serializers import FileSerializer
 from API.logic.resource.serializers import ListResourceSerializer, CUDResourceSerializer, GroupResourceSerializer, FileResourceSerializer
 from API.permissions import IsAuthorAndActive
 from API.logic.functions import get_data
-from API.logic.resource.services import create_resource, delete_resource, resource_filtering
+from API.logic.resource.services import create_resource, delete_resource, resource_filtering, image_processing, delete_image
 from API.logic.file.services import add_new_files, delete_files
 from API.models import Resource, ResourceGroup
 from API.pagination import MyPaginationMixin
@@ -93,10 +93,15 @@ class RUDResourceView(APIView):
         resource = get_object_or_404(Resource, slug=id)
         self.check_object_permissions(request, resource)
         data = get_data(request)
+        image = request.FILES.get('image')
+        data['image'] = image_processing(request, image)
         serializer = self.serializer_class(resource, data=data, partial=True)
         serializer.is_valid(raise_exception=True)
+        if image is not None:
+            delete_image(resource)
         for key, value in serializer.validated_data.items():
             setattr(resource, key, value)
+
         resource.save(update_fields=list(serializer.validated_data.keys()))
         return Response(status=status.HTTP_204_NO_CONTENT)
 
