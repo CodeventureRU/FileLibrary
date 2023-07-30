@@ -2,6 +2,7 @@ import React from 'react';
 import {Box, Paper, Tab, Tabs, Typography} from "@mui/material";
 import {UsernameForm} from "../../features/profile-settings/username-form/index.js";
 import {EmailForm} from "../../features/profile-settings/email-form/index";
+import {PasswordForm} from "../../features/profile-settings/password-form/index.js";
 
 function TabPanel(props) {
     const { children, value, index, ...other } = props;
@@ -77,6 +78,7 @@ const AccountSettings = () => {
                         </TabPanel>
                         <TabPanel value={value} index={2}>
                             <Typography>Редактирование пароля</Typography>
+                            <PasswordForm />
                         </TabPanel>
                         <TabPanel value={value} index={3}>
                             <Typography>Удаление аккаунта</Typography>
