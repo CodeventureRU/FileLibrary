@@ -18,7 +18,7 @@ function TabPanel(props) {
             style={{width: "100%"}}
         >
             {value === index && (
-                <Box sx={{ py: 1, px: 3 }}>
+                <Box sx={{ py: {md: 1, xs: 3}, px: {md: 3, xs: 0} }}>
                     {children}
                 </Box>
             )}
@@ -26,17 +26,15 @@ function TabPanel(props) {
     );
 }
 
-function a11yProps(index) {
+function a11yProps(index, orientation="vertical") {
     return {
         id: `vertical-tab-${index}`,
         'aria-controls': `vertical-tabpanel-${index}`,
         sx: {
-
             flexDirection: "row",
-            justifyContent: "flex-start",
-            textAlign: "left",
+            justifyContent: orientation === "vertical" ? "flex-start" : "center",
+            textAlign: orientation === "vertical" ? "left" : "center",
             textTransform: 'none',
-            pl: 0,
         }
     };
 }
@@ -53,22 +51,39 @@ const AccountSettings = () => {
             <Box sx={{mt: 5}}>
                 <Typography variant="h6">Настройки учетной записи</Typography>
                 <Paper variant="outlined" sx={{p: 3, mt: 2}}>
-                    <Box
-                        sx={{ flexGrow: 1, bgcolor: 'background.paper', display: 'flex' }}
-                    >
+
+                    <Box sx={{display: {md: "none", xs: "block"}}}>
                         <Tabs
-                            orientation="vertical"
                             variant="scrollable"
                             value={value}
                             onChange={handleChange}
-                            aria-label="Vertical tabs example"
-                            sx={{ borderRight: 1, borderColor: 'divider' }}
+                            scrollButtons
+                            allowScrollButtonsMobile
                         >
-                            <Tab label="Имя пользователя" {...a11yProps(1)} />
-                            <Tab label="Email" {...a11yProps(0)} />
-                            <Tab label="Пароль" {...a11yProps(2)} />
-                            <Tab label="Удаление аккаунта" {...a11yProps(3)} />
+                            <Tab label="Имя пользователя" {...a11yProps(1, "horizontal")} />
+                            <Tab label="Email" {...a11yProps(0, "horizontal")} />
+                            <Tab label="Пароль" {...a11yProps(2, "horizontal")} />
+                            <Tab label="Удаление аккаунта" {...a11yProps(3, "horizontal")} />
                         </Tabs>
+                    </Box>
+                    <Box
+                        sx={{ flexGrow: 1, bgcolor: 'background.paper', display: 'flex' }}
+                    >
+                        <Box sx={{display: {md: "block", xs: "none"}}}>
+                            <Tabs
+                                orientation="vertical"
+                                variant="scrollable"
+                                value={value}
+                                onChange={handleChange}
+                                sx={{ borderRight: 1, borderColor: 'divider' }}
+                            >
+                                <Tab label="Имя пользователя" {...a11yProps(1)} />
+                                <Tab label="Email" {...a11yProps(0)} />
+                                <Tab label="Пароль" {...a11yProps(2)} />
+                                <Tab label="Удаление аккаунта" {...a11yProps(3)} />
+                            </Tabs>
+                        </Box>
+
                         <TabPanel value={value} index={0}>
                             <Typography>Редактирование имени пользователя</Typography>
                             <UsernameForm />
