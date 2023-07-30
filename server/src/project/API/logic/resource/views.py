@@ -7,10 +7,12 @@ from django.core.exceptions import FieldError
 from django.db.models import Count, F
 
 from API.logic.file.serializers import FileSerializer
-from API.logic.resource.serializers import ListResourceSerializer, CUDResourceSerializer, GroupResourceSerializer, FileResourceSerializer
+from API.logic.resource.serializers import ListResourceSerializer, CUDResourceSerializer, GroupResourceSerializer, \
+    FileResourceSerializer
 from API.permissions import IsAuthorAndActive
 from API.logic.functions import get_data
-from API.logic.resource.services import create_resource, delete_resource, resource_filtering, image_processing, delete_image
+from API.logic.resource.services import create_resource, delete_resource, resource_filtering, image_processing, \
+    delete_image
 from API.logic.file.services import add_new_files, delete_files
 from API.models import Resource, ResourceGroup
 from API.pagination import MyPaginationMixin
