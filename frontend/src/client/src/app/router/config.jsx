@@ -12,6 +12,7 @@ import {Activation} from "../../pages/activaion/index";
 import {CreatingFile} from "../../pages/creating-file/index.js";
 import {CreatingGroup} from "../../pages/creating-group/index.js";
 import {ProfileSettings} from "../../pages/profile-settings/index.js";
+import {SendResetPassword} from "../../pages/send-reset-password/index.js";
 
 export const router = createBrowserRouter([
     {
@@ -45,6 +46,10 @@ export const router = createBrowserRouter([
             {
                 path: "/login",
                 element: <GuestGuard><Login/></GuestGuard>,
+            },
+            {
+                path: "/send-reset-password",
+                element: <GuestGuard><SendResetPassword/></GuestGuard>,
             },
             {
                 path: "/register",
