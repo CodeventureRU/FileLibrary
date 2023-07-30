@@ -155,11 +155,30 @@ class UpdatingEmailView(APIView):
     permission_classes = [IsAuthenticated]
     throttle_classes = [ResendEmailMessageThrottle]
 
+    def initial(self, request, *args, **kwargs):
+        """
+        Runs anything that needs to occur prior to calling the method handler.
+        """
+        self.format_kwarg = self.get_format_suffix(**kwargs)
+
+        # Perform content negotiation and store the accepted info on the request
+        neg = self.perform_content_negotiation(request)
+        request.accepted_renderer, request.accepted_media_type = neg
+
+        # Determine the API version, if versioning is in use.
+        version, scheme = self.determine_version(request, *args, **kwargs)
+        request.version, request.versioning_scheme = version, scheme
+
+        # Ensure that the incoming request is permitted
+        self.perform_authentication(request)
+        self.check_permissions(request)
+
     def patch(self, request):
         data = get_data(request)
         user_instance = get_object_or_404(User, pk=request.user.pk)
         serializer = self.serializer_class(data=data)
         serializer.is_valid(raise_exception=True)
+        self.check_throttles(request)
         send_email_confirmation_message(request, user_instance, serializer.validated_data['email'])
         return Response(
             data={'detail': 'Письмо с ссылкой для подтверждения смены почты было отправлено на новый почтовый адрес'},
