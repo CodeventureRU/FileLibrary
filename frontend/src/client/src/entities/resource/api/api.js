@@ -27,9 +27,9 @@ const useFetchResources = (url) => {
                 limit: pagination?.limit,
 
                 // Передача настройки сортировки и фильтрации
-                sort: options?.filter?.sort,
-                search: options?.filter?.search ? options?.filter?.search : "",
-                type: options?.filter?.type,
+                sort: options?.sort,
+                search: options?.search ? options?.search : "",
+                type: options?.type,
             }
         });
 
@@ -50,11 +50,11 @@ const useFetchMainResources = () => {
 }
 
 const useFetchMyResources = () => {
-    return useFetchResources(URLS.myResources);
+    return useFetchResources(URLS.resources);
 }
 
 const useFetchUserResources = (userId) => {
-    return useFetchResources(URLS.userResources(userId));
+    return useFetchResources(URLS.resources);
 }
 
 const useUpdateResource = (id) => {

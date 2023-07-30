@@ -64,18 +64,19 @@ const ResourceCard = memo(({resource, headerAction=null, mainActions=null}) => {
                     : ""
                 }
                 <CardContent>
-
-                    {/* Информация о ресурсе */}
-                    <Typography variant="caption" color="text.secondary">
-                        {/* Информация о дате создания */}
-                        <UploadIcon sx={{mb: '-3px', width: '14px', height: '14px'}} /> {dateToFormat(resource.createdAt, "dd.mm.yyyy")}
-                        {/* Информация об авторе */}
-                        <AccountIcon sx={{ml: "10px", mb: '-3px', width: '14px', height: '14px'}} /> {resource.username}
-                    </Typography>
+                    <Suspense fallback={"..."}>
+                        {/* Информация о ресурсе */}
+                        <Typography variant="caption" color="text.secondary">
+                            {/* Информация о дате создания */}
+                            <UploadIcon sx={{mb: '-3px', width: '14px', height: '14px'}} /> {dateToFormat(resource.created_at, "dd.mm.yyyy")}
+                            {/* Информация об авторе */}
+                            <AccountIcon sx={{ml: "10px", mb: '-3px', width: '14px', height: '14px'}} /> {resource.username}
+                        </Typography>
+                    </Suspense>
 
                     {/* Название ресурса */}
                     <Typography variant="body2" color="text.secondary">
-                        {resource.title}
+                        {resource.name}
                     </Typography>
                 </CardContent>
             </CardActionArea>

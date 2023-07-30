@@ -33,7 +33,7 @@ const ResourceListItem = ({resource, headerActions=null, mainActions=null}) => {
                 // Основная инфомрация о ресурсе
                 <Box sx={{display: "flex", alignItems: "start", gap: "10px", pb: "10px"}}>
                     {resourcesTypes[resource.type].icon}
-                    <Typography variant="body2" color="text.secondary">{resource.title}</Typography>
+                    <Typography variant="body2" color="text.secondary">{resource.name}</Typography>
                 </Box>}
                 secondary={
                     // Дополнительная информация о ресурсе
@@ -46,10 +46,12 @@ const ResourceListItem = ({resource, headerActions=null, mainActions=null}) => {
                             gap: '0 50px'
                         }}
                     >
-                        <Typography variant="caption" color="text.secondary">
-                            <UploadIcon sx={{mb: '-3px', width: '14px', height: '14px'}} /> {dateToFormat(resource.createdAt, "dd.mm.yyyy")}
-                            <AccountIcon sx={{ml: "10px", mb: '-3px', width: '14px', height: '14px'}} /> {resource.username}
-                        </Typography>
+                        <Suspense fallback={"..."}>
+                            <Typography variant="caption" color="text.secondary">
+                                <UploadIcon sx={{mb: '-3px', width: '14px', height: '14px'}} /> {dateToFormat(resource.created_at, "dd.mm.yyyy")}
+                                <AccountIcon sx={{ml: "10px", mb: '-3px', width: '14px', height: '14px'}} /> {resource.username}
+                            </Typography>
+                        </Suspense>
                         {
                             mainActions ? mainActions : ""
                         }
