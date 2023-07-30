@@ -3,8 +3,6 @@ from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.exceptions import PermissionDenied
 from rest_framework import status
-from django.shortcuts import get_object_or_404
-from django.http.response import Http404
 from django.core.exceptions import FieldError
 from django.db.models import Count, F
 
@@ -34,7 +32,8 @@ class LCResourceView(APIView, MyPaginationMixin):
         try:
             queryset = resource_filtering(request, queryset)
         except FieldError:
-            return Response(data={'detail': 'Недопустимое имя фильтра'}, status=status.HTTP_400_BAD_REQUEST)
+            return Response(data={'detail': 'Недопустимое имя фильтра'},
+                            status=status.HTTP_400_BAD_REQUEST)
         queryset = self.paginate_queryset(queryset)
         serializer = self.serializer_class(queryset, many=True, context={'request': request})
         return self.get_paginated_response(serializer.data)
@@ -66,16 +65,15 @@ class RUDResourceView(APIView):
             return [IsAuthorAndActive()]
 
     def get(self, request, id):
-        try:
-            queryset = Resource.objects.filter(slug=id)
-            queryset = queryset.prefetch_related('favorites', 'file', 'groups')
-            queryset = queryset.annotate(num_favorites=Count('favorites'))
-            queryset = queryset.annotate(downloads=F('file__downloads'))
-            resource = queryset[0]
-        except IndexError:
-            raise Http404
-        except Exception:
-            return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        queryset = Resource.objects.filter(slug=id)
+        queryset = queryset.prefetch_related('favorites', 'file', 'groups')
+        queryset = queryset.annotate(num_favorites=Count('favorites'))
+        queryset = queryset.annotate(downloads=F('file__downloads'))
+        resource = queryset.first()
+
+        if resource is None:
+            return Response(data={'detail': 'Страница не найдена'},
+                            status=status.HTTP_404_NOT_FOUND)
 
         user = request.user
 
@@ -87,10 +85,15 @@ class RUDResourceView(APIView):
         else:
             serializer = FileResourceSerializer(resource, context={'request': request})
 
-        return Response(data=serializer.data, status=status.HTTP_200_OK)
+        return Response(data=serializer.data,
+                        status=status.HTTP_200_OK)
 
     def patch(self, request, id):
-        resource = get_object_or_404(Resource, slug=id)
+        try:
+            resource = Resource.objects.get(slug=id)
+        except Resource.DoesNotExist:
+            return Response(data={'detail': 'Страница не найдена'},
+                            status=status.HTTP_404_NOT_FOUND)
         self.check_object_permissions(request, resource)
         data = get_data(request)
         image = request.FILES.get('image')
@@ -106,12 +109,9 @@ class RUDResourceView(APIView):
         return Response(status=status.HTTP_204_NO_CONTENT)
 
     def delete(self, request, id):
-        try:
-            resource = Resource.objects.prefetch_related('file').filter(slug=id)[0]
-        except IndexError:
-            raise Http404
-        except Exception:
-            return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        resource = Resource.objects.prefetch_related('file').filter(slug=id).first()
+        if resource is None:
+            return Response(data={'detail': 'Страница не найдена'}, status=status.HTTP_404_NOT_FOUND)
         self.check_object_permissions(request=request, obj=resource)
         serializer = self.serializer_class(resource)
         try:
@@ -132,10 +132,13 @@ class UserResourcesView(MyPaginationMixin, APIView):
             queryset = Resource.objects.filter(author_id=request.user.id)
         else:
             queryset = Resource.objects.filter(author__username=username, privacy_level='public')
+
         try:
             queryset = resource_filtering(request, queryset)
         except FieldError:
-            return Response(data={'detail': 'Недопустимое имя фильтра'}, status=status.HTTP_400_BAD_REQUEST)
+            return Response(data={'detail': 'Недопустимое имя фильтра'},
+                            status=status.HTTP_400_BAD_REQUEST)
+
         queryset = self.paginate_queryset(queryset)
         serializer = self.serializer_class(queryset, many=True, context={'request': request})
         return self.get_paginated_response(serializer.data)
@@ -148,10 +151,11 @@ class ResourceFileView(APIView):
 
     def post(self, request, id):
         try:
-            resource = Resource.objects.prefetch_related('file').filter(slug=id)[0]
+            resource = Resource.objects.prefetch_related('file').filter(slug=id).first()
+            if resource is None:
+                return Response(data={'detail': 'Страница не найдена'},
+                                status=status.HTTP_404_NOT_FOUND)
             file_instance = resource.file
-        except IndexError:
-            raise Http404
         except Exception:
             return Response(data={'detail': "Был передан объект с типом 'group', вместо 'file'"},
                             status=status.HTTP_400_BAD_REQUEST)
@@ -165,10 +169,11 @@ class ResourceFileView(APIView):
 
     def delete(self, request, id):
         try:
-            resource = Resource.objects.prefetch_related('file').filter(slug=id)[0]
+            resource = Resource.objects.prefetch_related('file').filter(slug=id).first()
+            if resource is None:
+                return Response(data={'detail': 'Страница не найдена'},
+                                status=status.HTTP_404_NOT_FOUND)
             file_instance = resource.file
-        except IndexError:
-            raise Http404
         except Exception:
             return Response(data={'detail': "Был передан объект с типом 'group', вместо 'file'"},
                             status=status.HTTP_400_BAD_REQUEST)
@@ -188,14 +193,17 @@ class ResourceGroupView(APIView):
     lookup_field = 'slug'
 
     def post(self, request, resource_id, group_id):
-        resource_file = get_object_or_404(Resource, slug=resource_id)
+        try:
+            resource_file = Resource.objects.get(slug=resource_id)
+        except Resource.DoesNotExist:
+            return Response(data={'detail': 'Страница не найдена'}, status=status.HTTP_404_NOT_FOUND)
         if resource_file.type != 'file':
             return Response(data={'detail': 'Нельзя добавить группу в группу'}, status=status.HTTP_400_BAD_REQUEST)
         try:
-            resource_group = Resource.objects.prefetch_related('groups').filter(slug=group_id)[0]
+            resource_group = Resource.objects.prefetch_related('groups').filter(slug=group_id).first()
+            if resource_group is None:
+                return Response(data={'detail': 'Страница не найдена'}, status=status.HTTP_404_NOT_FOUND)
             group_instance = resource_group.groups
-        except IndexError:
-            raise Http404
         except Exception:
             return Response(data={'detail': "Был передан объект с типом 'file', вместо 'group'"},
                             status=status.HTTP_400_BAD_REQUEST)
@@ -206,12 +214,15 @@ class ResourceGroupView(APIView):
         return Response(status=status.HTTP_204_NO_CONTENT)
 
     def delete(self, request, resource_id, group_id):
-        resource_file = get_object_or_404(Resource, slug=resource_id)
         try:
-            resource_group = Resource.objects.prefetch_related('groups').filter(slug=group_id)[0]
+            resource_file = Resource.objects.get(slug=resource_id)
+        except Resource.DoesNotExist:
+            return Response(data={'detail': 'Страница не найдена'}, status=status.HTTP_404_NOT_FOUND)
+        try:
+            resource_group = Resource.objects.prefetch_related('groups').filter(slug=group_id).first()
+            if resource_group is None:
+                return Response(data={'detail': 'Страница не найдена'}, status=status.HTTP_404_NOT_FOUND)
             group_instance = resource_group.groups
-        except IndexError:
-            raise Http404
         except Exception:
             return Response(data={'detail': "Был передан объект с типом 'file', вместо 'group'"},
                             status=status.HTTP_400_BAD_REQUEST)
