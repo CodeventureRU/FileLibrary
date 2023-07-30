@@ -6,6 +6,7 @@ import {
     MoreVert,
 } from '@mui/icons-material';
 import {useViewerStore, viewerSelector} from "../../entities/viewer/index.js";
+import {NavLink} from "react-router-dom";
 
 const ProfileData = () => {
     const viewer = useViewerStore(viewerSelector);
@@ -47,9 +48,9 @@ const ProfileData = () => {
 
                     </Box>
 
-                    <IconButton color="primary" onClick={() => {}}>
+                    <NavLink to="/profile/settings"><IconButton color="primary" onClick={() => {}}>
                         <MoreVert />
-                    </IconButton>
+                    </IconButton></NavLink>
                 </Box>
             </Paper>
         </Box>
