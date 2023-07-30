@@ -35,10 +35,10 @@ const RegisterForm = () => {
     return (
         <Grid container sx={{justifyContent: 'center', mt: 5}}>
             <Grid item xs={12} md={6}>
-                <Paper sx={{p: 5}}>
+                <Paper sx={{p: 5}} variant="outlined" elevation={0}>
                     <Typography variant="h5" sx={{textAlign: 'center'}}>Регистрация</Typography>
                     <Box
-                        sx={{my: 5}}
+                        sx={{mt: 5}}
                     >
                         <Grid container spacing={2}>
                             <GridFormControl
@@ -72,7 +72,7 @@ const RegisterForm = () => {
                                 gridOptions={{xs: 12, md: 6}}
                                 field={passwordConfirm}
                                 setField={setPasswordConfirm}
-                                label="Подтверждение"
+                                label="Подтверждение пароля"
                                 textFieldOptions={{
                                     onCut: e => e.preventDefault(),
                                     onCopy: e => e.preventDefault(),
@@ -89,8 +89,8 @@ const RegisterForm = () => {
                         <Box
                             sx={{display: 'flex', alignItems: 'center', justifyContent: 'space-between', mt: 5}}
                         >
-                            <Button href="/login">Войти</Button>
-                            <LoadingButton loading={loading} onClick={registerHandle}>Зарегистрироваться</LoadingButton>
+                            <Button sx={{ml: -1, textTransform: 'none'}} href="/login">Войти</Button>
+                            <LoadingButton buttonProps={{sx: {textTransform: 'none'}}} loading={loading} onClick={registerHandle}>Зарегистрироваться</LoadingButton>
                         </Box>
                     </Box>
 
