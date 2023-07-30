@@ -60,6 +60,8 @@ REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
         'API.authentication.JWTStatelessCSRFUserAuthentication',
     ],
+    'DEFAULT_PAGINATION_CLASS': 'API.pagination.CustomPagination',
+    'PAGE_SIZE': 10,
     'EXCEPTION_HANDLER': 'API.exception_handler.custom_exception_handler'
 }
 
@@ -96,7 +98,7 @@ PASSWORD_RESET_TIMEOUT = 600
 # CSRF settings
 
 CSRF_COOKIE_AGE = SIMPLE_JWT['REFRESH_TOKEN_LIFETIME']
-CSRF_TRUSTED_ORIGIN = [*os.environ.get('ALLOWED_ORIGINS').split(' ')]
+CSRF_TRUSTED_ORIGINS = [*os.environ.get('ALLOWED_ORIGINS').split(' ')]
 
 # CORS settings
 

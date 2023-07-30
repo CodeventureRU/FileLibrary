@@ -4,6 +4,7 @@ from django.core.validators import MinLengthValidator
 from API.validators import UsernameValidator
 from django.utils.functional import cached_property
 from rest_framework_simplejwt.models import TokenUser
+import uuid
 
 
 class User(AbstractUser):
@@ -23,6 +24,7 @@ class Category(models.Model):
 
 
 class Resource(models.Model):
+    slug = models.SlugField(unique=True, default=uuid.uuid4)
     name = models.CharField(max_length=64)
     description = models.CharField(max_length=32, blank=True)
     image = models.ImageField(upload_to='images/', blank=True, null=True)
@@ -36,9 +38,15 @@ class Resource(models.Model):
         ('file', 'Файл'),
         ('group', 'Группа')
     ])
+    favorites = models.ManyToManyField(User, through='Favorite')
     author = models.ForeignKey(User, on_delete=models.CASCADE, related_name='resources')
     updated_at = models.DateTimeField(auto_now=True)
     created_at = models.DateTimeField(auto_now_add=True)
+
+
+class Favorite(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    resource = models.ForeignKey(Resource, on_delete=models.CASCADE)
 
 
 class Group(models.Model):
@@ -51,11 +59,6 @@ class File(models.Model):
     downloads = models.IntegerField(default=0)
     extensions = models.TextField()
     resource = models.OneToOneField(Resource, on_delete=models.CASCADE, related_name='file')
-
-
-class Favorite(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
-    resource = models.ForeignKey(Resource, on_delete=models.CASCADE)
 
 
 class ResourceCategory(models.Model):

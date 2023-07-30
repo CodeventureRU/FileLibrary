@@ -6,7 +6,6 @@ from rest_framework import status
 from django.middleware import csrf
 from django.contrib.auth import authenticate
 from django.core.validators import validate_email
-from django.shortcuts import get_object_or_404
 from project import settings
 
 from API.logic.functions import get_data
@@ -121,7 +120,12 @@ class UpdatingDataView(APIView):
 
     def patch(self, request):
         data = get_data(request)
-        user_instance = get_object_or_404(User, pk=request.user.pk)
+        try:
+            user_instance = User.objects.get(pk=request.user.pk)
+        except User.DoesNotExist:
+            return Response(data={'detail': 'Пользователь не найден'}, status=status.HTTP_404_NOT_FOUND)
+        except Exception:
+            return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         serializer = self.serializer_class(data=data)
         serializer.is_valid(raise_exception=True)
 
@@ -147,6 +151,8 @@ class UpdatingDataView(APIView):
                     raise ValidationError({'confirm_password': ['Поле пароль и подтверждение пароля не совпадают']})
             else:
                 raise ValidationError({'current_password': ['Неправильный пароль']})
+        else:
+            return Response(data={'detail': 'Вы не передали данных для изменения'},status=status.HTTP_400_BAD_REQUEST)
 
 
 # Update email #
@@ -155,15 +161,55 @@ class UpdatingEmailView(APIView):
     permission_classes = [IsAuthenticated]
     throttle_classes = [ResendEmailMessageThrottle]
 
+    def initial(self, request, *args, **kwargs):
+        """
+        Runs anything that needs to occur prior to calling the method handler.
+        """
+        self.format_kwarg = self.get_format_suffix(**kwargs)
+
+        # Perform content negotiation and store the accepted info on the request
+        neg = self.perform_content_negotiation(request)
+        request.accepted_renderer, request.accepted_media_type = neg
+
+        # Determine the API version, if versioning is in use.
+        version, scheme = self.determine_version(request, *args, **kwargs)
+        request.version, request.versioning_scheme = version, scheme
+
+        # Ensure that the incoming request is permitted
+        self.perform_authentication(request)
+        self.check_permissions(request)
+
     def patch(self, request):
         data = get_data(request)
-        user_instance = get_object_or_404(User, pk=request.user.pk)
+        try:
+            user_instance = User.objects.get(pk=request.user.pk)
+        except User.DoesNotExist:
+            return Response(data={'detail': 'Пользователь не найден'}, status=status.HTTP_404_NOT_FOUND)
+        except Exception:
+            return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         serializer = self.serializer_class(data=data)
         serializer.is_valid(raise_exception=True)
+        self.check_throttles(request)
         send_email_confirmation_message(request, user_instance, serializer.validated_data['email'])
         return Response(
             data={'detail': 'Письмо с ссылкой для подтверждения смены почты было отправлено на новый почтовый адрес'},
             status=status.HTTP_200_OK)
+
+
+# Account deletion #
+class AccountDeletionView(APIView):
+    serializer_class = UserSerializer
+    permission_classes = [IsAuthenticated]
+
+    def delete(self, request):
+        try:
+            user_instance = User.objects.get(pk=request.user.pk)
+        except User.DoesNotExist:
+            return Response(data={'detail': 'Пользователь не найден'}, status=status.HTTP_404_NOT_FOUND)
+        except Exception:
+            return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        user_instance.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
 
 # Confirm email change with link from email #
@@ -200,7 +246,12 @@ class SendingResetPasswordMessageView(APIView):
             kwargs = {'email': login}
         except Exception:
             kwargs = {'username': login}
-        user_instance = get_object_or_404(User, **kwargs)
+        try:
+            user_instance = User.objects.filter(**kwargs)[0]
+        except IndexError:
+            return Response(data={'detail': 'Пользователь не найден'}, status=status.HTTP_404_NOT_FOUND)
+        except Exception:
+            return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         try:
             send_reset_password_message(request, user_instance)
             return Response(data={'detail': 'Письмо с ссылкой для сброса пароля было отправлено на почтовый адрес'},
