@@ -85,8 +85,8 @@ const ResourcesViewSettings = ({filterAndSortObj, viewModeObj, apply}) => {
                 <DialogContent>
                     <Select fullWidth={true} value={type} onChange={(e) => setType(e.target.value)}>
                         <MenuItem value="">Все</MenuItem>
-                        <MenuItem value="files">Файлы</MenuItem>
-                        <MenuItem value="groups">Группы</MenuItem>
+                        <MenuItem value="file">Файлы</MenuItem>
+                        <MenuItem value="group">Группы</MenuItem>
                     </Select>
                 </DialogContent>
                 <DialogActions>
