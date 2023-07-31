@@ -5,8 +5,7 @@ import Profile from "../../pages/profile/index.js";
 import UserProfile from "../../pages/user-profile/index.js";
 import Login from "../../pages/login/index.js";
 import Registration from "../../pages/registration/index.js";
-import File from "../../pages/file/index.js";
-import Group from "../../pages/group/index.js";
+import Resource from "../../pages/resource/index.js";
 import {AuthGuard, GuestGuard, IsActiveGuard} from "../../features/auth-guards/index.js";
 import {Activation} from "../../pages/activaion/index";
 import {CreatingFile} from "../../pages/creating-file/index.js";
@@ -58,12 +57,8 @@ export const router = createBrowserRouter([
                 element: <GuestGuard><Registration/></GuestGuard>,
             },
             {
-                path: "/file/:resource",
-                element: <File />,
-            },
-            {
-                path: "/group/:resource",
-                element: <Group/>,
+                path: "/resource/:resource",
+                element: <Resource />,
             },
             {
                 path: "/activation/:uidb64/:token",
