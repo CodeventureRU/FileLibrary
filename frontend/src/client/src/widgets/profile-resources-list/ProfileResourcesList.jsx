@@ -2,7 +2,7 @@ import React, {useEffect} from 'react';
 import {ResourcesViewSettings, useFilterSort, useViewMode} from "../../features/resources-view-settings/index.js";
 import {
     resourcesSelector,
-    useFetchMyResources,
+    useFetchUserResources,
     useResourcesStore
 } from "../../entities/resource/index.js";
 import {
@@ -17,11 +17,13 @@ import {
     useResourceActionMenu
 } from "../../features/resource-actions-menu/index.js";
 import ViewModeResourcesList from "../../features/view-mode-resources-list/ViewModeResourcesList.jsx";
+import {useViewerStore, viewerSelector} from "../../entities/viewer/index.js";
 
 const ProfileResourcesList = () => {
+    const viewer = useViewerStore(viewerSelector);
     const filterAndSortObj = useFilterSort();
     const viewModeObj = useViewMode();
-    const {loadMore, loading, errors, requested} = useFetchMyResources();
+    const {loadMore, loading, errors, requested} = useFetchUserResources(viewer.username);
     const resources = useResourcesStore(resourcesSelector);
 
     useEffect(() => {
