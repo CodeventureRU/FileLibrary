@@ -233,3 +233,26 @@ class ResourceGroupView(APIView):
         self.check_object_permissions(request=request, obj=resource_group)
         group_instance.resources.remove(resource_file.pk)
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+class AddingToFavoriteView(APIView):
+    serializer_class = ListResourceSerializer
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, id):
+        try:
+            resource = Resource.objects.get(slug=id)
+        except Resource.DoesNotExist:
+            return Response(data={'detail': 'Страница не найдена'},
+                            status=status.HTTP_404_NOT_FOUND)
+        resource.favorites.add(request.user.id)
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+    def delete(self, request, id):
+        try:
+            resource = Resource.objects.get(slug=id)
+        except Resource.DoesNotExist:
+            return Response(data={'detail': 'Страница не найдена'},
+                            status=status.HTTP_404_NOT_FOUND)
+        resource.favorites.remove(request.user.id)
+        return Response(status=status.HTTP_204_NO_CONTENT)
