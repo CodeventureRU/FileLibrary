@@ -5,8 +5,7 @@ import {useCallback} from "react";
 const URLS = {
     resource: id => `/resources/${id}/`,
     resources: `/resources/`,
-    myResources: `/my/resources/`,
-    userResources: (id) => `/user/${id}/resources/`,
+    userResources: (username) => `/resources/user/${username}/`,
 
 }
 
@@ -33,13 +32,16 @@ const useFetchResources = (url) => {
             }
         });
 
+
         if (result != null) {
             if (reset) {
-                setResources(result);
+                setResources(result.results);
             } else {
-                addResources(result);
+                addResources(result.results);
             }
         }
+
+        return result;
     }, [url]);
 
     return {...apiHook, loadMore};
@@ -53,8 +55,8 @@ const useFetchMyResources = () => {
     return useFetchResources(URLS.resources);
 }
 
-const useFetchUserResources = (userId) => {
-    return useFetchResources(URLS.resources);
+const useFetchUserResources = (username) => {
+    return useFetchResources(URLS.userResources(username));
 }
 
 const useUpdateResource = (id) => {
