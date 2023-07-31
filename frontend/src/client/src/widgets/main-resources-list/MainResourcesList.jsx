@@ -34,7 +34,14 @@ const MainResourcesList = () => {
     }, []);
 
     const apply = () => {
-        console.log(filterAndSortObj);
+        loadMore({
+            sort: filterAndSortObj.sort,
+            search: filterAndSortObj.search,
+            type: filterAndSortObj.type,
+        }, {
+            page: 1,
+            limit: 100,
+        }, true);
     }
 
     const {element, resource, close, open} = useResourceActionMenu();
