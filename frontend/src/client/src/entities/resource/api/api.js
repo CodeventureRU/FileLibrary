@@ -1,4 +1,4 @@
-import {useAsyncApi, useApi} from "../../../shared/api/index.js";
+import {useApi} from "../../../shared/api/index.js";
 import {addResourcesSelector, setResourcesSelector, useResourcesStore} from "../model/index.js";
 import {useCallback} from "react";
 
@@ -9,8 +9,10 @@ const URLS = {
 
 }
 
-const useFetchedResource = (id) => {
-    return useAsyncApi(URLS.resource(id), "get", {});
+const useFetchResource = (id) => {
+    const {request, ...apiHook} = useApi(URLS.resource(id), "get");
+
+    return {...apiHook, fetchResourceRequest: request}
 }
 
 const useFetchResources = (url) => {
@@ -105,4 +107,4 @@ const useCreateResource = () => {
 
 
 
-export {useFetchedResource, useFetchMainResources, useFetchUserResources, useFetchMyResources, useUpdateResource, useCreateResource}
+export {useFetchResource, useFetchMainResources, useFetchUserResources, useFetchMyResources, useUpdateResource, useCreateResource}
