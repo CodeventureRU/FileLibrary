@@ -49,7 +49,7 @@ const ResourceListItem = ({resource, headerActions=null, mainActions=null}) => {
                         <Suspense fallback={"..."}>
                             <Typography variant="caption" color="text.secondary">
                                 <UploadIcon sx={{mb: '-3px', width: '14px', height: '14px'}} /> {dateToFormat(resource.created_at, "dd.mm.yyyy")}
-                                <AccountIcon sx={{ml: "10px", mb: '-3px', width: '14px', height: '14px'}} /> {resource.username}
+                                <AccountIcon sx={{ml: "10px", mb: '-3px', width: '14px', height: '14px'}} /> {resource.author}
                             </Typography>
                         </Suspense>
                         {

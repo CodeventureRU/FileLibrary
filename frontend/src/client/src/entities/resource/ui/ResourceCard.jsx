@@ -54,11 +54,11 @@ const ResourceCard = memo(({resource, headerAction=null, mainActions=null}) => {
             Контент карточки: картинка и текст
             */}
             <CardActionArea>
-                { resource.img ?
+                { resource.image ?
                     <CardMedia
                         component="img"
                         height="194"
-                        image={resource.img}
+                        image={resource.image}
                         alt="Paella dish"
                     />
                     : ""
@@ -70,7 +70,7 @@ const ResourceCard = memo(({resource, headerAction=null, mainActions=null}) => {
                             {/* Информация о дате создания */}
                             <UploadIcon sx={{mb: '-3px', width: '14px', height: '14px'}} /> {dateToFormat(resource.created_at, "dd.mm.yyyy")}
                             {/* Информация об авторе */}
-                            <AccountIcon sx={{ml: "10px", mb: '-3px', width: '14px', height: '14px'}} /> {resource.username}
+                            <AccountIcon sx={{ml: "10px", mb: '-3px', width: '14px', height: '14px'}} /> {resource.author}
                         </Typography>
                     </Suspense>
 
