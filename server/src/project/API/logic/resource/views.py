@@ -294,6 +294,8 @@ class DownloadFileView(APIView):
         if extension not in file_instance.extensions:
             return Response(data={'detail': 'Файл не найден'},
                             status=status.HTTP_404_NOT_FOUND)
+        file_instance.downloads = file_instance.downloads + 1
+        file_instance.save(update_fields=['downloads'])
         file_path = file_instance.file.path + f'.{extension}'
         with open(file_path, 'rb') as file:
             response = HttpResponse(file.read(), content_type=f"{mimetypes.guess_type(file_path)}")
