@@ -5,8 +5,9 @@ from rest_framework.exceptions import PermissionDenied
 from rest_framework import status
 from django.core.exceptions import FieldError
 from django.db.models import Count, F
-from django.http import FileResponse, HttpResponse
+from django.http import HttpResponse
 import mimetypes
+import os
 
 from API.logic.file.serializers import FileSerializer
 from API.logic.resource.serializers import ListResourceSerializer, CUDResourceSerializer, GroupResourceSerializer, \
@@ -291,14 +292,19 @@ class DownloadFileView(APIView):
         if resource.privacy_level == 'private' and resource.author != request.user:
             raise PermissionDenied
         file_instance = resource.file
-        if extension not in file_instance.extensions:
+        file_path = file_instance.file.path + f'.{extension}'
+        if extension not in file_instance.extensions or not os.path.exists(file_path):
             return Response(data={'detail': 'Файл не найден'},
                             status=status.HTTP_404_NOT_FOUND)
         file_instance.downloads = file_instance.downloads + 1
         file_instance.save(update_fields=['downloads'])
-        file_path = file_instance.file.path + f'.{extension}'
-        with open(file_path, 'rb') as file:
-            response = HttpResponse(file.read(), content_type=f"{mimetypes.guess_type(file_path)}")
-            response['Content-Disposition'] = 'attachment; filename="{0}"'.format(
-                file_instance.file.name.split('/')[1] + f'.{extension}')
-            return response
+        try:
+            with open(file_path, 'rb') as file:
+                response = HttpResponse(file.read(),
+                                        content_type=f"{mimetypes.guess_type(file_path)}",
+                                        status=status.HTTP_200_OK)
+                response['Content-Disposition'] = 'attachment; filename="{0}"'.format(
+                    file_instance.file.name.split('/')[1] + f'.{extension}')
+                return response
+        except Exception:
+            return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
