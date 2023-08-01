@@ -13,8 +13,7 @@ from API.logic.functions import get_data
 from API.models import User
 from API.logic.user.serializers import UserSerializer, RUDUserSerializer
 from API.logic.user.services import register, activate, verify, set_cookies, delete_cookie, set_access_cookie, \
-    send_account_activation_message, send_reset_password_message, reset_password, send_email_confirmation_message, \
-    confirm_email
+      reset_password, confirm_email, send_email_message
 from API.throttling import ResendEmailMessageThrottle
 
 
@@ -52,7 +51,7 @@ class ResendingEmailMessageView(APIView):
     def post(self, request):
         user_instance = request.user
         if not user_instance.is_active:
-            send_account_activation_message(request, user_instance)
+            send_email_message('account_activation', user_instance)
             return Response(
                 data={'detail': 'Письмо с ссылкой для активации учётной записи было отправлено на почтовый адрес'},
                 status=status.HTTP_200_OK)
@@ -187,7 +186,7 @@ class UpdatingEmailView(APIView):
         serializer = self.serializer_class(data=data)
         serializer.is_valid(raise_exception=True)
         self.check_throttles(request)
-        send_email_confirmation_message(request, user_instance, serializer.validated_data['email'])
+        send_email_message('email_confirmation', user_instance, serializer.validated_data['email'])
         return Response(
             data={'detail': 'Письмо с ссылкой для подтверждения смены почты было отправлено на новый почтовый адрес'},
             status=status.HTTP_200_OK)
@@ -263,7 +262,7 @@ class SendingResetPasswordMessageView(APIView):
             return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         self.check_throttles(request)
         try:
-            send_reset_password_message(request, user_instance)
+            send_email_message('reset_password', user_instance)
             return Response(data={'detail': 'Письмо с ссылкой для сброса пароля было отправлено на почтовый адрес'},
                             status=status.HTTP_200_OK)
         except Exception:

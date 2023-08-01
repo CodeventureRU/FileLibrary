@@ -1,3 +1,4 @@
+import os, pika, json
 from datetime import datetime
 
 from rest_framework_simplejwt.tokens import AccessToken, RefreshToken
@@ -70,43 +71,59 @@ def convert_token(raw_token, token_class):
 
 
 # Email functions #
-def send_account_activation_message(request, user_instance):
-    current_site = get_current_site(request)
-    mail_subject = 'Активация учётной записи'
-    message = render_to_string('account_activation.html', {'username': user_instance.username,
-                                                           'domain': current_site.domain,
-                                                           'uid': urlsafe_base64_encode(force_bytes(user_instance.pk)),
-                                                           'token': account_activation_token.make_token(user_instance)})
-    to_email = user_instance.email
-    email = EmailMessage(subject=mail_subject, body=message, from_email='Codeventure', to=[to_email])
-    email.send()
+def send_email_message(purpose, user_instance, new_email=None):
 
+    templates = {
+        'account_activation': {
+            'to_email': user_instance.email,
+            'template': 'account_activation.html',
+            'mail_subject': 'Активация учётной записи',
+        },
+        'reset_password': {
+            'to_email': user_instance.email,
+            'template': 'reset_password.html',
+            'mail_subject': 'Сброс пароля'
+        },
+        'email_confirmation': {
+            'to_email': new_email,
+            'template': 'email_confirmation.html',
+            'mail_subject': 'Подтверждение смены почты',
+            'kwargs': {'email64': urlsafe_base64_encode(force_bytes(new_email)),
+                       'old_email': user_instance.email,
+                       'email': new_email}
+        }
+    }
 
-def send_reset_password_message(request, user_instance):
-    current_site = get_current_site(request)
-    mail_subject = 'Сброс пароля'
-    message = render_to_string('reset_password.html', {'username': user_instance.username,
-                                                       'domain': current_site.domain,
-                                                       'uid': urlsafe_base64_encode(force_bytes(user_instance.pk)),
-                                                       'token': account_activation_token.make_token(user_instance)})
-    to_email = user_instance.email
-    email = EmailMessage(subject=mail_subject, body=message, from_email='Codeventure', to=[to_email])
-    email.send()
+    to_email = templates[purpose]['to_email']
+    mail_subject = templates[purpose]['mail_subject']
+    template = templates[purpose]['template']
+    message_data = {'username': user_instance.username,
+                    'domain': os.environ.get('DOMAIN'),
+                    'uid': urlsafe_base64_encode(force_bytes(user_instance.pk)),
+                    'token': account_activation_token.make_token(user_instance)}
 
+    if 'kwargs' in templates[purpose]:
+        message_data.update(templates[purpose]['kwargs'])
 
-def send_email_confirmation_message(request, user_instance, new_email):
-    current_site = get_current_site(request)
-    mail_subject = 'Подтверждение смены почты'
-    message = render_to_string('email_confirmation.html', {'username': user_instance.username,
-                                                           'domain': current_site.domain,
-                                                           'uid': urlsafe_base64_encode(force_bytes(user_instance.pk)),
-                                                           'email64': urlsafe_base64_encode(force_bytes(new_email)),
-                                                           'old_email': user_instance.email,
-                                                           'email': new_email,
-                                                           'token': account_activation_token.make_token(user_instance)})
-    to_email = new_email
-    email = EmailMessage(subject=mail_subject, body=message, from_email='Codeventure', to=[to_email])
-    email.send()
+    message = render_to_string(template, message_data)
+
+    data = json.dumps({'mail_subject': mail_subject,
+                       'message': message,
+                       'to_email': to_email})
+
+    try:
+        hostname = 'localhost'
+        port = 5672
+        parameters = pika.ConnectionParameters(host=hostname, port=port)
+        connection = pika.BlockingConnection(parameters=parameters)
+        channel = connection.channel()
+        channel.queue_declare(queue='to_email')
+        channel.basic_publish(exchange='',
+                              routing_key='to_email',
+                              body=data)
+        connection.close()
+    except Exception as ex:
+        print(ex)
 
 
 # User auth functions #
@@ -116,7 +133,7 @@ def register(request, validated_data):
                                              password=validated_data['password'],
                                              is_active=False)
     # sending email message with account activation link #
-    send_account_activation_message(request, user_instance)
+    send_email_message('account_activation', user_instance)
     return user_instance
 
 
