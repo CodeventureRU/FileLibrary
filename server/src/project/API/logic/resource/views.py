@@ -237,7 +237,7 @@ class ResourceGroupView(APIView):
 
 class AddingToFavoriteView(APIView):
     serializer_class = ListResourceSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthorAndActive]
 
     def post(self, request, id):
         try:
