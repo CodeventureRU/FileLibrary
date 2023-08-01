@@ -18,11 +18,6 @@ class User(AbstractUser):
         return {'username': self.username}
 
 
-class Category(models.Model):
-    name = models.CharField(max_length=32)
-    author = models.ForeignKey(User, on_delete=models.CASCADE, related_name='categories')
-
-
 class Resource(models.Model):
     slug = models.SlugField(unique=True, default=uuid.uuid4)
     name = models.CharField(max_length=64)
@@ -59,11 +54,6 @@ class File(models.Model):
     downloads = models.IntegerField(default=0)
     extensions = models.TextField()
     resource = models.OneToOneField(Resource, on_delete=models.CASCADE, related_name='file')
-
-
-class ResourceCategory(models.Model):
-    resource = models.ForeignKey(Resource, on_delete=models.CASCADE)
-    category = models.ForeignKey(Category, on_delete=models.CASCADE)
 
 
 class ResourceGroup(models.Model):

@@ -5,8 +5,9 @@ from rest_framework.exceptions import PermissionDenied
 from rest_framework import status
 from django.core.exceptions import FieldError
 from django.db.models import Count, F
-from django.http import FileResponse, HttpResponse
+from django.http import HttpResponse
 import mimetypes
+import os
 
 from API.logic.file.serializers import FileSerializer
 from API.logic.resource.serializers import ListResourceSerializer, CUDResourceSerializer, GroupResourceSerializer, \
@@ -101,15 +102,17 @@ class RUDResourceView(APIView):
         self.check_object_permissions(request, resource)
         data = get_data(request)
         image = request.FILES.get('image')
-        data['image'] = image_processing(request, image)
+        if image is not None:
+            data['image'] = image_processing(request, image)
         serializer = self.serializer_class(resource, data=data, partial=True)
         serializer.is_valid(raise_exception=True)
-        if image is not None:
+
+        if resource.image and 'image' in serializer.validated_data:
             delete_image(resource)
         for key, value in serializer.validated_data.items():
             setattr(resource, key, value)
 
-        resource.save(update_fields=list(serializer.validated_data.keys()))
+        resource.save(update_fields=list(serializer.validated_data.keys()).append('updated_at'))
         return Response(status=status.HTTP_204_NO_CONTENT)
 
     def delete(self, request, id):
@@ -167,6 +170,7 @@ class ResourceFileView(APIView):
         files = request.FILES.getlist('files')
         try:
             add_new_files(file_instance, files)
+            resource.save(update_fields=['updated_at'])
         except Exception:
             return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         return Response(status=status.HTTP_204_NO_CONTENT)
@@ -186,7 +190,9 @@ class ResourceFileView(APIView):
         extensions = data['extensions']
         try:
             delete_files(file_instance, extensions)
-        except Exception:
+            resource.save(update_fields=['updated_at'])
+        except Exception as ex:
+            print(ex)
             return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         return Response(status=status.HTTP_204_NO_CONTENT)
 
@@ -276,3 +282,34 @@ class FavoriteResourcesView(MyPaginationMixin, APIView):
         queryset = self.paginate_queryset(queryset)
         serializer = self.serializer_class(queryset, many=True, context={'request': request})
         return self.get_paginated_response(serializer.data)
+
+
+class DownloadFileView(APIView):
+    serializer_class = FileSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, id, extension):
+        try:
+            resource = Resource.objects.prefetch_related('file').get(slug=id)
+        except Resource.DoesNotExist:
+            return Response(data={'detail': 'Страница не найдена'},
+                            status=status.HTTP_404_NOT_FOUND)
+        if resource.privacy_level == 'private' and resource.author != request.user:
+            raise PermissionDenied
+        file_instance = resource.file
+        file_path = file_instance.file.path + f'.{extension}'
+        if extension not in file_instance.extensions or not os.path.exists(file_path):
+            return Response(data={'detail': 'Файл не найден'},
+                            status=status.HTTP_404_NOT_FOUND)
+        file_instance.downloads = file_instance.downloads + 1
+        file_instance.save(update_fields=['downloads'])
+        try:
+            with open(file_path, 'rb') as file:
+                response = HttpResponse(file.read(),
+                                        content_type=f"{mimetypes.guess_type(file_path)}",
+                                        status=status.HTTP_200_OK)
+                response['Content-Disposition'] = 'attachment; filename="{0}"'.format(
+                    file_instance.file.name.split('/')[1] + f'.{extension}')
+                return response
+        except Exception:
+            return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)

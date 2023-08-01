@@ -6,6 +6,7 @@ from rest_framework import status
 from django.middleware import csrf
 from django.contrib.auth import authenticate
 from django.core.validators import validate_email
+from django.contrib.auth.models import update_last_login
 from project import settings
 
 from API.logic.functions import get_data
@@ -34,6 +35,7 @@ class RegistrationView(APIView):
                                           'is_active': user_instance.is_active},
                                     status=status.HTTP_201_CREATED)
                 response = set_cookies(response, user_instance)
+                update_last_login(self, user_instance)
             except Exception:
                 return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
             csrf.get_token(request)
@@ -84,6 +86,7 @@ class LoginView(APIView):
                                       'is_active': user_instance.is_active},
                                 status=status.HTTP_200_OK)
             response = set_cookies(response, user_instance)
+            update_last_login(self, user_instance)
             csrf.get_token(request)
         else:
             return Response(data={'detail': 'Неправильный логин или пароль'},
@@ -162,20 +165,14 @@ class UpdatingEmailView(APIView):
     throttle_classes = [ResendEmailMessageThrottle]
 
     def initial(self, request, *args, **kwargs):
-        """
-        Runs anything that needs to occur prior to calling the method handler.
-        """
         self.format_kwarg = self.get_format_suffix(**kwargs)
 
-        # Perform content negotiation and store the accepted info on the request
         neg = self.perform_content_negotiation(request)
         request.accepted_renderer, request.accepted_media_type = neg
 
-        # Determine the API version, if versioning is in use.
         version, scheme = self.determine_version(request, *args, **kwargs)
         request.version, request.versioning_scheme = version, scheme
 
-        # Ensure that the incoming request is permitted
         self.perform_authentication(request)
         self.check_permissions(request)
 
@@ -238,6 +235,18 @@ class SendingResetPasswordMessageView(APIView):
     permission_classes = [AllowAny]
     throttle_classes = [ResendEmailMessageThrottle]
 
+    def initial(self, request, *args, **kwargs):
+        self.format_kwarg = self.get_format_suffix(**kwargs)
+
+        neg = self.perform_content_negotiation(request)
+        request.accepted_renderer, request.accepted_media_type = neg
+
+        version, scheme = self.determine_version(request, *args, **kwargs)
+        request.version, request.versioning_scheme = version, scheme
+
+        self.perform_authentication(request)
+        self.check_permissions(request)
+
     def post(self, request):
         data = get_data(request)
         login = data['login']
@@ -252,6 +261,7 @@ class SendingResetPasswordMessageView(APIView):
             return Response(data={'detail': 'Пользователь не найден'}, status=status.HTTP_404_NOT_FOUND)
         except Exception:
             return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        self.check_throttles(request)
         try:
             send_reset_password_message(request, user_instance)
             return Response(data={'detail': 'Письмо с ссылкой для сброса пароля было отправлено на почтовый адрес'},
