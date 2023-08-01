@@ -3,11 +3,9 @@ from datetime import datetime
 
 from rest_framework_simplejwt.tokens import AccessToken, RefreshToken
 from django.conf import settings
-from django.contrib.sites.shortcuts import get_current_site
 from django.template.loader import render_to_string
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.utils.encoding import force_bytes, force_str
-from django.core.mail import EmailMessage
 
 from API.tokens import account_activation_token, reset_password_token, confirm_email_token
 from API.models import User
