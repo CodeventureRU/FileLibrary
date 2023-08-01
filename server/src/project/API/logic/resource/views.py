@@ -126,7 +126,7 @@ class RUDResourceView(APIView):
 
 class UserResourcesView(MyPaginationMixin, APIView):
     serializer_class = ListResourceSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [AllowAny]
     pagination_class = api_settings.DEFAULT_PAGINATION_CLASS
 
     def get(self, request, username):
