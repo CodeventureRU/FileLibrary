@@ -6,6 +6,7 @@ from rest_framework import status
 from django.middleware import csrf
 from django.contrib.auth import authenticate
 from django.core.validators import validate_email
+from django.contrib.auth.models import update_last_login
 from project import settings
 
 from API.logic.functions import get_data
@@ -34,6 +35,7 @@ class RegistrationView(APIView):
                                           'is_active': user_instance.is_active},
                                     status=status.HTTP_201_CREATED)
                 response = set_cookies(response, user_instance)
+                update_last_login(self, user_instance)
             except Exception:
                 return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
             csrf.get_token(request)
@@ -84,6 +86,7 @@ class LoginView(APIView):
                                       'is_active': user_instance.is_active},
                                 status=status.HTTP_200_OK)
             response = set_cookies(response, user_instance)
+            update_last_login(self, user_instance)
             csrf.get_token(request)
         else:
             return Response(data={'detail': 'Неправильный логин или пароль'},
