@@ -8,6 +8,7 @@ from django.utils.encoding import force_str
 from API.models import User
 from API.authentication import enforce_csrf
 
+from API.tokens import token_generator
 
 # Secondary functions #
 def get_tokens_for_user(user):
@@ -154,7 +155,7 @@ def activate(uidb64, token):
     except Exception:
         return False
     # checking token and activating account #
-    if account_activation_token.check_token(user, token):
+    if token_generator.check_token(user, token):
         user.is_active = True
         user.save(update_fields=['is_active'])
         return True
@@ -169,7 +170,7 @@ def reset_password(new_password, uidb64, token):
     except Exception:
         return False
     # checking token and setting new password #
-    if reset_password_token.check_token(user, token):
+    if token_generator.check_token(user, token):
         user.set_password(new_password)
         user.save(update_fields=['password'])
         return True
@@ -183,7 +184,7 @@ def confirm_email(user_instance, uidb64, email64, token):
         email = force_str(urlsafe_base64_decode(email64))
         user_instance_from_link = User.objects.get(pk=uid)
         # checking token (link validity check) #
-        if confirm_email_token.check_token(user_instance_from_link, token):
+        if token_generator.check_token(user_instance_from_link, token):
             # checking if the user is logged into the correct account #
             if user_instance != user_instance_from_link:
                 return None
