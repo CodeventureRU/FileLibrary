@@ -1,13 +1,10 @@
-import os, pika, json
+import pika, json
 from datetime import datetime
 
 from rest_framework_simplejwt.tokens import AccessToken, RefreshToken
 from django.conf import settings
-from django.template.loader import render_to_string
-from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
-from django.utils.encoding import force_bytes, force_str
-
-from API.tokens import account_activation_token, reset_password_token, confirm_email_token
+from django.utils.http import urlsafe_base64_decode
+from django.utils.encoding import force_str
 from API.models import User
 from API.authentication import enforce_csrf
 
@@ -70,45 +67,9 @@ def convert_token(raw_token, token_class):
 
 # Email functions #
 def send_email_message(purpose, user_instance, new_email=None):
-
-    templates = {
-        'account_activation': {
-            'to_email': user_instance.email,
-            'template': 'account_activation.html',
-            'mail_subject': 'Активация учётной записи',
-        },
-        'reset_password': {
-            'to_email': user_instance.email,
-            'template': 'reset_password.html',
-            'mail_subject': 'Сброс пароля'
-        },
-        'email_confirmation': {
-            'to_email': new_email,
-            'template': 'email_confirmation.html',
-            'mail_subject': 'Подтверждение смены почты',
-            'kwargs': {'email64': urlsafe_base64_encode(force_bytes(new_email)),
-                       'old_email': user_instance.email,
-                       'email': new_email}
-        }
-    }
-
-    to_email = templates[purpose]['to_email']
-    mail_subject = templates[purpose]['mail_subject']
-    template = templates[purpose]['template']
-    message_data = {'username': user_instance.username,
-                    'domain': os.environ.get('DOMAIN'),
-                    'uid': urlsafe_base64_encode(force_bytes(user_instance.pk)),
-                    'token': account_activation_token.make_token(user_instance)}
-
-    if 'kwargs' in templates[purpose]:
-        message_data.update(templates[purpose]['kwargs'])
-
-    message = render_to_string(template, message_data)
-
-    data = json.dumps({'mail_subject': mail_subject,
-                       'message': message,
-                       'to_email': to_email})
-
+    data = json.dumps({'purpose': purpose,
+                       'pk': user_instance.pk,
+                       'new_email': new_email})
     try:
         hostname = 'localhost'
         port = 5672
