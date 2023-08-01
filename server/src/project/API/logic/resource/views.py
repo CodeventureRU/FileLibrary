@@ -102,10 +102,12 @@ class RUDResourceView(APIView):
         self.check_object_permissions(request, resource)
         data = get_data(request)
         image = request.FILES.get('image')
-        data['image'] = image_processing(request, image)
+        if image is not None:
+            data['image'] = image_processing(request, image)
         serializer = self.serializer_class(resource, data=data, partial=True)
         serializer.is_valid(raise_exception=True)
-        if image is not None:
+
+        if resource.image:
             delete_image(resource)
         for key, value in serializer.validated_data.items():
             setattr(resource, key, value)

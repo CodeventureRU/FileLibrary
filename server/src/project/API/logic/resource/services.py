@@ -18,8 +18,9 @@ def image_processing(request, image):
 
 def delete_image(resource):
     try:
-        image = resource.image.__str__()
-        os.remove(os.path.join(settings.MEDIA_ROOT, image))
+        image = resource.image.path
+        path = os.path.join(settings.MEDIA_ROOT, image)
+        os.remove(path)
     except FileNotFoundError as ex:
         print('УДАЛЕНИЕ ФАЙЛА', ex)
         pass
