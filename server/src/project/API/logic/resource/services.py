@@ -26,7 +26,7 @@ def delete_image(resource):
 
 
 def create_resource(request, data):
-    if data['image'] is not None:
+    if 'image' in data:
         data['image'] = image_processing(request, data['image'])
     resource = Resource.objects.create(**data)
     response = {'resource_id': resource.slug}

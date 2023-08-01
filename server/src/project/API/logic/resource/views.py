@@ -5,6 +5,8 @@ from rest_framework.exceptions import PermissionDenied
 from rest_framework import status
 from django.core.exceptions import FieldError
 from django.db.models import Count, F
+from django.http import FileResponse, HttpResponse
+import mimetypes
 
 from API.logic.file.serializers import FileSerializer
 from API.logic.resource.serializers import ListResourceSerializer, CUDResourceSerializer, GroupResourceSerializer, \
@@ -14,7 +16,7 @@ from API.logic.functions import get_data
 from API.logic.resource.services import create_resource, delete_resource, resource_filtering, image_processing, \
     delete_image
 from API.logic.file.services import add_new_files, delete_files
-from API.models import Resource, ResourceGroup
+from API.models import Resource, ResourceGroup, Favorite
 from API.pagination import MyPaginationMixin
 from rest_framework.settings import api_settings
 
@@ -126,7 +128,7 @@ class RUDResourceView(APIView):
 
 class UserResourcesView(MyPaginationMixin, APIView):
     serializer_class = ListResourceSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [AllowAny]
     pagination_class = api_settings.DEFAULT_PAGINATION_CLASS
 
     def get(self, request, username):
@@ -233,3 +235,44 @@ class ResourceGroupView(APIView):
         self.check_object_permissions(request=request, obj=resource_group)
         group_instance.resources.remove(resource_file.pk)
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+class AddingToFavoriteView(APIView):
+    serializer_class = ListResourceSerializer
+    permission_classes = [IsAuthorAndActive]
+
+    def post(self, request, id):
+        try:
+            resource = Resource.objects.get(slug=id)
+        except Resource.DoesNotExist:
+            return Response(data={'detail': 'Страница не найдена'},
+                            status=status.HTTP_404_NOT_FOUND)
+        resource.favorites.add(request.user.id)
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+    def delete(self, request, id):
+        try:
+            resource = Resource.objects.get(slug=id)
+        except Resource.DoesNotExist:
+            return Response(data={'detail': 'Страница не найдена'},
+                            status=status.HTTP_404_NOT_FOUND)
+        resource.favorites.remove(request.user.id)
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+class FavoriteResourcesView(MyPaginationMixin, APIView):
+    serializer_class = CUDResourceSerializer
+    permission_classes = [IsAuthenticated]
+    pagination_class = api_settings.DEFAULT_PAGINATION_CLASS
+
+    def get(self, request):
+        ids = Favorite.objects.filter(user_id=request.user.id).values_list('resource_id', flat=True)
+        queryset = Resource.objects.filter(pk__in=ids)
+        try:
+            queryset = resource_filtering(request, queryset)
+        except FieldError:
+            return Response(data={'detail': 'Недопустимое имя фильтра'},
+                            status=status.HTTP_400_BAD_REQUEST)
+        queryset = self.paginate_queryset(queryset)
+        serializer = self.serializer_class(queryset, many=True, context={'request': request})
+        return self.get_paginated_response(serializer.data)

@@ -23,7 +23,7 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('name', models.CharField(max_length=64)),
-                ('description', models.CharField(blank=True, max_length=32)),
+                ('description', models.CharField(blank=True, max_length=256)),
                 ('image', models.ImageField(blank=True, upload_to='')),
                 ('privacy_level', models.CharField(choices=[('public', 'Все'), ('link_only', 'Люди по ссылке'), ('private', 'Только я')], default='public', max_length=9)),
                 ('tags', models.TextField(blank=True)),
