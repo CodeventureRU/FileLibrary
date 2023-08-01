@@ -20,21 +20,21 @@ def create_file(files, resource_id):
 
 def add_new_files(file_instance, files):
     extensions = ''
-    file_name = file_instance.file.__str__()
+    file_name = file_instance.file.path
     for file in files:
         extension = file.name.split(".")[-1]
         file.name = f'{file_name}.{extension}'
         default_storage.save(f'{settings.MEDIA_ROOT}/files/{file.name}', ContentFile(file.read()))
         extensions += f'{extension} '
     file_instance.extensions = file_instance.extensions + extensions
-    file_instance.save()
+    file_instance.save(update_fields=['extensions'])
 
 
 def delete_files(file_instance, extensions):
-    file_name = file_instance.file.__str__()
+    file_name = file_instance.file.path
     new_extensions = file_instance.extensions
     for extension in extensions:
-        os.remove(os.path.join(settings.MEDIA_ROOT + '\\files', file_name + '.' + extension))
-        new_extensions = new_extensions.replace(extension, '')
+        os.remove(os.path.join(settings.MEDIA_ROOT, file_name + '.' + extension))
+        new_extensions = new_extensions.replace(f'{extension} ', '')
     file_instance.extensions = new_extensions
-    file_instance.save()
+    file_instance.save(update_fields=['extensions'])

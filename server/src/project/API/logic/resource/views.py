@@ -191,7 +191,8 @@ class ResourceFileView(APIView):
         try:
             delete_files(file_instance, extensions)
             resource.save(update_fields=['updated_at'])
-        except Exception:
+        except Exception as ex:
+            print(ex)
             return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         return Response(status=status.HTTP_204_NO_CONTENT)
 
