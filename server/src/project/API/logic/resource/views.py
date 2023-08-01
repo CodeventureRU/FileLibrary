@@ -107,12 +107,12 @@ class RUDResourceView(APIView):
         serializer = self.serializer_class(resource, data=data, partial=True)
         serializer.is_valid(raise_exception=True)
 
-        if resource.image:
+        if resource.image and 'image' in serializer.validated_data:
             delete_image(resource)
         for key, value in serializer.validated_data.items():
             setattr(resource, key, value)
 
-        resource.save(update_fields=list(serializer.validated_data.keys()))
+        resource.save(update_fields=list(serializer.validated_data.keys()).append('updated_at'))
         return Response(status=status.HTTP_204_NO_CONTENT)
 
     def delete(self, request, id):
@@ -170,6 +170,7 @@ class ResourceFileView(APIView):
         files = request.FILES.getlist('files')
         try:
             add_new_files(file_instance, files)
+            resource.save(update_fields=['updated_at'])
         except Exception:
             return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         return Response(status=status.HTTP_204_NO_CONTENT)
@@ -189,6 +190,7 @@ class ResourceFileView(APIView):
         extensions = data['extensions']
         try:
             delete_files(file_instance, extensions)
+            resource.save(update_fields=['updated_at'])
         except Exception:
             return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         return Response(status=status.HTTP_204_NO_CONTENT)
