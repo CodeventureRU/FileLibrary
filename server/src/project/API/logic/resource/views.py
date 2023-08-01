@@ -45,6 +45,9 @@ class LCResourceView(APIView, MyPaginationMixin):
 
     def post(self, request):
         data = get_data(request)
+        if data['type'] == 'file' and request.FILES.get('files') is None:
+            return Response(data={'detail': 'Не было прикреплено ни одного файла'},
+                            status=status.HTTP_400_BAD_REQUEST)
         image = request.FILES.get('image')
         if image is not None:
             data['image'] = image
