@@ -5,6 +5,8 @@ from rest_framework.exceptions import PermissionDenied
 from rest_framework import status
 from django.core.exceptions import FieldError
 from django.db.models import Count, F
+from django.http import FileResponse, HttpResponse
+import mimetypes
 
 from API.logic.file.serializers import FileSerializer
 from API.logic.resource.serializers import ListResourceSerializer, CUDResourceSerializer, GroupResourceSerializer, \
