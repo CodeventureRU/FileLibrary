@@ -276,3 +276,27 @@ class FavoriteResourcesView(MyPaginationMixin, APIView):
         queryset = self.paginate_queryset(queryset)
         serializer = self.serializer_class(queryset, many=True, context={'request': request})
         return self.get_paginated_response(serializer.data)
+
+
+class DownloadFileView(APIView):
+    serializer_class = FileSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, id, extension):
+        try:
+            resource = Resource.objects.prefetch_related('file').get(slug=id)
+        except Resource.DoesNotExist:
+            return Response(data={'detail': 'Страница не найдена'},
+                            status=status.HTTP_404_NOT_FOUND)
+        if resource.privacy_level == 'private' and resource.author != request.user:
+            raise PermissionDenied
+        file_instance = resource.file
+        if extension not in file_instance.extensions:
+            return Response(data={'detail': 'Файл не найден'},
+                            status=status.HTTP_404_NOT_FOUND)
+        file_path = file_instance.file.path + f'.{extension}'
+        with open(file_path, 'rb') as file:
+            response = HttpResponse(file.read(), content_type=f"{mimetypes.guess_type(file_path)}")
+            response['Content-Disposition'] = 'attachment; filename="{0}"'.format(
+                file_instance.file.name.split('/')[1] + f'.{extension}')
+            return response
