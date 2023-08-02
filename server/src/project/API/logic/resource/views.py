@@ -289,7 +289,7 @@ class FavoriteResourcesView(MyPaginationMixin, APIView):
 
 class DownloadFileView(APIView):
     serializer_class = FileSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [AllowAny]
 
     def get(self, request, id, extension):
         try:

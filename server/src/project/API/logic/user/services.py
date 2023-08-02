@@ -66,7 +66,7 @@ def convert_token(raw_token, token_class):
     return token
 
 
-# Email functions #
+# Email function #
 def send_email_message(purpose, user_instance, new_email=None):
     data = json.dumps({'purpose': purpose,
                        'pk': user_instance.pk,
