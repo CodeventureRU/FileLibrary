@@ -1,6 +1,7 @@
 import React, {lazy, Suspense} from 'react';
 import {Box, ListItem, ListItemText, Typography} from "@mui/material";
 import {dateToFormat} from "../lib/index.js";
+import {NavLink} from "react-router-dom";
 
 const GroupIcon = lazy(() => import("@mui/icons-material/Folder"));
 const FileIcon = lazy(() => import("@mui/icons-material/InsertDriveFile"));
@@ -31,10 +32,10 @@ const ResourceListItem = ({resource, headerActions=null, mainActions=null}) => {
             <ListItemText
                 primary={
                 // Основная инфомрация о ресурсе
-                <Box sx={{display: "flex", alignItems: "start", gap: "10px", pb: "10px"}}>
+                <NavLink to={`/resource/${resource.slug ? resource.slug : resource.id}`} style={{color: "inherit", textDecoration: "none"}}><Box sx={{display: "flex", alignItems: "start", gap: "10px", pb: "10px"}}>
                     {resourcesTypes[resource.type].icon}
                     <Typography variant="body2" color="text.secondary">{resource.name}</Typography>
-                </Box>}
+                </Box></NavLink>}
                 secondary={
                     // Дополнительная информация о ресурсе
                     <Box

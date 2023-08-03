@@ -8,6 +8,7 @@ import {
     Typography
 } from "@mui/material";
 import {dateToFormat} from "../lib/index.js";
+import {NavLink} from "react-router-dom";
 
 const GroupIcon = lazy(() => import("@mui/icons-material/Folder"));
 const FileIcon = lazy(() => import("@mui/icons-material/InsertDriveFile"));
@@ -53,7 +54,7 @@ const ResourceCard = memo(({resource, headerAction=null, mainActions=null}) => {
             {/*
             Контент карточки: картинка и текст
             */}
-            <CardActionArea>
+            <NavLink to={`/resource/${resource.slug ? resource.slug : resource.id}`} style={{color: "inherit", textDecoration: "none"}}><CardActionArea>
                 { resource.image ?
                     <CardMedia
                         component="img"
@@ -79,7 +80,7 @@ const ResourceCard = memo(({resource, headerAction=null, mainActions=null}) => {
                         {resource.name}
                     </Typography>
                 </CardContent>
-            </CardActionArea>
+            </CardActionArea></NavLink>
             {/*
             Действия скнизу карточки
             */}
