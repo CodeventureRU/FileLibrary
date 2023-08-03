@@ -24,7 +24,7 @@ const resourcesTypes = {
 
 const ResourceInfoSection = ({resource, mainActions=null, action=null}) => {
     return (
-        <Paper elevation={1} sx={{p: 3}}>
+        <Paper variant="outlined" sx={{p: 3}}>
             <Grid container spacing={3}>
                 {
                     resource.image ?
@@ -46,7 +46,12 @@ const ResourceInfoSection = ({resource, mainActions=null, action=null}) => {
 
                     <Typography variant="caption"><UploadIcon sx={{mb: '-3px', width: '14px', height: '14px'}} /> {dateToFormat(resource.created_at, 'dd MM yyyy')}</Typography><br/>
                     <NavLink to={`/user/${resource.author}`} style={{color: "inherit", textTransform: "none", textDecoration: "none"}}><Typography variant="caption"><Typography component="span" variant="caption" color="primary"><AccountIcon sx={{mb: '-3px', width: '14px', height: '14px'}} /> {resource.author}</Typography></Typography></NavLink><br/>
-                    <Typography variant="caption"><TagIcon sx={{mb: '-3px', width: '14px', height: '14px'}} /> фильмы, файлы, кино, Гарри Поттер</Typography><br/>
+                    {
+                        resource.tags !== "" ?
+                            <><Typography variant="caption"><TagIcon sx={{mb: '-3px', width: '14px', height: '14px'}} /> {resource.tags}</Typography><br/></>
+                        : ""
+                    }
+
 
                     <Typography variant="body2" color="text.secondary" sx={{my: 3}}>
                         {resource.description}
