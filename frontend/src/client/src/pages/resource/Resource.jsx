@@ -3,6 +3,7 @@ import {ResourceInfo} from "../../widgets/resource-info/index.js";
 import {useParams} from "react-router-dom";
 import {useFetchResource} from "../../entities/resource/index.js";
 import {Alert, Box} from "@mui/material";
+import {FileData} from "../../widgets/file-data/index.js";
 
 const Resource = () => {
     const {resource: resourceId} = useParams();
@@ -23,7 +24,14 @@ const Resource = () => {
                         <Alert severity="error">Страница не найдена</Alert>
                     </Box>
                 ) : (
-                    <ResourceInfo loading={loading} requested={requested} resource={resource} />
+                    <>
+                        <ResourceInfo loading={loading} requested={requested} resource={resource} />
+                        {
+                            resource.type === 'file' ?
+                                <FileData loading={loading} requested={requested} resource={resource} />
+                                : "данные группы"
+                        }
+                    </>
                 )
             }
 
