@@ -1,6 +1,7 @@
 import React, {lazy, Suspense} from 'react';
 import {Box, ListItem, ListItemText, Typography} from "@mui/material";
 import {dateToFormat} from "../lib/index.js";
+import {NavLink} from "react-router-dom";
 
 const GroupIcon = lazy(() => import("@mui/icons-material/Folder"));
 const FileIcon = lazy(() => import("@mui/icons-material/InsertDriveFile"));
@@ -29,12 +30,13 @@ const ResourceListItem = ({resource, headerActions=null, mainActions=null}) => {
             }
         >
             <ListItemText
+                primaryTypographyProps={{component: "div"}}
                 primary={
                 // Основная инфомрация о ресурсе
-                <Box sx={{display: "flex", alignItems: "start", gap: "10px", pb: "10px"}}>
+                <NavLink to={`/resource/${resource.slug ? resource.slug : resource.id}`} style={{color: "inherit", textDecoration: "none"}}><Box sx={{display: "flex", alignItems: "start", gap: "10px", pb: "10px"}}>
                     {resourcesTypes[resource.type].icon}
                     <Typography variant="body2" color="text.secondary">{resource.name}</Typography>
-                </Box>}
+                </Box></NavLink>}
                 secondary={
                     // Дополнительная информация о ресурсе
                     <Box
@@ -49,7 +51,7 @@ const ResourceListItem = ({resource, headerActions=null, mainActions=null}) => {
                         <Suspense fallback={"..."}>
                             <Typography variant="caption" color="text.secondary">
                                 <UploadIcon sx={{mb: '-3px', width: '14px', height: '14px'}} /> {dateToFormat(resource.created_at, "dd.mm.yyyy")}
-                                <AccountIcon sx={{ml: "10px", mb: '-3px', width: '14px', height: '14px'}} /> {resource.username}
+                                <AccountIcon sx={{ml: "10px", mb: '-3px', width: '14px', height: '14px'}} /> {resource.author}
                             </Typography>
                         </Suspense>
                         {

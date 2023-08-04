@@ -3,10 +3,10 @@ import {useState} from "react";
 
 // Кастомный хук для настроек фильтрации и сортировки
 const useFilterSort = () => {
-    const [sort, setSort] = useState('date');
+    const [sort, setSort] = useState('created_at');
     const [sortDirection, setSortDirection] = useState('desc');
     const [search, setSearch] = useState('');
-    const [type, setType] = useState('all');
+    const [type, setType] = useState('');
 
     return { sort, setSort, sortDirection, setSortDirection, search, setSearch, type, setType };
 };

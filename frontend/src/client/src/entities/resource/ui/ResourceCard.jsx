@@ -8,6 +8,7 @@ import {
     Typography
 } from "@mui/material";
 import {dateToFormat} from "../lib/index.js";
+import {NavLink} from "react-router-dom";
 
 const GroupIcon = lazy(() => import("@mui/icons-material/Folder"));
 const FileIcon = lazy(() => import("@mui/icons-material/InsertDriveFile"));
@@ -53,12 +54,12 @@ const ResourceCard = memo(({resource, headerAction=null, mainActions=null}) => {
             {/*
             Контент карточки: картинка и текст
             */}
-            <CardActionArea>
-                { resource.img ?
+            <NavLink to={`/resource/${resource.slug ? resource.slug : resource.id}`} style={{color: "inherit", textDecoration: "none"}}><CardActionArea>
+                { resource.image ?
                     <CardMedia
                         component="img"
                         height="194"
-                        image={resource.img}
+                        image={resource.image}
                         alt="Paella dish"
                     />
                     : ""
@@ -70,7 +71,7 @@ const ResourceCard = memo(({resource, headerAction=null, mainActions=null}) => {
                             {/* Информация о дате создания */}
                             <UploadIcon sx={{mb: '-3px', width: '14px', height: '14px'}} /> {dateToFormat(resource.created_at, "dd.mm.yyyy")}
                             {/* Информация об авторе */}
-                            <AccountIcon sx={{ml: "10px", mb: '-3px', width: '14px', height: '14px'}} /> {resource.username}
+                            <AccountIcon sx={{ml: "10px", mb: '-3px', width: '14px', height: '14px'}} /> {resource.author}
                         </Typography>
                     </Suspense>
 
@@ -79,7 +80,7 @@ const ResourceCard = memo(({resource, headerAction=null, mainActions=null}) => {
                         {resource.name}
                     </Typography>
                 </CardContent>
-            </CardActionArea>
+            </CardActionArea></NavLink>
             {/*
             Действия скнизу карточки
             */}

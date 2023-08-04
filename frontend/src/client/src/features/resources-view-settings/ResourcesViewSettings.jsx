@@ -54,8 +54,8 @@ const ResourcesViewSettings = ({filterAndSortObj, viewModeObj, apply}) => {
         <div>
             <Box sx={{ mt: 3, display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '10px' }}>
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                    <IconButton color="primary"><Tune onClick={handleFilterModalOpen} /></IconButton>
-                    <IconButton color="primary"><SwapVert onClick={handleSortModalOpen} /></IconButton>
+                    <IconButton onClick={handleFilterModalOpen} color="primary"><Tune /></IconButton>
+                    <IconButton onClick={handleSortModalOpen} color="primary"><SwapVert /></IconButton>
                     <TextField
                         label="Поиск"
                         value={search}
@@ -84,9 +84,9 @@ const ResourcesViewSettings = ({filterAndSortObj, viewModeObj, apply}) => {
                 <DialogTitle>Настройка фильтра</DialogTitle>
                 <DialogContent>
                     <Select fullWidth={true} value={type} onChange={(e) => setType(e.target.value)}>
-                        <MenuItem value="all">Все</MenuItem>
-                        <MenuItem value="files">Файлы</MenuItem>
-                        <MenuItem value="groups">Группы</MenuItem>
+                        <MenuItem value="">Все</MenuItem>
+                        <MenuItem value="file">Файлы</MenuItem>
+                        <MenuItem value="group">Группы</MenuItem>
                     </Select>
                 </DialogContent>
                 <DialogActions>
@@ -102,7 +102,7 @@ const ResourcesViewSettings = ({filterAndSortObj, viewModeObj, apply}) => {
                 <DialogContent>
                     <Select fullWidth={true} value={sort} onChange={(e) => setSort(e.target.value)}>
                         <MenuItem value="name">По названию</MenuItem>
-                        <MenuItem value="date">По дате</MenuItem>
+                        <MenuItem value="created_at">По дате</MenuItem>
                         <MenuItem value="favorites">По количеству добавлений в избранное</MenuItem>
                     </Select>
                     <RadioGroup

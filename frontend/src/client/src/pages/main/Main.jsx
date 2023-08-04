@@ -1,5 +1,5 @@
 import React from 'react';
-import {MainResourcesList} from "../../widgets/main-resources-list/index";
+import {MainResourcesList} from "../../widgets/resources-lists/index";
 import {MainPageScreen} from "../../widgets/main-page-screen/index.js";
 
 const Main = () => {

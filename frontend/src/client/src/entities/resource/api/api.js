@@ -1,17 +1,18 @@
-import {useAsyncApi, useApi} from "../../../shared/api/index.js";
+import {useApi} from "../../../shared/api/index.js";
 import {addResourcesSelector, setResourcesSelector, useResourcesStore} from "../model/index.js";
 import {useCallback} from "react";
 
 const URLS = {
     resource: id => `/resources/${id}/`,
     resources: `/resources/`,
-    myResources: `/my/resources/`,
-    userResources: (id) => `/user/${id}/resources/`,
+    userResources: (username) => `/resources/user/${username}/`,
 
 }
 
-const useFetchedResource = (id) => {
-    return useAsyncApi(URLS.resource(id), "get", {});
+const useFetchResource = (id) => {
+    const {request, ...apiHook} = useApi(URLS.resource(id), "get");
+
+    return {...apiHook, fetchResourceRequest: request}
 }
 
 const useFetchResources = (url) => {
@@ -33,13 +34,16 @@ const useFetchResources = (url) => {
             }
         });
 
+
         if (result != null) {
             if (reset) {
-                setResources(result);
+                setResources(result.results);
             } else {
-                addResources(result);
+                addResources(result.results);
             }
         }
+
+        return result;
     }, [url]);
 
     return {...apiHook, loadMore};
@@ -53,8 +57,8 @@ const useFetchMyResources = () => {
     return useFetchResources(URLS.resources);
 }
 
-const useFetchUserResources = (userId) => {
-    return useFetchResources(URLS.resources);
+const useFetchUserResources = (username) => {
+    return useFetchResources(URLS.userResources(username));
 }
 
 const useUpdateResource = (id) => {
@@ -103,4 +107,4 @@ const useCreateResource = () => {
 
 
 
-export {useFetchedResource, useFetchMainResources, useFetchUserResources, useFetchMyResources, useUpdateResource, useCreateResource}
+export {useFetchResource, useFetchMainResources, useFetchUserResources, useFetchMyResources, useUpdateResource, useCreateResource}
