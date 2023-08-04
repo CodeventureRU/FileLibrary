@@ -1,4 +1,4 @@
-import React, {useEffect} from 'react';
+import React, {useEffect, useState} from 'react';
 import {ResourcesViewSettings, useFilterSort, useViewMode} from "../../../features/resources-view-settings/index.js";
 import {resourcesSelector, useResourcesStore} from "../../../entities/resource/index.js";
 import {
@@ -7,13 +7,16 @@ import {
     useResourceActionMenu
 } from "../../../features/resource-actions-menu/index.js";
 import ViewModeResourcesList from "../../../features/view-mode-resources-list/ViewModeResourcesList.jsx";
-import {Box, Divider} from "@mui/material";
+import {Box, Divider, Typography} from "@mui/material";
 import ResourceListItem from "../../../entities/resource/ui/ResourceListItem.jsx";
 import ResourceFavorites from "../../../features/resource-favorites/ResourceFavorites.jsx";
 import ResourceGridItem from "../../../entities/resource/ui/ResourceGridItem.jsx";
 import ResourceCard from "../../../entities/resource/ui/ResourceCard.jsx";
 import {ResourceDownloads, useResourceDownloadsMenu} from "../../../features/resource-downloads/index.js";
 import ResourceDownloadsMenu from "../../../features/resource-downloads/ResourceDownloadsMenu.jsx";
+import {ResourcesStandardPagination} from "../../../features/resources-pagination/index.js";
+
+const STANDARD_LIMIT = 6;
 
 const ResourcesListTemplate = ({
    showEditAction=false,
@@ -26,26 +29,30 @@ const ResourcesListTemplate = ({
     const viewModeObj = useViewMode();
     const {loadMore, loading, errors, requested} = resourcesHook;
     const resources = useResourcesStore(resourcesSelector);
+    const [numPages, setNumPages] = useState(1);
 
-    const reset = () => {
-        loadMore({
+    const reset = async () => {
+        let res = await loadMore({
             sort: filterAndSortObj.sort,
             search: filterAndSortObj.search,
             type: filterAndSortObj.type,
         }, {
             page: 1,
-            limit: 3,
+            limit: STANDARD_LIMIT,
         }, true);
+        setNumPages(res.num_pages);
     }
 
     useEffect(() => {
         reset();
     }, []);
 
+    // Применение фильтров
     const apply = () => {
         reset();
     }
 
+    // Данные всплювающих меню
     const {element: resourceActionsMenuAnchor, resource: resourceActionsMenuData, close: closeResourceActionsMenu, open: openResourceActionsMenu} = useResourceActionMenu();
     const {element: resourceDownloadsMenuAnchor, resource: resourceDownloadsMenuData, close: closeResourceDownloadsMenu, open: openResourceDownloadsMenu} = useResourceDownloadsMenu();
 
@@ -62,6 +69,7 @@ const ResourcesListTemplate = ({
                 errors={errors}
                 viewModeObj={viewModeObj}
                 resourcesList={
+                    resources.length ?
                     resources.map(resource =>
                         <React.Fragment key={resource.slug}>
                             <Divider />
@@ -94,6 +102,8 @@ const ResourcesListTemplate = ({
                                 }
                             />
                         </React.Fragment>
+                    ) : (
+                            <Typography variant="body1">Нет ресурсов</Typography>
                     )
                 }
                 resourcesGrid={
@@ -125,6 +135,7 @@ const ResourcesListTemplate = ({
                     )
                 }
             />
+            <ResourcesStandardPagination filterAndSortObj={filterAndSortObj} loadMore={loadMore} numPages={numPages} limit={STANDARD_LIMIT}></ResourcesStandardPagination>
             <ResourceActionsMenu
                 resource={resourceActionsMenuData}
                 element={resourceActionsMenuAnchor}
