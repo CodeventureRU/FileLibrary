@@ -1,10 +1,10 @@
 import React, {useEffect, useState} from 'react';
 import {useParams} from "react-router-dom";
-import {useConfirmEmail, useLogin} from "../../entities/viewer/index.js";
+import {useConfirmEmail, useLogin} from "../../../entities/viewer/index.js";
 import {Alert, Box, CircularProgress, Grid, Paper, Typography} from "@mui/material";
-import {GridFormControl} from "../../shared/ui/grid-form-control/index.js";
-import {LoadingButton} from "../../shared/ui/loading-button/index.js";
-import {ErrorsBag} from "../../shared/ui/errors-bag/index.js";
+import {GridFormControl} from "../../../shared/ui/grid-form-control/index.js";
+import {LoadingButton} from "../../../shared/ui/loading-button/index.js";
+import {ErrorsBag} from "../../../shared/ui/errors-bag/index.js";
 
 const ConfirmEmailForm = () => {
     const {uidb64, token, email} = useParams();

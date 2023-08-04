@@ -5,7 +5,7 @@ import {
     HourglassTop,
     MoreVert,
 } from '@mui/icons-material';
-import {useViewerStore, viewerSelector} from "../../entities/viewer/index.js";
+import {useViewerStore, viewerSelector} from "../../../entities/viewer/index.js";
 import {NavLink} from "react-router-dom";
 
 const ProfileData = () => {

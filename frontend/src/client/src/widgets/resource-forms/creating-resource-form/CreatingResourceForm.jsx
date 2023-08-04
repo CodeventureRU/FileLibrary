@@ -10,11 +10,11 @@ import {
     Stepper,
     Typography
 } from "@mui/material";
-import {MultipleFileUpload} from "../../features/multiple-file-upload/index.js";
-import {ResourceInfoForm, useResourceInfoForm} from "../../features/resource-info-form/index.js";
-import {ResourcePrivacyForm, useResourcePrivacy} from "../../features/resource-privacy-form/index.js";
-import {LoadingButton} from "../../shared/ui/loading-button/index.js";
-import {useCreateResource} from "../../entities/resource/index.js";
+import {MultipleFileUpload} from "../../../features/multiple-file-upload/index.js";
+import {ResourceInfoForm, useResourceInfoForm} from "../../../features/resource-info-form/index.js";
+import {ResourcePrivacyForm, useResourcePrivacy} from "../../../features/resource-privacy-form/index.js";
+import {LoadingButton} from "../../../shared/ui/loading-button/index.js";
+import {useCreateResource} from "../../../entities/resource/index.js";
 import {NavLink} from "react-router-dom";
 
 const CreatingResourceForm = ({type}) => {

@@ -1,47 +1,47 @@
 import React, {useEffect} from 'react';
-import {ResourcesViewSettings, useFilterSort, useViewMode} from "../../features/resources-view-settings/index.js";
-import {
-    resourcesSelector,
-    useFetchMainResources,
-    useResourcesStore
-} from "../../entities/resource/index.js";
+import {ResourcesViewSettings, useFilterSort, useViewMode} from "../../../features/resources-view-settings/index.js";
+import {resourcesSelector, useResourcesStore} from "../../../entities/resource/index.js";
 import {
     ResourceActionsMenu,
     ResourceHeaderAction,
     useResourceActionMenu
-} from "../../features/resource-actions-menu/index.js";
-import ViewModeResourcesList from "../../features/view-mode-resources-list/ViewModeResourcesList.jsx";
+} from "../../../features/resource-actions-menu/index.js";
+import ViewModeResourcesList from "../../../features/view-mode-resources-list/ViewModeResourcesList.jsx";
 import {Divider} from "@mui/material";
-import ResourceListItem from "../../entities/resource/ui/ResourceListItem.jsx";
-import ResourceGridItem from "../../entities/resource/ui/ResourceGridItem.jsx";
-import ResourceCard from "../../entities/resource/ui/ResourceCard.jsx";
+import ResourceListItem from "../../../entities/resource/ui/ResourceListItem.jsx";
+import ResourceFavorites from "../../../features/resource-favorites/ResourceFavorites.jsx";
+import ResourceGridItem from "../../../entities/resource/ui/ResourceGridItem.jsx";
+import ResourceCard from "../../../entities/resource/ui/ResourceCard.jsx";
 
-const MainResourcesList = () => {
+const ResourcesListTemplate = ({
+   showEditAction=false,
+   showAddToGroupAction=false,
+   showFavoriteAction=false,
+   showDownloads=false,
+   resourcesHook,
+                               }) => {
     const filterAndSortObj = useFilterSort();
     const viewModeObj = useViewMode();
-    const {loadMore, loading, errors, requested} = useFetchMainResources();
+    const {loadMore, loading, errors, requested} = resourcesHook;
     const resources = useResourcesStore(resourcesSelector);
 
-    useEffect(() => {
+    const reset = () => {
         loadMore({
             sort: filterAndSortObj.sort,
             search: filterAndSortObj.search,
             type: filterAndSortObj.type,
         }, {
             page: 1,
-            limit: 100,
+            limit: 3,
         }, true);
+    }
+
+    useEffect(() => {
+        reset();
     }, []);
 
     const apply = () => {
-        loadMore({
-            sort: filterAndSortObj.sort,
-            search: filterAndSortObj.search,
-            type: filterAndSortObj.type,
-        }, {
-            page: 1,
-            limit: 100,
-        }, true);
+        reset();
     }
 
     const {element, resource, close, open} = useResourceActionMenu();
@@ -64,11 +64,25 @@ const MainResourcesList = () => {
                             <Divider />
                             <ResourceListItem
                                 headerActions={
-                                    resource.type === 'file' ? (
+                                    (showEditAction || (resource.type === 'file' && showAddToGroupAction)) ? (
                                         <ResourceHeaderAction resource={resource} open={open} />
                                     ) : ""
                                 }
                                 resource={resource}
+                                mainActions={
+                                    <>
+                                        {
+                                            showFavoriteAction ? (
+                                                <ResourceFavorites resource={resource}></ResourceFavorites>
+                                            ) : ""
+                                        }
+                                        {
+                                            showDownloads ? (
+                                                "загрузки"
+                                            ) : ""
+                                        }
+                                    </>
+                                }
                             />
                         </>
                     )
@@ -78,7 +92,7 @@ const MainResourcesList = () => {
                         <ResourceGridItem>
                             <ResourceCard
                                 headerAction={
-                                    resource.type === 'file' ? (
+                                    (showEditAction || (resource.type === 'file' && showAddToGroupAction)) ? (
                                         <ResourceHeaderAction resource={resource} open={open} />
                                     ) : ""
                                 }
@@ -92,11 +106,11 @@ const MainResourcesList = () => {
                 resource={resource}
                 element={element}
                 close={close}
-                editAction={false}
-                deleteAction={false}
+                editAction={showEditAction}
+                deleteAction={showEditAction}
             />
         </div>
     );
 };
 
-export default MainResourcesList;
+export default ResourcesListTemplate;

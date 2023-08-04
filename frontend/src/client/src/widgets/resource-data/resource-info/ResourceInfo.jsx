@@ -1,5 +1,5 @@
 import React from 'react';
-import ResourceInfoSection from "../../entities/resource/ui/ResourceInfoSection.jsx";
+import ResourceInfoSection from "../../../entities/resource/ui/ResourceInfoSection.jsx";
 import {Box} from "@mui/material";
 
 const ResourceInfo = ({loading, requested, resource}) => {

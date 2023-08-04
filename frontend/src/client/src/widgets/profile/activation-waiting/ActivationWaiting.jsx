@@ -1,8 +1,8 @@
 import React from 'react';
 import {Box, Paper, Typography} from "@mui/material";
-import {useResendEmail} from "../../entities/viewer/index.js";
-import {LoadingButton} from "../../shared/ui/loading-button/index.js";
-import {useThrottleTimer} from "../../features/throttle-timer/index.js";
+import {useResendEmail} from "../../../entities/viewer/index.js";
+import {LoadingButton} from "../../../shared/ui/loading-button/index.js";
+import {useThrottleTimer} from "../../../features/throttle-timer/index.js";
 
 const ActivationWaiting = () => {
     const {resendRequest, errors, loading, requested} = useResendEmail();

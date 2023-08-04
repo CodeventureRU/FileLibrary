@@ -1,9 +1,9 @@
 import React from 'react';
 import {Box, Paper, Tab, Tabs, Typography} from "@mui/material";
-import {UsernameForm} from "../../features/profile-settings/username-form/index.js";
-import {EmailForm} from "../../features/profile-settings/email-form/index";
-import {PasswordForm} from "../../features/profile-settings/password-form/index.js";
-import {AccountDeletion} from "../../features/profile-settings/account-deletion/index.js";
+import {UsernameForm} from "../../../features/profile-settings/username-form/index.js";
+import {EmailForm} from "../../../features/profile-settings/email-form/index.js";
+import {PasswordForm} from "../../../features/profile-settings/password-form/index.js";
+import {AccountDeletion} from "../../../features/profile-settings/account-deletion/index.js";
 
 function TabPanel(props) {
     const { children, value, index, ...other } = props;

@@ -1,10 +1,10 @@
 import React, {useEffect, useState} from 'react';
-import {useSendResetPassword} from "../../entities/viewer/index.js";
+import {useSendResetPassword} from "../../../entities/viewer/index.js";
 import {Box, Grid, Paper, Typography} from "@mui/material";
-import {GridFormControl} from "../../shared/ui/grid-form-control/index.js";
-import {ErrorsBag} from "../../shared/ui/errors-bag/index.js";
-import {LoadingButton} from "../../shared/ui/loading-button/index.js";
-import {useThrottleTimer} from "../../features/throttle-timer/index.js";
+import {GridFormControl} from "../../../shared/ui/grid-form-control/index.js";
+import {ErrorsBag} from "../../../shared/ui/errors-bag/index.js";
+import {LoadingButton} from "../../../shared/ui/loading-button/index.js";
+import {useThrottleTimer} from "../../../features/throttle-timer/index.js";
 
 const SendResetPasswordForm = () => {
     const {errors, loading, sendResetPasswordRequest, requested} = useSendResetPassword();
