@@ -13,6 +13,7 @@ const PersonalResourcesList = () => {
             showEditAction={true}
             showAddToGroupAction={true}
             showFavoriteAction={true}
+            showDownloads={true}
         />
     );
 };

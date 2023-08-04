@@ -7,11 +7,13 @@ import {
     useResourceActionMenu
 } from "../../../features/resource-actions-menu/index.js";
 import ViewModeResourcesList from "../../../features/view-mode-resources-list/ViewModeResourcesList.jsx";
-import {Divider} from "@mui/material";
+import {Box, Divider} from "@mui/material";
 import ResourceListItem from "../../../entities/resource/ui/ResourceListItem.jsx";
 import ResourceFavorites from "../../../features/resource-favorites/ResourceFavorites.jsx";
 import ResourceGridItem from "../../../entities/resource/ui/ResourceGridItem.jsx";
 import ResourceCard from "../../../entities/resource/ui/ResourceCard.jsx";
+import {ResourceDownloads, useResourceDownloadsMenu} from "../../../features/resource-downloads/index.js";
+import ResourceDownloadsMenu from "../../../features/resource-downloads/ResourceDownloadsMenu.jsx";
 
 const ResourcesListTemplate = ({
    showEditAction=false,
@@ -44,7 +46,8 @@ const ResourcesListTemplate = ({
         reset();
     }
 
-    const {element, resource, close, open} = useResourceActionMenu();
+    const {element: resourceActionsMenuAnchor, resource: resourceActionsMenuData, close: closeResourceActionsMenu, open: openResourceActionsMenu} = useResourceActionMenu();
+    const {element: resourceDownloadsMenuAnchor, resource: resourceDownloadsMenuData, close: closeResourceDownloadsMenu, open: openResourceDownloadsMenu} = useResourceDownloadsMenu();
 
     return (
         <div>
@@ -64,24 +67,30 @@ const ResourcesListTemplate = ({
                             <Divider />
                             <ResourceListItem
                                 headerActions={
-                                    (showEditAction || (resource.type === 'file' && showAddToGroupAction)) ? (
-                                        <ResourceHeaderAction resource={resource} open={open} />
-                                    ) : ""
+                                    <>
+                                        {
+                                            (showEditAction || (resource.type === 'file' && showAddToGroupAction)) ? (
+                                                <ResourceHeaderAction resource={resource} open={openResourceActionsMenu} />
+                                            ) : ""
+                                        }
+
+                                    </>
+
                                 }
                                 resource={resource}
                                 mainActions={
-                                    <>
+                                    <Box sx={{display: "flex", alignItems: "center", gap: 2}}>
+                                        {
+                                            showDownloads && resource.type === "file" ? (
+                                                <ResourceDownloads resource={resource} open={openResourceDownloadsMenu}></ResourceDownloads>
+                                            ) : ""
+                                        }
                                         {
                                             showFavoriteAction ? (
                                                 <ResourceFavorites resource={resource}></ResourceFavorites>
                                             ) : ""
                                         }
-                                        {
-                                            showDownloads ? (
-                                                "загрузки"
-                                            ) : ""
-                                        }
-                                    </>
+                                    </Box>
                                 }
                             />
                         </>
@@ -93,21 +102,40 @@ const ResourcesListTemplate = ({
                             <ResourceCard
                                 headerAction={
                                     (showEditAction || (resource.type === 'file' && showAddToGroupAction)) ? (
-                                        <ResourceHeaderAction resource={resource} open={open} />
+                                        <ResourceHeaderAction resource={resource} open={openResourceActionsMenu} />
                                     ) : ""
                                 }
                                 resource={resource}
+                                mainActions={
+                                    <Box sx={{display: 'flex', alignItems: 'center', justifyContent: "space-between", gap: 1}}>
+                                        {
+                                            showFavoriteAction ? (
+                                                <ResourceFavorites reverse={true} resource={resource}></ResourceFavorites>
+                                            ) : ""
+                                        }
+                                        {
+                                            showDownloads && resource.type === "file" ? (
+                                                <ResourceDownloads reverse={true} resource={resource} open={openResourceDownloadsMenu}></ResourceDownloads>
+                                            ) : ""
+                                        }
+                                    </Box>
+                                }
                             />
                         </ResourceGridItem>
                     )
                 }
             />
             <ResourceActionsMenu
-                resource={resource}
-                element={element}
-                close={close}
+                resource={resourceActionsMenuData}
+                element={resourceActionsMenuAnchor}
+                close={closeResourceActionsMenu}
                 editAction={showEditAction}
                 deleteAction={showEditAction}
+            />
+            <ResourceDownloadsMenu
+                resource={resourceDownloadsMenuData}
+                element={resourceDownloadsMenuAnchor}
+                close={closeResourceDownloadsMenu}
             />
         </div>
     );

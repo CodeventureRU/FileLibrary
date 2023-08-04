@@ -13,6 +13,7 @@ const UserResourcesList = () => {
             showEditAction={false}
             showAddToGroupAction={true}
             showFavoriteAction={true}
+            showDownloads={true}
         />
     );
 };

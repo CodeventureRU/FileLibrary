@@ -11,6 +11,7 @@ const MainResourcesList = () => {
             showEditAction={false}
             showAddToGroupAction={true}
             showFavoriteAction={true}
+            showDownloads={true}
         />
     );
 };
