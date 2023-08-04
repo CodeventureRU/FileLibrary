@@ -12,7 +12,7 @@ const ResourceDownloads = ({resource, open, reverse=false}) => {
                     </IconButton>
                 ) : ""
             }
-            <Typography variant="body2" color="text.secondary">{resource?.file?.downloads}</Typography>
+            <Typography variant="body2" color="text.secondary">{resource?.downloads !== undefined ? resource?.downloads : resource?.file?.downloads}</Typography>
             {
                 !reverse ? (
                     <IconButton onClick={e => open(e, resource)} sx={{width: '24px', height: '24px'}}>

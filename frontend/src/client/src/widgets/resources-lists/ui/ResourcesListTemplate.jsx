@@ -63,7 +63,7 @@ const ResourcesListTemplate = ({
                 viewModeObj={viewModeObj}
                 resourcesList={
                     resources.map(resource =>
-                        <>
+                        <React.Fragment key={resource.slug}>
                             <Divider />
                             <ResourceListItem
                                 headerActions={
@@ -93,12 +93,12 @@ const ResourcesListTemplate = ({
                                     </Box>
                                 }
                             />
-                        </>
+                        </React.Fragment>
                     )
                 }
                 resourcesGrid={
                     resources.map(resource =>
-                        <ResourceGridItem>
+                        <ResourceGridItem key={resource.slug}>
                             <ResourceCard
                                 headerAction={
                                     (showEditAction || (resource.type === 'file' && showAddToGroupAction)) ? (

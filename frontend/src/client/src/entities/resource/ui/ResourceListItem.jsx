@@ -30,6 +30,7 @@ const ResourceListItem = ({resource, headerActions=null, mainActions=null}) => {
             }
         >
             <ListItemText
+                primaryTypographyProps={{component: "div"}}
                 primary={
                 // Основная инфомрация о ресурсе
                 <NavLink to={`/resource/${resource.slug ? resource.slug : resource.id}`} style={{color: "inherit", textDecoration: "none"}}><Box sx={{display: "flex", alignItems: "start", gap: "10px", pb: "10px"}}>

@@ -54,8 +54,8 @@ const ResourcesViewSettings = ({filterAndSortObj, viewModeObj, apply}) => {
         <div>
             <Box sx={{ mt: 3, display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '10px' }}>
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                    <IconButton color="primary"><Tune onClick={handleFilterModalOpen} /></IconButton>
-                    <IconButton color="primary"><SwapVert onClick={handleSortModalOpen} /></IconButton>
+                    <IconButton onClick={handleFilterModalOpen} color="primary"><Tune /></IconButton>
+                    <IconButton onClick={handleSortModalOpen} color="primary"><SwapVert /></IconButton>
                     <TextField
                         label="Поиск"
                         value={search}
