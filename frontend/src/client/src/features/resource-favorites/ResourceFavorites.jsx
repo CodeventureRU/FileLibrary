@@ -2,25 +2,30 @@ import React, {useState} from 'react';
 import {Box, IconButton, Typography} from "@mui/material";
 import {Favorite} from "@mui/icons-material";
 import {useAddToFavorites, useRemoveFromFavorites} from "../../entities/resource/index.js";
+import {useViewerStore, viewerSelector} from "../../entities/viewer/index.js";
 
 const ResourceFavorites = ({resource, reverse=false}) => {
+    const viewer = useViewerStore(viewerSelector);
     const [isFavorite, setIsFavorite] = useState(resource.is_favorite);
     const [numFavorites, setNumFavorites] = useState(resource.num_favorites);
     const {addToFavoritesRequest} = useAddToFavorites(resource.slug);
     const {removeFromFavoritesRequest} = useRemoveFromFavorites(resource.slug);
 
     const handleToggle = () => {
-        if (isFavorite) {
-            removeFromFavoritesRequest().then(() => {
-                setIsFavorite(false);
-                setNumFavorites(numFavorites - 1);
-            });
-        } else {
-            addToFavoritesRequest().then(() => {
-                setIsFavorite(true);
-                setNumFavorites(numFavorites + 1);
-            });
+        if (viewer?.is_active) {
+            if (isFavorite) {
+                removeFromFavoritesRequest().then(() => {
+                    setIsFavorite(false);
+                    setNumFavorites(numFavorites - 1);
+                });
+            } else {
+                addToFavoritesRequest().then(() => {
+                    setIsFavorite(true);
+                    setNumFavorites(numFavorites + 1);
+                });
+            }
         }
+
     }
 
     return (
