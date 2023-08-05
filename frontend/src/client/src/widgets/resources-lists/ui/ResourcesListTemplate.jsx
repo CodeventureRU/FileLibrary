@@ -32,11 +32,7 @@ const ResourcesListTemplate = ({
     const [numPages, setNumPages] = useState(1);
 
     const reset = async () => {
-        let res = await loadMore({
-            sort: filterAndSortObj.sort,
-            search: filterAndSortObj.search,
-            type: filterAndSortObj.type,
-        }, {
+        let res = await loadMore(filterAndSortObj, {
             page: 1,
             limit: STANDARD_LIMIT,
         }, true);

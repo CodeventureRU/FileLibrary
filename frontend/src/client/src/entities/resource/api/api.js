@@ -28,7 +28,8 @@ const useFetchResources = (url) => {
                 limit: pagination?.limit,
 
                 // Передача настройки сортировки и фильтрации
-                sort: options?.sort,
+                order_by: options?.sort,
+                order_direction: options?.sortDirection,
                 search: options?.search ? options?.search : "",
                 type: options?.type,
             }

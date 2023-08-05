@@ -12,11 +12,7 @@ const ResourcesStandardPagination = ({
 
     const handleSetPage = (e, p) => {
         setPage(p);
-        loadMore({
-            sort: filterAndSortObj.sort,
-            search: filterAndSortObj.search,
-            type: filterAndSortObj.type,
-        }, {
+        loadMore(filterAndSortObj, {
             page: p,
             limit: limit,
         }, true)
