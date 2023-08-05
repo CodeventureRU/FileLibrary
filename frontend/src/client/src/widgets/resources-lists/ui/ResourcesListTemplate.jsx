@@ -12,8 +12,7 @@ import ResourceListItem from "../../../entities/resource/ui/ResourceListItem.jsx
 import ResourceFavorites from "../../../features/resource-favorites/ResourceFavorites.jsx";
 import ResourceGridItem from "../../../entities/resource/ui/ResourceGridItem.jsx";
 import ResourceCard from "../../../entities/resource/ui/ResourceCard.jsx";
-import {ResourceDownloads, useResourceDownloadsMenu} from "../../../features/resource-downloads/index.js";
-import ResourceDownloadsMenu from "../../../features/resource-downloads/ResourceDownloadsMenu.jsx";
+import {ResourceDownloads} from "../../../features/resource-downloads/index.js";
 import {ResourcesStandardPagination} from "../../../features/resources-pagination/index.js";
 
 const STANDARD_LIMIT = 6;
@@ -50,7 +49,6 @@ const ResourcesListTemplate = ({
 
     // Данные всплювающих меню
     const {element: resourceActionsMenuAnchor, resource: resourceActionsMenuData, close: closeResourceActionsMenu, open: openResourceActionsMenu} = useResourceActionMenu();
-    const {element: resourceDownloadsMenuAnchor, resource: resourceDownloadsMenuData, close: closeResourceDownloadsMenu, open: openResourceDownloadsMenu} = useResourceDownloadsMenu();
 
     return (
         <div>
@@ -86,7 +84,7 @@ const ResourcesListTemplate = ({
                                     <Box sx={{display: "flex", alignItems: "center", gap: 2}}>
                                         {
                                             showDownloads && resource.type === "file" ? (
-                                                <ResourceDownloads resource={resource} open={openResourceDownloadsMenu}></ResourceDownloads>
+                                                <ResourceDownloads resource={resource}></ResourceDownloads>
                                             ) : ""
                                         }
                                         {
@@ -121,7 +119,7 @@ const ResourcesListTemplate = ({
                                         }
                                         {
                                             showDownloads && resource.type === "file" ? (
-                                                <ResourceDownloads reverse={true} resource={resource} open={openResourceDownloadsMenu}></ResourceDownloads>
+                                                <ResourceDownloads reverse={true} resource={resource}></ResourceDownloads>
                                             ) : ""
                                         }
                                     </Box>
@@ -138,11 +136,6 @@ const ResourcesListTemplate = ({
                 close={closeResourceActionsMenu}
                 editAction={showEditAction}
                 deleteAction={showEditAction}
-            />
-            <ResourceDownloadsMenu
-                resource={resourceDownloadsMenuData}
-                element={resourceDownloadsMenuAnchor}
-                close={closeResourceDownloadsMenu}
             />
         </div>
     );
