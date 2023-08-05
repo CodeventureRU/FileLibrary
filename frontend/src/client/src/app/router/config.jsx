@@ -14,6 +14,7 @@ import {ProfileSettings} from "../../pages/profile-settings/index.js";
 import {SendResetPassword} from "../../pages/send-reset-password/index.js";
 import {ResetPassword} from "../../pages/reset-password/index.js";
 import {ConfirmEmail} from "../../pages/confirm-email/index.js";
+import {Favorites} from "../../pages/favorites/index.js";
 
 export const router = createBrowserRouter([
     {
@@ -27,6 +28,10 @@ export const router = createBrowserRouter([
             {
                 path: "/profile",
                 element: <AuthGuard><Profile/></AuthGuard>,
+            },
+            {
+                path: "/profile/favorites",
+                element: <AuthGuard><IsActiveGuard><Favorites/></IsActiveGuard></AuthGuard>,
             },
             {
                 path: "/profile/settings",
