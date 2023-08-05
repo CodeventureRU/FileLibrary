@@ -6,7 +6,7 @@ const URLS = {
     resource: id => `/resources/${id}/`,
     resources: `/resources/`,
     userResources: (username) => `/resources/user/${username}/`,
-
+    toggleFavorite: id => `/resources/favorite/${id}/`,
 }
 
 const useFetchResource = (id) => {
@@ -66,6 +66,26 @@ const useUpdateResource = (id) => {
     return useApi(URLS.resource(id), "put");
 }
 
+const useAddToFavorites = (id) => {
+    const {request, ...apiHook} = useApi(URLS.toggleFavorite(id), "post");
+
+    const addToFavoritesRequest = async () => {
+        return await request({}, {});
+    }
+
+    return {...apiHook, addToFavoritesRequest}
+}
+
+const useRemoveFromFavorites = (id) => {
+    const {request, ...apiHook} = useApi(URLS.toggleFavorite(id), "delete");
+
+    const removeFromFavoritesRequest = async () => {
+        return await request({}, {});
+    }
+
+    return {...apiHook, removeFromFavoritesRequest}
+}
+
 const useCreateResource = () => {
     const {request, ...apiHook} = useApi(URLS.resources, "post");
 
@@ -108,4 +128,13 @@ const useCreateResource = () => {
 
 
 
-export {useFetchResource, useFetchMainResources, useFetchUserResources, useFetchMyResources, useUpdateResource, useCreateResource}
+export {
+    useFetchResource,
+    useFetchMainResources,
+    useFetchUserResources,
+    useFetchMyResources,
+    useUpdateResource,
+    useCreateResource,
+    useAddToFavorites,
+    useRemoveFromFavorites,
+}
