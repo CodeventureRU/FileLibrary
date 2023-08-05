@@ -6,6 +6,7 @@ const URLS = {
     resource: id => `/resources/${id}/`,
     resources: `/resources/`,
     userResources: (username) => `/resources/user/${username}/`,
+    favoriteResources: `/resources/favorites/`,
     toggleFavorite: id => `/resources/favorite/${id}/`,
 }
 
@@ -52,6 +53,10 @@ const useFetchResources = (url) => {
 
 const useFetchMainResources = () => {
     return useFetchResources(URLS.resources);
+}
+
+const useFetchFavoriteResources = () => {
+    return useFetchResources(URLS.favoriteResources);
 }
 
 const useFetchMyResources = () => {
@@ -137,4 +142,5 @@ export {
     useCreateResource,
     useAddToFavorites,
     useRemoveFromFavorites,
+    useFetchFavoriteResources,
 }
