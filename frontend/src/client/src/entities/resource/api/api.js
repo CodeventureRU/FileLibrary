@@ -8,6 +8,7 @@ const URLS = {
     userResources: (username) => `/resources/user/${username}/`,
     favoriteResources: `/resources/favorites/`,
     toggleFavorite: id => `/resources/favorite/${id}/`,
+    resourceFiles: id => `/resources/${id}/file/`,
 }
 
 const useFetchResource = (id) => {
@@ -68,7 +69,71 @@ const useFetchUserResources = (username) => {
 }
 
 const useUpdateResource = (id) => {
-    return useApi(URLS.resource(id), "put");
+    const {request, ...apiHook} = useApi(URLS.resource(id), "patch");
+
+    const updateRequest = async ({
+                                     name,
+                                     description,
+                                     image,
+                                     privacyLevel,
+                                 }) => {
+
+        let fd = new FormData();
+        if (name !== undefined) {
+            fd.append("name", name);
+        }
+        if (description !== undefined) {
+            fd.append("description", description);
+        }
+        if (privacyLevel !== undefined) {
+            fd.append("privacy_level", privacyLevel);
+        }
+        if (image !== undefined && image !== null) {
+            fd.append("image", image);
+        }
+
+        return await request({
+            headers: {
+                "Content-Type": "multipart/form-data"
+            }
+        }, fd);
+
+    }
+
+    return {...apiHook, updateRequest};
+}
+
+const useRemoveResourceFiles = (id) => {
+    const {request, ...apiHook} = useApi(URLS.resourceFiles(id), "delete");
+
+    const removeResourceFilesRequest = async ({extensions}) => {
+        return await request({data: {extensions}}, {});
+    }
+
+    return {removeResourceFilesRequest, ...apiHook};
+}
+
+const useAddResourceFiles = (id) => {
+    const {request, ...apiHook} = useApi(URLS.resourceFiles(id), "post");
+
+    const addResourceFilesRequest = async ({files}) => {
+        let fd = new FormData();
+
+        if (files.length > 0) {
+            files.forEach(f => {
+                fd.append("files", f.file);
+            });
+        }
+
+        return await request({
+            headers: {
+                "Content-Type": "multipart/form-data"
+            }
+        }, fd);
+
+    }
+
+    return {addResourceFilesRequest, ...apiHook};
 }
 
 const useAddToFavorites = (id) => {
@@ -143,4 +208,6 @@ export {
     useAddToFavorites,
     useRemoveFromFavorites,
     useFetchFavoriteResources,
+    useAddResourceFiles,
+    useRemoveResourceFiles,
 }
