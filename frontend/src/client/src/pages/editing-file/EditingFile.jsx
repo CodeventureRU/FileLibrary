@@ -29,7 +29,9 @@ const EditingFile = () => {
                     </Box>
                 ) : (
                     errors.detail ? (
-                        <ErrorsBag errors={detailsErrors} setErrors={setDetailsErrors}></ErrorsBag>
+                            <Box sx={{mt: 5}}>
+                                <ErrorsBag errors={detailsErrors} setErrors={setDetailsErrors}></ErrorsBag>
+                            </Box>
                     ) : (
                         <EditingFileForm
                             resource={resource}
