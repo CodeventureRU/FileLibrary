@@ -1,17 +1,12 @@
 import React, {useEffect, useState} from 'react';
 import {useParams} from "react-router-dom";
 import {useFetchResource} from "../../entities/resource/index.js";
+import {ResourcePageFeedback} from "../../features/resource-page-feedback/index.js";
 import {EditingFileForm} from "../../widgets/resource-forms/index.js";
-import {Box, CircularProgress} from "@mui/material";
-import {ErrorsBag} from "../../shared/ui/errors-bag/index.js";
 
 const EditingFile = () => {
     const {resource: resourceId} = useParams();
     const {loading, errors, fetchResourceRequest, requested} = useFetchResource(resourceId);
-    const [detailsErrors, setDetailsErrors] = useState([]);
-    useEffect(() => {
-        setDetailsErrors(errors?.detail ? [errors.detail] : []);
-    }, [errors, requested]);
     const [resource, setResource] = useState({});
 
     useEffect(() => {
@@ -21,26 +16,14 @@ const EditingFile = () => {
     }, []);
 
     return (
-        <>
-            {
-                (loading || requested === 0) ? (
-                    <Box sx={{mt: 5, display: "flex", justifyContent: "center"}}>
-                        <CircularProgress />
-                    </Box>
-                ) : (
-                    errors.detail ? (
-                            <Box sx={{mt: 5}}>
-                                <ErrorsBag errors={detailsErrors} setErrors={setDetailsErrors}></ErrorsBag>
-                            </Box>
-                    ) : (
-                        <EditingFileForm
-                            resource={resource}
-                        />
-                    )
-
-                )
+        <ResourcePageFeedback
+            loading={loading}
+            errors={errors}
+            requested={requested}
+            content={
+                <EditingFileForm resource={resource} />
             }
-        </>
+        />
     );
 };
 
