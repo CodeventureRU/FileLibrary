@@ -1,5 +1,5 @@
-import EditingResourceForm from "./EditingResourceform";
 import CreatingFileForm from "./CreatingFileForm.jsx";
 import CreatingGroupForm from "./CreatingGroupForm.jsx";
+import EditingFileForm from "./EditingFileForm.jsx";
 
-export {EditingResourceForm, CreatingGroupForm, CreatingFileForm}
+export {EditingFileForm, CreatingGroupForm, CreatingFileForm}
