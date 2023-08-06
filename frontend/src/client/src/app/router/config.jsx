@@ -15,6 +15,7 @@ import {SendResetPassword} from "../../pages/send-reset-password/index.js";
 import {ResetPassword} from "../../pages/reset-password/index.js";
 import {ConfirmEmail} from "../../pages/confirm-email/index.js";
 import {Favorites} from "../../pages/favorites/index.js";
+import {EditingFile} from "../../pages/editing-file/index.js";
 
 export const router = createBrowserRouter([
     {
@@ -44,6 +45,14 @@ export const router = createBrowserRouter([
             {
                 path: "/creating-group",
                 element: <AuthGuard><IsActiveGuard><CreatingGroup/></IsActiveGuard></AuthGuard>,
+            },
+            {
+                path: "/editing-file/:resource",
+                element: <AuthGuard><IsActiveGuard><EditingFile/></IsActiveGuard></AuthGuard>,
+            },
+            {
+                path: "/editing-group/:resource",
+                element: <AuthGuard><IsActiveGuard><EditingFile/></IsActiveGuard></AuthGuard>,
             },
             {
                 path: "/user/:username",
