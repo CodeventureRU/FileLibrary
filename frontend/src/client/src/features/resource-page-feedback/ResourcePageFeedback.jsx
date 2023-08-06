@@ -22,7 +22,7 @@ const ResourcePageFeedback = ({loading, errors, requested, content}) => {
                             <ErrorsBag errors={detailsErrors} setErrors={setDetailsErrors}></ErrorsBag>
                         </Box>
                     ) : (
-                        {content}
+                        content
                     )
 
                 )
