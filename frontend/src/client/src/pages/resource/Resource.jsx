@@ -2,8 +2,8 @@ import React, {useEffect, useState} from 'react';
 import {ResourceInfo} from "../../widgets/resource-data/resource-info/index.js";
 import {useParams} from "react-router-dom";
 import {useFetchResource} from "../../entities/resource/index.js";
-import {Alert, Box} from "@mui/material";
 import {FileData} from "../../widgets/resource-data/file-data/index.js";
+import {ResourcePageFeedback} from "../../features/resource-page-feedback/index.js";
 
 const Resource = () => {
     const {resource: resourceId} = useParams();
@@ -12,30 +12,27 @@ const Resource = () => {
 
     useEffect(() => {
         fetchResourceRequest().then(r => {
-            setResource(r);
+            if (r !== null) {
+                setResource(r);
+            }
         });
     }, []);
 
     return (
-        <div>
-            {
-                errors?.detail ? (
-                    <Box sx={{mt: 5}}>
-                        <Alert severity="error">Страница не найдена</Alert>
-                    </Box>
-                ) : (
-                    <>
-                        <ResourceInfo loading={loading} requested={requested} resource={resource} />
-                        {
-                            resource.type === 'file' ?
-                                <FileData loading={loading} requested={requested} resource={resource} />
-                                : "данные группы"
-                        }
-                    </>
-                )
-            }
+        <ResourcePageFeedback
+            errors={errors}
+            requested={requested}
+            loading={loading}
+            content={<>
+                <ResourceInfo loading={loading} requested={requested} resource={resource} />
+                {
+                    resource.type === 'file' ?
+                        <FileData loading={loading} requested={requested} resource={resource} />
+                        : "данные группы"
+                }
+            </>}
 
-        </div>
+        />
     );
 };
 
