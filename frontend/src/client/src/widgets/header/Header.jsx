@@ -101,7 +101,7 @@ const Header = () => {
                     </MenuItem>
                 </NavLink>
 
-                <NavLink to="/profile" style={{textDecoration: 'none', color: 'inherit'}}>
+                <NavLink to="/profile/favorites" style={{textDecoration: 'none', color: 'inherit'}}>
                     <MenuItem onClick={handleClose}>
                         <ListItemIcon>
                             <Suspense fallback=""><FavoriteIcon fontSize="small" /></Suspense>

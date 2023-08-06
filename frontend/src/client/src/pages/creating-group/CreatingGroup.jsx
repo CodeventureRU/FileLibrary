@@ -1,9 +1,9 @@
 import React from 'react';
-import {CreatingResourceForm} from "../../widgets/resource-forms/creating-resource-form/index";
+import {CreatingGroupForm} from "../../widgets/resource-forms/index.js";
 
 const CreatingGroup = () => {
     return (
-        <CreatingResourceForm type={"group"} />
+        <CreatingGroupForm />
     );
 };
 

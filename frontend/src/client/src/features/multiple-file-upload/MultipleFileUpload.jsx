@@ -37,7 +37,7 @@ const MultipleFileUpload = ({files, setFiles}) => {
 
     return (
         <div>
-            <Box sx={{display: 'flex', alignItems: 'center', gap: 2, flexWrap: 'wrap'}}>
+            <Box sx={{display: 'flex', alignItems: 'center', gap: 2, flexWrap: 'wrap', my: 2}}>
                 <Button
                     variant="contained"
                     component="label"

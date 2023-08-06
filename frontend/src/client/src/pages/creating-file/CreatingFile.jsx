@@ -1,9 +1,9 @@
 import React from 'react';
-import {CreatingResourceForm} from "../../widgets/resource-forms/creating-resource-form/index";
+import {CreatingFileForm} from "../../widgets/resource-forms/index.js";
 
 const CreatingFile = () => {
     return (
-        <CreatingResourceForm type={"file"} />
+        <CreatingFileForm />
     );
 };
 

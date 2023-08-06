@@ -8,6 +8,7 @@ const ResourceDownloadsMenu = ({
                                    resource,
                                    element,
                                    close,
+    increaseDownloads,
                                }) => {
 
     const menuOpen = Boolean(element);
@@ -23,6 +24,11 @@ const ResourceDownloadsMenu = ({
         }
     }, [resource]);
 
+    const handleClick = (...args) => {
+        increaseDownloads();
+        close(...args);
+    }
+
     return (
         <Menu
             id="resource-downloads-menu"
@@ -34,7 +40,7 @@ const ResourceDownloadsMenu = ({
             }}
         >
 
-            <MenuItem onClick={close}>
+            <MenuItem>
                 <ListItemText><Typography>Скачать</Typography></ListItemText>
             </MenuItem>
             <Divider />
@@ -44,7 +50,7 @@ const ResourceDownloadsMenu = ({
                     (
                         ext !== "" ? (
                             <Link key={ext} style={{textDecoration: 'none', color: 'inherit'}} to={`http://localhost:8000/api/v1/resources/download/${resourceData.slug}/${ext}`}>
-                                <MenuItem onClick={close}>
+                                <MenuItem onClick={handleClick}>
                                     <ListItemIcon>
                                         <Download fontSize="small" />
                                     </ListItemIcon>
