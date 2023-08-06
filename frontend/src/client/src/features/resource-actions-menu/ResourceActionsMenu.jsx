@@ -15,7 +15,7 @@ const ResourceActionsMenu = ({
     const menuOpen = Boolean(element);
 
     const resourceEditLink = resource ? (
-        (resource.type === 'file' ? '/edit-file/' : '/edit-group/')
+        (resource.type === 'file' ? '/editing-file/' : '/editing-group/')
             +
         (resource.slug ? resource.slug : resource.id)
     ) : "";
