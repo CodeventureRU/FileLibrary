@@ -15,6 +15,11 @@ const useResourcesStore = create()(immer((set) => ({
     addResources: (newResources) => set(state => {
         state.resources.push(...newResources)
     }),
+
+    // Функция для удаления ресурса из стора
+    removeResource: (resourceSlug) => set(state => {
+        state.resources = state.resources.filter(resource => resource.slug !== resourceSlug)
+    })
 })));
 
 export { useResourcesStore };
