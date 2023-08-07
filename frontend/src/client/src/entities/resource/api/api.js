@@ -72,10 +72,11 @@ const useUpdateResource = (id) => {
     const {request, ...apiHook} = useApi(URLS.resource(id), "patch");
 
     const updateRequest = async ({
-                                     name,
-                                     description,
-                                     image,
-                                     privacyLevel,
+        name,
+        description,
+        image,
+        privacyLevel,
+        tags
                                  }) => {
 
         let fd = new FormData();
@@ -87,6 +88,9 @@ const useUpdateResource = (id) => {
         }
         if (privacyLevel !== undefined) {
             fd.append("privacy_level", privacyLevel);
+        }
+        if (tags !== undefined) {
+            fd.append("tags", tags);
         }
         if (image !== undefined && image !== null) {
             fd.append("image", image);
@@ -164,6 +168,7 @@ const useCreateResource = () => {
         description,
         image,
         privacyLevel,
+        tags,
         type,
         files=[],
                            }) => {
@@ -173,6 +178,7 @@ const useCreateResource = () => {
         fd.append("name", name);
         fd.append("description", description);
         fd.append("privacy_level", privacyLevel);
+        fd.append("tags", tags);
 
         if (image !== null) {
             fd.append("image", image);
