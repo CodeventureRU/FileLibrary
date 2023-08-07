@@ -4,20 +4,20 @@ from rest_framework.response import Response
 from rest_framework.exceptions import PermissionDenied
 from rest_framework import status
 from django.core.exceptions import FieldError
-from django.db.models import Count, F
+from django.db.models import Count, F, Prefetch, Q
 from django.http import HttpResponse
 import mimetypes
 import os
 
 from API.logic.file.serializers import FileSerializer
-from API.logic.resource.serializers import ListResourceSerializer, CUDResourceSerializer, GroupResourceSerializer, \
-    FileResourceSerializer
+from API.logic.group.serializers import GroupSerializer
+from API.logic.resource.serializers import ListResourceSerializer, CUDResourceSerializer, FavoriteResourceSerializer
 from API.permissions import IsAuthorAndActive
 from API.logic.functions import get_data
 from API.logic.resource.services import create_resource, delete_resource, resource_filtering, image_processing, \
     delete_image
 from API.logic.file.services import add_new_files, delete_files
-from API.models import Resource, ResourceGroup, Favorite
+from API.models import Resource, ResourceGroup, Favorite, Group
 from API.pagination import MyPaginationMixin
 from rest_framework.settings import api_settings
 
@@ -45,6 +45,9 @@ class LCResourceView(APIView, MyPaginationMixin):
 
     def post(self, request):
         data = get_data(request)
+        if data['type'] == 'file' and request.FILES.get('files') is None:
+            return Response(data={'detail': 'Не было прикреплено ни одного файла'},
+                            status=status.HTTP_400_BAD_REQUEST)
         image = request.FILES.get('image')
         if image is not None:
             data['image'] = image
@@ -59,8 +62,9 @@ class LCResourceView(APIView, MyPaginationMixin):
             return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
-class RUDResourceView(APIView):
+class RUDResourceView(APIView, MyPaginationMixin):
     serializer_class = CUDResourceSerializer
+    pagination_class = api_settings.DEFAULT_PAGINATION_CLASS
     lookup_field = 'slug'
 
     def get_permissions(self):
@@ -85,12 +89,15 @@ class RUDResourceView(APIView):
         if resource.privacy_level == 'private' and user != resource.author:
             raise PermissionDenied
 
-        if resource.type == 'group':
-            serializer = GroupResourceSerializer(resource, context={'request': request})
-        else:
-            serializer = FileResourceSerializer(resource, context={'request': request})
+        data = ListResourceSerializer(resource, context={'request': request}).data
 
-        return Response(data=serializer.data,
+        if resource.type == 'file':
+            file_instance = resource.file
+            file_instance = file_instance
+            serializer = FileSerializer(file_instance, context={'request': request})
+            data['file'] = serializer.data
+
+        return Response(data=data,
                         status=status.HTTP_200_OK)
 
     def patch(self, request, id):
@@ -127,6 +134,23 @@ class RUDResourceView(APIView):
             return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         resource.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+class GroupResourcesView(MyPaginationMixin, APIView):
+    serializer_class = ListResourceSerializer
+    pagination_class = api_settings.DEFAULT_PAGINATION_CLASS
+    lookup_field = 'slug'
+
+    def get(self, request, id):
+        resource = Resource.objects.prefetch_related('groups').filter(slug=id).first()
+        ids = ResourceGroup.objects.filter(group_id=resource.groups.pk).values_list('resource_id', flat=True)
+        queryset = Resource.objects.filter(pk__in=ids, privacy_level='public')
+        queryset = queryset.prefetch_related('favorites', 'file')
+        queryset = queryset.annotate(num_favorites=Count('favorites'))
+        queryset = queryset.annotate(downloads=F('file__downloads'))
+        queryset = self.paginate_queryset(queryset)
+        serializer = self.serializer_class(queryset, many=True, context={'request': request})
+        return self.get_paginated_response(serializer.data)
 
 
 class UserResourcesView(MyPaginationMixin, APIView):
@@ -267,26 +291,32 @@ class AddingToFavoriteView(APIView):
 
 
 class FavoriteResourcesView(MyPaginationMixin, APIView):
-    serializer_class = CUDResourceSerializer
+    serializer_class = FavoriteResourceSerializer
     permission_classes = [IsAuthenticated]
     pagination_class = api_settings.DEFAULT_PAGINATION_CLASS
 
     def get(self, request):
         ids = Favorite.objects.filter(user_id=request.user.id).values_list('resource_id', flat=True)
+
         queryset = Resource.objects.filter(pk__in=ids)
+        queryset = queryset.prefetch_related('favorites', 'file')
+        queryset = queryset.annotate(num_favorites=Count('favorites'))
+        queryset = queryset.annotate(downloads=F('file__downloads'))
+
         try:
             queryset = resource_filtering(request, queryset)
         except FieldError:
             return Response(data={'detail': 'Недопустимое имя фильтра'},
                             status=status.HTTP_400_BAD_REQUEST)
+
         queryset = self.paginate_queryset(queryset)
-        serializer = self.serializer_class(queryset, many=True, context={'request': request})
+        serializer = FavoriteResourceSerializer(queryset, many=True, context={'request': request})
         return self.get_paginated_response(serializer.data)
 
 
 class DownloadFileView(APIView):
     serializer_class = FileSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [AllowAny]
 
     def get(self, request, id, extension):
         try:
@@ -313,3 +343,22 @@ class DownloadFileView(APIView):
                 return response
         except Exception:
             return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+class IDontKnowHowToNameThisView(APIView):
+    serializer = GroupSerializer
+    permission_classes = [IsAuthorAndActive]
+
+    def get(self, request, id):
+        group_ids = Resource.objects.filter(author_id=request.user.id, type='group').values_list('id', flat=True)
+        prefetch = Prefetch('resources', queryset=Resource.objects.filter(slug=id))
+        queryset = Group.objects.prefetch_related(prefetch).filter(resource_id__in=group_ids)
+        serializer = self.serializer(queryset, many=True, context={'request': request})
+        for resource in serializer.data:
+            if len(resource['resources']) != 0:
+                resource.update({'is_added': True})
+            else:
+                resource.update({'is_added': False})
+            resource.pop('resources')
+        return Response(data=serializer.data,
+                        status=status.HTTP_200_OK)
