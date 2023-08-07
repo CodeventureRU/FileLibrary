@@ -3,9 +3,11 @@ import {useState} from "react";
 
 const useResourcePrivacy = (values={}) => {
     const [privacyLevel, setPrivacyLevel] = useState(values.privacy_level ? values.privacy_level : "private");
+    const [tags, setTags] = useState(values.tags ? values.tags : "");
 
     return {
-        privacyLevel, setPrivacyLevel
+        privacyLevel, setPrivacyLevel,
+        tags, setTags
     }
 }
 
