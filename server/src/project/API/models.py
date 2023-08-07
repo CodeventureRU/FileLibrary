@@ -19,6 +19,9 @@ class User(AbstractUser):
 
 
 class Resource(models.Model):
+    class Meta:
+        ordering = ['-created_at']
+
     slug = models.SlugField(unique=True, default=uuid.uuid4)
     name = models.CharField(max_length=64)
     description = models.CharField(max_length=256, blank=True)
