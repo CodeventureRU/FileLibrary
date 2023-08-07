@@ -9,8 +9,9 @@ import {
     RadioGroup,
 } from "@mui/material";
 import helperTextError from "../helper-text-error/index.js";
+import {GridFormControl} from "../../shared/ui/grid-form-control/index.js";
 
-const ResourcePrivacyForm = ({privacyLevel, setPrivacyLevel, errors}) => {
+const ResourcePrivacyForm = ({privacyLevel, setPrivacyLevel, tags, setTags, errors}) => {
     return (
         <Grid container spacing={2} sx={{py: 2}}>
             <Grid item xs={12}>
@@ -28,7 +29,13 @@ const ResourcePrivacyForm = ({privacyLevel, setPrivacyLevel, errors}) => {
                     </RadioGroup>
                     <FormHelperText>{helperTextError(errors?.privacy_level)}</FormHelperText>
                 </FormControl>
-
+                <GridFormControl
+                    label="Теги (через запятую)"
+                    field={tags}
+                    setField={setTags}
+                    textFieldOptions={{sx: {mt: 2}}}
+                    errors={errors?.tags}
+                />
             </Grid>
         </Grid>
     );
