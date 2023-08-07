@@ -4,19 +4,20 @@ from rest_framework.response import Response
 from rest_framework.exceptions import PermissionDenied
 from rest_framework import status
 from django.core.exceptions import FieldError
-from django.db.models import Count, F
+from django.db.models import Count, F, Prefetch, Q
 from django.http import HttpResponse
 import mimetypes
 import os
 
 from API.logic.file.serializers import FileSerializer
+from API.logic.group.serializers import GroupSerializer
 from API.logic.resource.serializers import ListResourceSerializer, CUDResourceSerializer, FavoriteResourceSerializer
 from API.permissions import IsAuthorAndActive
 from API.logic.functions import get_data
 from API.logic.resource.services import create_resource, delete_resource, resource_filtering, image_processing, \
     delete_image
 from API.logic.file.services import add_new_files, delete_files
-from API.models import Resource, ResourceGroup, Favorite
+from API.models import Resource, ResourceGroup, Favorite, Group
 from API.pagination import MyPaginationMixin
 from rest_framework.settings import api_settings
 
@@ -342,3 +343,22 @@ class DownloadFileView(APIView):
                 return response
         except Exception:
             return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+class IDontKnowHowToNameThisView(APIView):
+    serializer = GroupSerializer
+    permission_classes = [IsAuthorAndActive]
+
+    def get(self, request, id):
+        group_ids = Resource.objects.filter(author_id=request.user.id, type='group').values_list('id', flat=True)
+        prefetch = Prefetch('resources', queryset=Resource.objects.filter(slug=id))
+        queryset = Group.objects.prefetch_related(prefetch).filter(resource_id__in=group_ids)
+        serializer = self.serializer(queryset, many=True, context={'request': request})
+        for resource in serializer.data:
+            if len(resource['resources']) != 0:
+                resource.update({'is_added': True})
+            else:
+                resource.update({'is_added': False})
+            resource.pop('resources')
+        return Response(data=serializer.data,
+                        status=status.HTTP_200_OK)
