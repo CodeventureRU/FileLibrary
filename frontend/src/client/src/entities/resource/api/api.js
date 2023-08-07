@@ -196,6 +196,15 @@ const useCreateResource = () => {
     return {...apiHook, createRequest};
 }
 
+const useRemoveResource = (id) => {
+    const {request, ...apiHook} = useApi(URLS.resource(id), "delete");
+
+    const removeResourceRequest = async () => {
+        return await request({}, {});
+    }
+
+    return {...apiHook, removeResourceRequest}
+}
 
 
 export {
@@ -210,4 +219,5 @@ export {
     useFetchFavoriteResources,
     useAddResourceFiles,
     useRemoveResourceFiles,
+    useRemoveResource,
 }
