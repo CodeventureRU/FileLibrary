@@ -23,6 +23,7 @@ const CreatingFileForm = () => {
             description: resourceInfo.description,
             image: resourceInfo.usingImage ? resourceInfo.imageFile : null,
             privacyLevel: resourcePrivacy.privacyLevel,
+            tags: resourcePrivacy.tags,
             files: files,
             type: "file",
         });

@@ -35,6 +35,7 @@ const EditingFileForm = ({resource}) => {
     const handleUpdatePrivacy = async () => {
         await updateRequest({
             privacyLevel: resourcePrivacy.privacyLevel,
+            tags: resourcePrivacy.tags,
         });
     }
 

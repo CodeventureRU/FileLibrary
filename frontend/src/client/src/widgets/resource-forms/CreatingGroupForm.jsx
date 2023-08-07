@@ -20,6 +20,7 @@ const CreatingGroupForm = () => {
             description: resourceInfo.description,
             image: resourceInfo.usingImage ? resourceInfo.imageFile : null,
             privacyLevel: resourcePrivacy.privacyLevel,
+            tags: resourcePrivacy.tags,
             type: "group",
         });
 
