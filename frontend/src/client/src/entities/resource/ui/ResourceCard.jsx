@@ -60,9 +60,13 @@ const ResourceCard = memo(({resource, headerAction=null, mainActions=null}) => {
                         component="img"
                         height="194"
                         image={resource.image}
-                        alt="Paella dish"
+                        alt={resource.name}
                     />
-                    : ""
+                    :
+                    <CardMedia
+                        component="div"
+                        sx={{bgcolor: "#eee", height: '194px'}}
+                    />
                 }
                 <CardContent>
                     <Suspense fallback={"..."}>
