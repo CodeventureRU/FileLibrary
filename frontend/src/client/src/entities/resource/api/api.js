@@ -17,7 +17,7 @@ const useFetchResource = (id) => {
     return {...apiHook, fetchResourceRequest: request}
 }
 
-const useFetchResources = (url) => {
+const useFetchResources = (url, handleResult=r=>r) => {
     const {request, ...apiHook} = useApi(url, "get");
     const setResources = useResourcesStore(setResourcesSelector);
     const addResources = useResourcesStore(addResourcesSelector);
@@ -40,9 +40,9 @@ const useFetchResources = (url) => {
 
         if (result != null) {
             if (reset) {
-                setResources(result.results);
+                setResources(handleResult(result.results));
             } else {
-                addResources(result.results);
+                addResources(handleResult(result.results));
             }
         }
 
@@ -57,11 +57,7 @@ const useFetchMainResources = () => {
 }
 
 const useFetchFavoriteResources = () => {
-    return useFetchResources(URLS.favoriteResources);
-}
-
-const useFetchMyResources = () => {
-    return useFetchResources(URLS.resources);
+    return useFetchResources(URLS.favoriteResources, results => results.map(res => ({...res, is_favorite: true})));
 }
 
 const useFetchUserResources = (username) => {
@@ -217,7 +213,6 @@ export {
     useFetchResource,
     useFetchMainResources,
     useFetchUserResources,
-    useFetchMyResources,
     useUpdateResource,
     useCreateResource,
     useAddToFavorites,
