@@ -12,7 +12,9 @@ const ActivationWaiting = () => {
         <Box sx={{mt: 5}}>
             <Typography variant="h6">Ожидание подтверждения</Typography>
             <Paper sx={{p: 3, mt: 2}} variant="outlined">
-                <Typography variant="body1">Для полного доступа к сервису, пожалуйста, подтвердите активацию учетной записи по почте. На Вашу почту отправлено письмо с ссылкой для активации.</Typography>
+                <Typography variant="body1">
+                    Для полного доступа к сервису, пожалуйста, подтвердите активацию учетной записи. На Вашу почту отправлено письмо с ссылкой для активации. Если вы не подтвердите активацию учётной записи в течение суток с момента регистрации, то ваша учётная запись будет удалена.
+                </Typography>
                 <Box sx={{display: 'flex', justifyContent: 'flex-start', alignItems: 'center', mt: 3}}>
                     <LoadingButton disabled={isWaiting} loading={loading} onClick={resendRequest}>Отправить повторно</LoadingButton>
                     {isWaiting ? <Typography variant="body2" color="text.secondary" sx={{ml: 3}}>{remainsText}</Typography> : ""}
