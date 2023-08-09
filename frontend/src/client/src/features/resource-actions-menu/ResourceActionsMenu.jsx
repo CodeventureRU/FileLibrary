@@ -1,17 +1,18 @@
 import React, {useEffect, useState} from 'react';
 import {NavLink} from "react-router-dom";
 import {
+    Box,
     Button, Checkbox,
     Dialog, DialogActions,
     DialogContent, DialogContentText,
-    DialogTitle, FormControl, FormControlLabel, FormGroup,
+    DialogTitle, FormControl, FormControlLabel, FormGroup, IconButton,
     ListItemIcon,
     ListItemText,
     Menu,
     MenuItem,
     Typography
 } from "@mui/material";
-import {Delete, Edit, Folder} from "@mui/icons-material";
+import {Close, Delete, Edit, Folder} from "@mui/icons-material";
 import {
     removeResourceSelector, useAddResourceToGroup,
     useFetchResourceGroups,
@@ -178,14 +179,17 @@ const ResourceActionsMenu = ({
                 aria-describedby="groups-dialog-description"
                 maxWidth={"xs"}
             >
-                <DialogTitle id="groups-dialog-title">
-                    Укажите группы, в которые Вы хотите добавить файл
-                </DialogTitle>
+
                 <DialogContent>
-                    <DialogContentText id="groups-dialog-description">
-                        Поставьте галочки напротив выбранных групп
-                    </DialogContentText>
-                    <FormControl sx={{ m: 3 }} component="fieldset" variant="standard">
+                    <Box sx={{display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
+                        <Typography variant="body1">
+                            Выберите группы
+                        </Typography>
+                        <IconButton>
+                            <Close onClick={handleCloseGroupsDialog}></Close>
+                        </IconButton>
+                    </Box>
+                    <FormControl sx={{ my: 1 }} component="fieldset" variant="standard">
                         <FormGroup>
                             {
                                 groups.map(group => (
@@ -200,9 +204,9 @@ const ResourceActionsMenu = ({
                         </FormGroup>
                     </FormControl>
                 </DialogContent>
-                <DialogActions>
-                    <Button color="error" variant="outlined" onClick={handleCloseGroupsDialog}>Закрыть</Button>
-                </DialogActions>
+                {/*<DialogActions>*/}
+                {/*    <Button color="error" variant="outlined" onClick={handleCloseGroupsDialog}>Закрыть</Button>*/}
+                {/*</DialogActions>*/}
             </Dialog>
         </>
     );
