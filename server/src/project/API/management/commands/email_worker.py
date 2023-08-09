@@ -28,8 +28,8 @@ class Command(BaseCommand):
 
     def initial(self):
         try:
-            hostname = 'localhost'
-            port = 5672
+            hostname = os.environ.get('RABBIT_HOST')
+            port = int(os.environ.get('RABBIT_PORT'))
             parameters = pika.ConnectionParameters(host=hostname, port=port)
             connection = pika.BlockingConnection(parameters=parameters)
             channel = connection.channel()

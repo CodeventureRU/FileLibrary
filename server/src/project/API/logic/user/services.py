@@ -1,14 +1,17 @@
-import pika, json
+import json
+import pika
+import os
 from datetime import datetime
 
-from rest_framework_simplejwt.tokens import AccessToken, RefreshToken
 from django.conf import settings
-from django.utils.http import urlsafe_base64_decode
 from django.utils.encoding import force_str
-from API.models import User
-from API.authentication import enforce_csrf
+from django.utils.http import urlsafe_base64_decode
+from rest_framework_simplejwt.tokens import AccessToken, RefreshToken
 
+from API.authentication import enforce_csrf
+from API.models import User
 from API.tokens import token_generator
+
 
 # Secondary functions #
 def get_tokens_for_user(user):
@@ -72,8 +75,8 @@ def send_email_message(purpose, user_instance, new_email=None):
                        'pk': user_instance.pk,
                        'new_email': new_email})
     try:
-        hostname = 'localhost'
-        port = 5672
+        hostname = os.environ.get('RABBIT_HOST')
+        port = int(os.environ.get('RABBIT_PORT'))
         parameters = pika.ConnectionParameters(host=hostname, port=port)
         connection = pika.BlockingConnection(parameters=parameters)
         channel = connection.channel()
