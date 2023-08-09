@@ -41,11 +41,12 @@ class FavoriteResourceSerializer(serializers.ModelSerializer):
     author = serializers.CharField(source='author.username')
     num_favorites = serializers.IntegerField()
     downloads = serializers.IntegerField()
+    is_favorite = serializers.BooleanField(default=True)
 
     class Meta:
         model = Resource
-        fields = ['slug', 'name', 'description', 'image', 'privacy_level', 'tags', 'type', 'num_favorites', 'downloads',
-                  'author', 'updated_at', 'created_at']
+        fields = ['slug', 'name', 'description', 'image', 'privacy_level', 'tags', 'type', 'is_favorite', 'num_favorites',
+                  'downloads', 'author', 'updated_at', 'created_at']
         extra_kwargs = {
             'image': {'required': False},
             'downloads': {'required': False},
