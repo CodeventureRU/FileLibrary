@@ -16,16 +16,6 @@ def image_processing(request, image):
     return None
 
 
-def delete_image(resource):
-    try:
-        image = resource.image.path
-        path = os.path.join(settings.MEDIA_ROOT, image)
-        os.remove(path)
-    except FileNotFoundError as ex:
-        print('УДАЛЕНИЕ ФАЙЛА', ex)
-        pass
-
-
 def create_resource(request, data):
     if 'image' in data:
         data['image'] = image_processing(request, data['image'])
@@ -41,15 +31,14 @@ def create_resource(request, data):
     return response
 
 
-def delete_resource(data, resource_instance):
-    if data['image'] is not None:
+def delete_resource(resource_instance):
+    if resource_instance.image != '':
         try:
-            os.remove(os.path.join(settings.MEDIA_ROOT + '\\images', data['image'].split('/')[-1]))
-        except FileNotFoundError as ex:
-            print('УДАЛЕНИЕ ФАЙЛА', ex)
+            resource_instance.image.delete()
+        except Exception:
             pass
 
-    if data['type'] == 'file':
+    if resource_instance.type == 'file':
         file = resource_instance.file
         file_name = file.file.name
         extensions = file.extensions.split()
@@ -58,7 +47,6 @@ def delete_resource(data, resource_instance):
                 os.remove(os.path.join(settings.MEDIA_ROOT, file_name + '.' + extension))
             except FileNotFoundError as ex:
                 print('УДАЛЕНИЕ ФАЙЛА', ex)
-                pass
 
 
 def resource_filtering(request, queryset):

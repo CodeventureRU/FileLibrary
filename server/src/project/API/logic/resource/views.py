@@ -14,8 +14,7 @@ from API.logic.group.serializers import GroupSerializer
 from API.logic.resource.serializers import ListResourceSerializer, CUDResourceSerializer, FavoriteResourceSerializer
 from API.permissions import IsAuthorAndActive
 from API.logic.functions import get_data
-from API.logic.resource.services import create_resource, delete_resource, resource_filtering, image_processing, \
-    delete_image
+from API.logic.resource.services import create_resource, delete_resource, resource_filtering, image_processing
 from API.logic.file.services import add_new_files, delete_files
 from API.models import Resource, ResourceGroup, Favorite, Group
 from API.pagination import MyPaginationMixin
@@ -101,37 +100,43 @@ class RUDResourceView(APIView, MyPaginationMixin):
                         status=status.HTTP_200_OK)
 
     def patch(self, request, id):
+        # Getting resource instance and check permission #
         try:
             resource = Resource.objects.get(slug=id)
         except Resource.DoesNotExist:
             return Response(data={'detail': 'Страница не найдена'},
                             status=status.HTTP_404_NOT_FOUND)
         self.check_object_permissions(request, resource)
+        # Getting data and files from request #
         data = get_data(request)
         image = request.FILES.get('image')
         if image is not None:
             data['image'] = image_processing(request, image)
+        # Serializing data #
         serializer = self.serializer_class(resource, data=data, partial=True)
         serializer.is_valid(raise_exception=True)
-
-        if resource.image and 'image' in serializer.validated_data:
-            delete_image(resource)
+        # Deleting image if image replaced or deleted #
+        if (data['image'] is None) or (resource.image and 'image' in serializer.data):
+            resource.image.delete()
+        # Setting new data in instance #
         for key, value in serializer.validated_data.items():
             setattr(resource, key, value)
-
+        # Saving instance #
         resource.save(update_fields=list(serializer.validated_data.keys()).append('updated_at'))
         return Response(status=status.HTTP_204_NO_CONTENT)
 
     def delete(self, request, id):
+        # Getting resource instance and check permission #
         resource = Resource.objects.prefetch_related('file').filter(slug=id).first()
         if resource is None:
             return Response(data={'detail': 'Страница не найдена'}, status=status.HTTP_404_NOT_FOUND)
         self.check_object_permissions(request=request, obj=resource)
-        serializer = self.serializer_class(resource)
+        # Deleting resource dependencies #
         try:
-            delete_resource(serializer.data, resource)
+            delete_resource(resource)
         except Exception:
             return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        # Deleting resource #
         resource.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 

@@ -10,10 +10,11 @@ from django.contrib.auth.models import update_last_login
 from project import settings
 
 from API.logic.functions import get_data
-from API.models import User
+from API.models import User, Resource
 from API.logic.user.serializers import UserSerializer, RUDUserSerializer
 from API.logic.user.services import register, activate, verify, set_cookies, delete_cookie, set_access_cookie, \
       reset_password, confirm_email, send_email_message
+from API.logic.resource.services import delete_resource
 from API.throttling import ResendEmailMessageThrottle
 
 
@@ -212,13 +213,21 @@ class AccountDeletionView(APIView):
     permission_classes = [IsAuthenticated]
 
     def delete(self, request):
+        # Getting user instance #
         try:
             user_instance = User.objects.get(pk=request.user.pk)
         except User.DoesNotExist:
             return Response(data={'detail': 'Пользователь не найден'}, status=status.HTTP_404_NOT_FOUND)
         except Exception:
             return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        # Getting resources, that was created by user and deleting them #
+        resources = Resource.objects.filter(author_id=request.user.pk)
+        for resource in resources:
+            delete_resource(resource)
+            resource.delete()
+        # Deleting user instance #
         user_instance.delete()
+        # Creating response with logout #
         response = Response(status=status.HTTP_204_NO_CONTENT)
         response = delete_cookie(response)
         return response
