@@ -1,6 +1,9 @@
+import os
+
 from rest_framework.test import APITestCase
 from rest_framework import status
-from API.models import User
+from API.models import User, Resource
+from API.logic.resource.services import delete_resource
 from django.utils.http import urlsafe_base64_encode
 from django.utils.encoding import force_bytes
 from API.tokens import token_generator
@@ -64,11 +67,10 @@ class UserLoginAndActivationAPITest(APITestCase):
 class UserVerifyAPITest(APITestCase):
 
     def setUp(self):
-        url = '/api/v1/users/registration/'
-        data = {'username': username,
-                'email': email,
-                'password': password,
-                'confirm_password': password}
+        self.user = User.objects.create_user(username=username, email=email, password=password, is_active=False)
+        url = '/api/v1/users/login/'
+        data = {'login': username,
+                'password': password}
         self.response = self.client.post(url, data)
 
     def test_verification(self):
@@ -212,6 +214,9 @@ class CreateResourceAPITest(APITestCase):
         self.assertTrue('pdf' in extensions)
         self.assertEquals(response.status_code, status.HTTP_201_CREATED)
         self.assertEquals(len(response.data), 2)
+        resource = Resource.objects.get(slug=response.data['resource_id'])
+        delete_resource(resource)
+        resource.delete()
 
     def test_create_group_resources(self):
         url = '/api/v1/resources/'
@@ -226,3 +231,12 @@ class CreateResourceAPITest(APITestCase):
             self.fail(msg='Объект Group не был создан')
         self.assertEquals(response.status_code, status.HTTP_201_CREATED)
         self.assertEquals(len(response.data), 2)
+        resource = Resource.objects.get(slug=response.data['resource_id'])
+        delete_resource(resource)
+        resource.delete()
+
+    @classmethod
+    def tearDownClass(cls):
+        super().tearDownClass()
+        os.remove('test file.txt')
+        os.remove('test file.pdf')
