@@ -8,6 +8,23 @@ const $api = axios.create({
     baseURL: API_URL,
 });
 
+$api.interceptors.response.use(
+    (config) => {
+        return config;
+    },async (error) => {
+        const originalRequest = error.config;
+        if (error.response.status === 401 && error.config && !error.config._isRetry) {
+            originalRequest._isRetry = true;
+            try {
+                await axios.post(`${API_URL}/users/verification/`, {withCredentials: true});
+                return $api.request(originalRequest);
+            } catch (e) {
+
+            }
+        }
+    throw error;
+})
+
 function getCookie(c_name) {
     if (document.cookie.length > 0) {
         let c_start = document.cookie.indexOf(c_name + "=");
