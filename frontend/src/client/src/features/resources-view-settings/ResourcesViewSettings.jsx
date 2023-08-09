@@ -104,6 +104,7 @@ const ResourcesViewSettings = ({filterAndSortObj, viewModeObj, apply}) => {
                         <MenuItem value="name">По названию</MenuItem>
                         <MenuItem value="created_at">По дате</MenuItem>
                         <MenuItem value="favorites">По количеству добавлений в избранное</MenuItem>
+                        <MenuItem value="downloads">По количеству скачиваний</MenuItem>
                     </Select>
                     <RadioGroup
                         value={sortDirection}
