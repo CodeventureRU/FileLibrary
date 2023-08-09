@@ -11,10 +11,11 @@ const EditingFileForm = ({resource}) => {
     const {errors, loading, updateRequest} = useUpdateResource(resource.slug);
     const {errors: addResourceFilesErrors, addResourceFilesRequest} = useAddResourceFiles(resource.slug);
     const {errors: removeResourceFilesErrors, removeResourceFilesRequest} = useRemoveResourceFiles(resource.slug);
+    const [extensions, setExtensions] = useState(resource.file.extensions.split(" ").filter(e => e !== ""));
     const [end] = useState(false);
     const [success] = useState(false);
 
-    const [files, setFiles] = useState(resource.file.extensions.split(" ").filter(e => e !== "").map(e => ({
+    const [files, setFiles] = useState(extensions.map(e => ({
         type: e,
         name: `file.${e}`,
         file: null,
@@ -40,13 +41,16 @@ const EditingFileForm = ({resource}) => {
     }
 
     const handleUpdateFiles = async () => {
-        const originalExtensions = new Set(resource.file.extensions.split(" ").filter(e => e !== ""));
+        const originalExtensions = new Set(extensions);
         const restDefaultExtensions = new Set(files.filter(file => file.default).map(f => f.type));
         const deletions = [...originalExtensions].filter(i => !restDefaultExtensions.has(i));
         await removeResourceFilesRequest({extensions: deletions});
 
         const newFiles = files.filter(file => file.file !== null);
         await addResourceFilesRequest({files: newFiles});
+
+        setExtensions(files.map(f => f.type));
+        setFiles(files.map(f => ({...f, default: true})));
     }
 
     const steps = useMemo(() => ([
