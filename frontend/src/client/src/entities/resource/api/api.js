@@ -36,7 +36,7 @@ const useFetchResources = (url, handleResult=r=>r) => {
                 order_by: options?.sort,
                 order_direction: options?.sortDirection,
                 search: options?.search ? options?.search : "",
-                type: options?.type,
+                type: (options?.type !== "all" ? options?.type : ""),
             }
         });
 

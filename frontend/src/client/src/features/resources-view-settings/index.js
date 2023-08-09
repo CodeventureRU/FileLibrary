@@ -6,7 +6,7 @@ const useFilterSort = () => {
     const [sort, setSort] = useState('created_at');
     const [sortDirection, setSortDirection] = useState('desc');
     const [search, setSearch] = useState('');
-    const [type, setType] = useState('');
+    const [type, setType] = useState('all');
 
     return { sort, setSort, sortDirection, setSortDirection, search, setSearch, type, setType };
 };
