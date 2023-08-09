@@ -17,8 +17,7 @@ const FormStep = memo(({step, handleNext, handleBack, first, last}) => {
             <StepLabel error={step.error}>{step.label}</StepLabel>
             <StepContent>
                 { step.content }
-                <Box sx={{ mb: 2, mt: 1 }}>
-                    <div>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, flexWrap: 'wrap' }}>
                         {
                             step.buttons
                         }
@@ -26,7 +25,6 @@ const FormStep = memo(({step, handleNext, handleBack, first, last}) => {
                             !last
                             ? <Button
                                     onClick={handleNext}
-                                    sx={{ml: 1 }}
                                     disabled={Boolean(!step.completed)}
                                     variant="outlined"
                                 >
@@ -38,14 +36,12 @@ const FormStep = memo(({step, handleNext, handleBack, first, last}) => {
                             !first
                             ? <Button
                                     onClick={handleBack}
-                                    sx={{ml: 1 }}
                                     variant="outlined"
                                 >
                                     Назад
                                 </Button>
                             : ""
                         }
-                    </div>
                 </Box>
             </StepContent>
         </>

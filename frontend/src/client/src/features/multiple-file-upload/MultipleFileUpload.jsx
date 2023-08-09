@@ -1,10 +1,11 @@
-import React, {useState} from 'react';
+import React, {useRef, useState} from 'react';
 import {alpha, Box, Button, Divider, IconButton, List, ListItem, ListItemText, Typography} from "@mui/material";
 import {Close, FileUpload} from "@mui/icons-material";
 import {ErrorsBag} from "../../shared/ui/errors-bag/index.js";
 
 const MultipleFileUpload = ({files, setFiles}) => {
 
+    const fileInputRef = useRef();
     const [errors, setErrors] = useState([]);
     const hasDuplicateExtension = (newFiles, extension) => {
         return newFiles.some((file) => file.type === extension);
@@ -29,6 +30,7 @@ const MultipleFileUpload = ({files, setFiles}) => {
 
         setErrors(currentLoadingErrors);
         setFiles(newFiles);
+        fileInputRef.current.value = '';
     };
 
     const handleRemoveFile = (index) => {
@@ -47,6 +49,7 @@ const MultipleFileUpload = ({files, setFiles}) => {
                     <input
                         type="file"
                         onChange={handleFileChange}
+                        ref={fileInputRef}
                         multiple
                         hidden
                     />

@@ -9,6 +9,7 @@ import {Box, Typography} from "@mui/material";
 
 const Resource = () => {
     const {resource: resourceId} = useParams();
+
     const {loading, errors, fetchResourceRequest, requested} = useFetchResource(resourceId);
     const [resource, setResource] = useState({});
 
@@ -18,7 +19,7 @@ const Resource = () => {
                 setResource(r);
             }
         });
-    }, []);
+    }, [resourceId]);
 
     return (
         <ResourcePageFeedback
