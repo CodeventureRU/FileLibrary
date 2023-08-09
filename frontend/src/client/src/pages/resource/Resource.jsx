@@ -4,6 +4,8 @@ import {useParams} from "react-router-dom";
 import {useFetchResource} from "../../entities/resource/index.js";
 import {FileData} from "../../widgets/resource-data/file-data/index.js";
 import {ResourcePageFeedback} from "../../features/resource-page-feedback/index.js";
+import {GroupResourcesList} from "../../widgets/resources-lists/index.js";
+import {Box, Typography} from "@mui/material";
 
 const Resource = () => {
     const {resource: resourceId} = useParams();
@@ -28,7 +30,13 @@ const Resource = () => {
                 {
                     resource.type === 'file' ?
                         <FileData loading={loading} requested={requested} resource={resource} />
-                        : "данные группы"
+                        :
+                        <Box sx={{mt: 4}}>
+                            <Typography variant="h6">Файлы группы</Typography>
+                            <GroupResourcesList resource={resourceId} />
+                        </Box>
+
+
                 }
             </>}
 
