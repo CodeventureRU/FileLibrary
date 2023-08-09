@@ -16,7 +16,7 @@ $api.interceptors.response.use(
         if (error.response.status === 401 && error.config && !error.config._isRetry) {
             originalRequest._isRetry = true;
             try {
-                await axios.post(`${API_URL}/users/verification/`, {withCredentials: true});
+                await axios.post(`${API_URL}/users/verification/`, {}, {withCredentials: true});
                 return $api.request(originalRequest);
             } catch (e) {
 
