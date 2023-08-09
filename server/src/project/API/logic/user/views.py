@@ -204,8 +204,7 @@ class AccountDeletionView(APIView):
             return Response(data={'detail': 'Пользователь не найден'}, status=status.HTTP_404_NOT_FOUND)
         except Exception:
             return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-        user_instance.is_active = False
-        user_instance.save(update_fields=['is_active'])
+        user_instance.delete()
         response = Response(status=status.HTTP_204_NO_CONTENT)
         response = delete_cookie(response)
         return response

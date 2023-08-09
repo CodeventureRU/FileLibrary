@@ -24,7 +24,8 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         print('Сервис начал свою работу... \n')
-        schedule.every(3).hours.do(self.job)
+        schedule.every().day.at('00:00:00').do(self.job)
+        schedule.every().day.at('12:00:00').do(self.job)
 
         while True:
             schedule.run_pending()
