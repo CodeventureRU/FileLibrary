@@ -11,7 +11,12 @@ import {
     Typography
 } from "@mui/material";
 import {NavLink, useNavigate} from "react-router-dom";
-import {isAuthSelector, logoutSelector, useViewerStore, viewerSelector} from "../../entities/viewer/index.js";
+import {
+    isAuthSelector,
+    useLogout,
+    useViewerStore,
+    viewerSelector
+} from "../../entities/viewer/index.js";
 
 const AccountCircleIcon = lazy(() => import("@mui/icons-material/AccountCircle"));
 const CreateNewFolderIcon = lazy(() => import("@mui/icons-material/CreateNewFolder"));
@@ -24,7 +29,8 @@ const LogoutIcon = lazy(() => import("@mui/icons-material/Logout"));
 const Header = () => {
     const viewer = useViewerStore(viewerSelector);
     const isAuth = useViewerStore(isAuthSelector);
-    const logout = useViewerStore(logoutSelector);
+    // const logout = useViewerStore(logoutSelector);
+    const {logoutRequest} = useLogout();
     const [anchorEl, setAnchorEl] = useState(null);
     const open = Boolean(anchorEl);
     const menuRef = useRef();
@@ -39,8 +45,9 @@ const Header = () => {
     }
 
     const handleLogout = () => {
-        logout();
-        navigate("/login");
+        logoutRequest().then(() => {
+            navigate("/login");
+        });
     }
 
     return (
