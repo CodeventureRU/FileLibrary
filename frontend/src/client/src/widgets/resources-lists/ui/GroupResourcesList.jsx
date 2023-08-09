@@ -1,13 +1,11 @@
 import React from 'react';
-import {useFetchUserResources} from "../../../entities/resource/index.js";
+import {useFetchGroupResources} from "../../../entities/resource/index.js";
 import ResourcesListTemplate from "./ResourcesListTemplate.jsx";
-import {useParams} from "react-router-dom";
 import {isAuthSelector, useViewerStore} from "../../../entities/viewer/index.js";
 
-const UserResourcesList = () => {
-    const {username} = useParams();
+const GroupResourcesList = ({resource}) => {
     const isAuth = useViewerStore(isAuthSelector);
-    const resourcesHook = useFetchUserResources(username);
+    const resourcesHook = useFetchGroupResources(resource);
 
     return (
         <ResourcesListTemplate
@@ -20,4 +18,4 @@ const UserResourcesList = () => {
     );
 };
 
-export default UserResourcesList;
+export default GroupResourcesList;
