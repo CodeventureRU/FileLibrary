@@ -95,7 +95,7 @@ const useUpdateResource = (id) => {
         if (tags !== undefined) {
             fd.append("tags", tags);
         }
-        if (image !== undefined && image !== null) {
+        if (image !== undefined) {
             fd.append("image", image);
         }
 
