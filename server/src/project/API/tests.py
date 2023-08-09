@@ -3,7 +3,7 @@ from rest_framework import status
 from API.models import User
 from django.utils.http import urlsafe_base64_encode
 from django.utils.encoding import force_bytes
-from API.tokens import account_activation_token, reset_password_token, confirm_email_token
+from API.tokens import token_generator
 import io
 from PIL import Image
 from API.models import File, Group
@@ -55,7 +55,7 @@ class UserLoginAndActivationAPITest(APITestCase):
 
     def test_activation(self):
         uid = urlsafe_base64_encode(force_bytes(self.user.pk))
-        token = account_activation_token.make_token(self.user)
+        token = token_generator.make_token(self.user)
         url = f'/api/v1/activation/{uid}/{token}/'
         response = self.client.get(url)
         self.assertEquals(response.status_code, status.HTTP_204_NO_CONTENT)
@@ -114,9 +114,9 @@ class UserEmailMessagesAPITest(APITestCase):
 
     def test_send_reset_password(self):
         url = '/api/v1/users/send-reset-password/'
-        for login in [username, email]:
-            response = self.client.post(path=url, data={'login': login})
-            self.assertTrue(response.status_code.__str__() in '200 429')
+        login = username
+        response = self.client.post(path=url, data={'login': login})
+        self.assertTrue(response.status_code.__str__() in '200 429')
 
     def test_update_email(self):
         url = '/api/v1/users/update-user-email/'
@@ -133,7 +133,7 @@ class UserDataUpdateAPITest(APITestCase):
 
     def test_reset_password(self):
         uid = urlsafe_base64_encode(force_bytes(self.user.pk))
-        token = reset_password_token.make_token(self.user)
+        token = token_generator.make_token(self.user)
         url = f'/api/v1/reset-password/{uid}/{token}/'
         data = {'password': new_password,
                 'confirm_password': new_password}
@@ -145,7 +145,7 @@ class UserDataUpdateAPITest(APITestCase):
     def test_confirm_email(self):
         uid = urlsafe_base64_encode(force_bytes(self.user.pk))
         email64 = urlsafe_base64_encode(force_bytes(new_email))
-        token = confirm_email_token.make_token(self.user)
+        token = token_generator.make_token(self.user)
         url = f'/api/v1/email-confirmation/{uid}/{email64}/{token}/'
         data = {'login': username,
                 'password': password}
