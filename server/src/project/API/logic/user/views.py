@@ -21,12 +21,26 @@ from API.throttling import ResendEmailMessageThrottle
 class RegistrationView(APIView):
     serializer_class = UserSerializer
     permission_classes = [AllowAny]
+    throttle_classes = [ResendEmailMessageThrottle]
+
+    def initial(self, request, *args, **kwargs):
+        self.format_kwarg = self.get_format_suffix(**kwargs)
+
+        neg = self.perform_content_negotiation(request)
+        request.accepted_renderer, request.accepted_media_type = neg
+
+        version, scheme = self.determine_version(request, *args, **kwargs)
+        request.version, request.versioning_scheme = version, scheme
+
+        self.perform_authentication(request)
+        self.check_permissions(request)
 
     def post(self, request):
         data = get_data(request)
         if 'confirm_password' in data and data['password'] == data['confirm_password']:
             serializer = self.serializer_class(data=data)
             serializer.is_valid(raise_exception=True)
+            self.check_throttles(request)
             try:
                 user_instance = register(request, serializer.validated_data)
                 response = Response(data={'username': user_instance.username,
