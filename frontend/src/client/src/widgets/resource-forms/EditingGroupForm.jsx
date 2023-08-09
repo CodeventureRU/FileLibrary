@@ -33,10 +33,10 @@ const EditingGroupForm = ({resource}) => {
         {
             label: "Основная информация",
             content: <ResourceInfoForm {...resourceInfo} errors={errors} />,
-            completed: resourceInfo.name !== "" && (!resourceInfo.usingImage || resourceInfo.image !== null),
+            completed: true,
             error: Boolean(errors?.name) || Boolean(errors?.image) || Boolean(errors?.description),
             buttons: <>
-                <Button variant="contained" onClick={handleUpdateInfo}>Сохранить</Button>
+                <Button disabled={!(resourceInfo.name !== "" && (!resourceInfo.usingImage || resourceInfo.image !== null))} variant="contained" onClick={handleUpdateInfo}>Сохранить информацию</Button>
             </>
         },
         {
@@ -45,7 +45,7 @@ const EditingGroupForm = ({resource}) => {
             completed: true,
             error: errors?.privacy_level,
             buttons: <>
-                <Button variant="contained" onClick={handleUpdatePrivacy}>Сохранить</Button>
+                <Button variant="contained" onClick={handleUpdatePrivacy}>Сохранить настройки</Button>
             </>
         },
     ]), [resourceInfo, resourcePrivacy]);

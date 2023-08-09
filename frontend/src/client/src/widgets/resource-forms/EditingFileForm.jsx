@@ -53,19 +53,19 @@ const EditingFileForm = ({resource}) => {
         {
             label: "Добавление файлов",
             content: <MultipleFileUpload files={files} setFiles={setFiles}></MultipleFileUpload>,
-            completed: files.length > 0,
             error: Boolean(addResourceFilesErrors?.files) || Boolean(removeResourceFilesErrors?.extensions),
+            completed: true,
             buttons: <>
-                <Button variant="contained" onClick={handleUpdateFiles}>Сохранить</Button>
+                <Button disabled={files.length === 0} variant="contained" onClick={handleUpdateFiles}>Сохранить файлы</Button>
             </>
         },
         {
             label: "Основная информация",
             content: <ResourceInfoForm {...resourceInfo} errors={errors} />,
-            completed: resourceInfo.name !== "" && (!resourceInfo.usingImage || resourceInfo.image !== null),
             error: Boolean(errors?.name) || Boolean(errors?.image) || Boolean(errors?.description),
+            completed: true,
             buttons: <>
-                <Button variant="contained" onClick={handleUpdateInfo}>Сохранить</Button>
+                <Button disabled={!(resourceInfo.name !== "" && (!resourceInfo.usingImage || resourceInfo.image !== null))} variant="contained" onClick={handleUpdateInfo}>Сохранить информацию</Button>
             </>
         },
         {
@@ -74,7 +74,7 @@ const EditingFileForm = ({resource}) => {
             completed: true,
             error: errors?.privacy_level,
             buttons: <>
-                <Button variant="contained" onClick={handleUpdatePrivacy}>Сохранить</Button>
+                <Button variant="contained" onClick={handleUpdatePrivacy}>Сохранить настройки</Button>
             </>
         },
     ]), [resourceInfo, resourcePrivacy, files]);
