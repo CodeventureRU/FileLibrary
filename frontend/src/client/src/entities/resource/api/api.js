@@ -11,6 +11,7 @@ const URLS = {
     resourceFiles: id => `/resources/${id}/file/`,
     resourceGroups: id => `/resources/groups/${id}/`,
     resourceGroup: (id, group) => `/resources/${id}/group/${group}/`,
+    groupResources: id => `/resources/group/${id}/`,
 }
 
 const useFetchResource = (id) => {
@@ -64,6 +65,10 @@ const useFetchFavoriteResources = () => {
 
 const useFetchUserResources = (username) => {
     return useFetchResources(URLS.userResources(username));
+}
+
+const useFetchGroupResources = (group) => {
+    return useFetchResources(URLS.groupResources(group));
 }
 
 const useUpdateResource = (id) => {
@@ -245,6 +250,7 @@ export {
     useFetchResource,
     useFetchMainResources,
     useFetchUserResources,
+    useFetchGroupResources,
     useUpdateResource,
     useCreateResource,
     useAddToFavorites,
