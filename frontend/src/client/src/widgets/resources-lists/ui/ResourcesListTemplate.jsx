@@ -111,13 +111,13 @@ const ResourcesListTemplate = ({
                         <ResourceGridItem key={resource.slug}>
                             <ResourceCard
                                 headerAction={
-                                    (showEditAction || (resource.type === 'file' && showAddToGroupAction)) ? (
+                                    (showEditAction) ? (
                                         <ResourceHeaderAction resource={resource} open={openResourceActionsMenu} />
                                     ) : ""
                                 }
                                 resource={resource}
                                 mainActions={
-                                    <Box sx={{display: 'flex', alignItems: 'center', justifyContent: "space-between", gap: 1}}>
+                                    <Box sx={{display: 'flex', alignItems: 'center', gap: 1}}>
                                         {
                                             showFavoriteAction ? (
                                                 <ResourceFavorites reverse={true} resource={resource}></ResourceFavorites>
@@ -126,6 +126,11 @@ const ResourcesListTemplate = ({
                                         {
                                             showDownloads && resource.type === "file" ? (
                                                 <ResourceDownloads reverse={true} resource={resource}></ResourceDownloads>
+                                            ) : ""
+                                        }
+                                        {
+                                            showAddToGroupAction && resource.type === 'file' ? (
+                                                <ResourceGroups resource={resource} />
                                             ) : ""
                                         }
                                     </Box>
