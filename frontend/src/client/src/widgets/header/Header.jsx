@@ -111,7 +111,7 @@ const Header = () => {
                 </NavLink>
                 <Divider />
 
-                <NavLink to="/profile" style={{textDecoration: 'none', color: 'inherit'}}>
+                <NavLink to="/creating-file" style={{textDecoration: 'none', color: 'inherit'}}>
                     <MenuItem onClick={handleClose}>
                         <ListItemIcon>
                             <Suspense fallback=""><NoteAddIcon fontSize="small" /></Suspense>
@@ -120,7 +120,7 @@ const Header = () => {
                     </MenuItem>
                 </NavLink>
 
-                <NavLink to="/profile" style={{textDecoration: 'none', color: 'inherit'}}>
+                <NavLink to="/creating-group" style={{textDecoration: 'none', color: 'inherit'}}>
                     <MenuItem onClick={handleClose}>
                         <ListItemIcon>
                             <Suspense fallback=""><CreateNewFolderIcon fontSize="small" /></Suspense>
