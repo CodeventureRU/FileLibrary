@@ -9,6 +9,8 @@ const URLS = {
     favoriteResources: `/resources/favorites/`,
     toggleFavorite: id => `/resources/favorite/${id}/`,
     resourceFiles: id => `/resources/${id}/file/`,
+    resourceGroups: id => `/resources/groups/${id}/`,
+    resourceGroup: (id, group) => `/resources/${id}/group/${group}/`,
 }
 
 const useFetchResource = (id) => {
@@ -208,6 +210,36 @@ const useRemoveResource = (id) => {
     return {...apiHook, removeResourceRequest}
 }
 
+const useFetchResourceGroups = (id) => {
+    const {request, ...apiHook} = useApi(URLS.resourceGroups(id), "get");
+
+    const fetchResourceGroupsRequest = async () => {
+        return await request({}, {});
+    }
+
+    return {...apiHook, fetchResourceGroupsRequest}
+}
+
+const useAddResourceToGroup = (id, group) => {
+    const {request, ...apiHook} = useApi(URLS.resourceGroup(id, group), "post");
+
+    const addResourceToGroupRequest = async () => {
+        return await request({}, {});
+    }
+
+    return {...apiHook, addResourceToGroupRequest}
+}
+
+const useRemoveResourceFromGroup = (id, group) => {
+    const {request, ...apiHook} = useApi(URLS.resourceGroup(id, group), "delete");
+
+    const removeResourceFromGroupRequest = async () => {
+        return await request({}, {});
+    }
+
+    return {...apiHook, removeResourceFromGroupRequest}
+}
+
 
 export {
     useFetchResource,
@@ -221,4 +253,7 @@ export {
     useAddResourceFiles,
     useRemoveResourceFiles,
     useRemoveResource,
+    useFetchResourceGroups,
+    useAddResourceToGroup,
+    useRemoveResourceFromGroup
 }
