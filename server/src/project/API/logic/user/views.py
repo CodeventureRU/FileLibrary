@@ -10,10 +10,11 @@ from django.contrib.auth.models import update_last_login
 from project import settings
 
 from API.logic.functions import get_data
-from API.models import User
+from API.models import User, Resource
 from API.logic.user.serializers import UserSerializer, RUDUserSerializer
 from API.logic.user.services import register, activate, verify, set_cookies, delete_cookie, set_access_cookie, \
       reset_password, confirm_email, send_email_message
+from API.logic.resource.services import delete_resource
 from API.throttling import ResendEmailMessageThrottle
 
 
@@ -21,12 +22,26 @@ from API.throttling import ResendEmailMessageThrottle
 class RegistrationView(APIView):
     serializer_class = UserSerializer
     permission_classes = [AllowAny]
+    throttle_classes = [ResendEmailMessageThrottle]
+
+    def initial(self, request, *args, **kwargs):
+        self.format_kwarg = self.get_format_suffix(**kwargs)
+
+        neg = self.perform_content_negotiation(request)
+        request.accepted_renderer, request.accepted_media_type = neg
+
+        version, scheme = self.determine_version(request, *args, **kwargs)
+        request.version, request.versioning_scheme = version, scheme
+
+        self.perform_authentication(request)
+        self.check_permissions(request)
 
     def post(self, request):
         data = get_data(request)
         if 'confirm_password' in data and data['password'] == data['confirm_password']:
             serializer = self.serializer_class(data=data)
             serializer.is_valid(raise_exception=True)
+            self.check_throttles(request)
             try:
                 user_instance = register(request, serializer.validated_data)
                 response = Response(data={'username': user_instance.username,
@@ -198,14 +213,24 @@ class AccountDeletionView(APIView):
     permission_classes = [IsAuthenticated]
 
     def delete(self, request):
+        # Getting user instance #
         try:
             user_instance = User.objects.get(pk=request.user.pk)
         except User.DoesNotExist:
             return Response(data={'detail': 'Пользователь не найден'}, status=status.HTTP_404_NOT_FOUND)
         except Exception:
             return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        # Getting resources, that was created by user and deleting them #
+        resources = Resource.objects.filter(author_id=request.user.pk)
+        for resource in resources:
+            delete_resource(resource)
+            resource.delete()
+        # Deleting user instance #
         user_instance.delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)
+        # Creating response with logout #
+        response = Response(status=status.HTTP_204_NO_CONTENT)
+        response = delete_cookie(response)
+        return response
 
 
 # Confirm email change with link from email #
