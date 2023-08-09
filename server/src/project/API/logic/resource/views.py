@@ -137,6 +137,7 @@ class RUDResourceView(APIView, MyPaginationMixin):
 
 
 class GroupResourcesView(MyPaginationMixin, APIView):
+    permission_classes = [AllowAny]
     serializer_class = ListResourceSerializer
     pagination_class = api_settings.DEFAULT_PAGINATION_CLASS
     lookup_field = 'slug'
