@@ -14,6 +14,7 @@ import ResourceGridItem from "../../../entities/resource/ui/ResourceGridItem.jsx
 import ResourceCard from "../../../entities/resource/ui/ResourceCard.jsx";
 import {ResourceDownloads} from "../../../features/resource-downloads/index.js";
 import {ResourcesStandardPagination} from "../../../features/resources-pagination/index.js";
+import {ResourceGroups} from "../../../features/resource-groups/index.js";
 
 const STANDARD_LIMIT = 6;
 
@@ -71,7 +72,7 @@ const ResourcesListTemplate = ({
                                 headerActions={
                                     <>
                                         {
-                                            (showEditAction || (resource.type === 'file' && showAddToGroupAction)) ? (
+                                            (showEditAction) ? (
                                                 <ResourceHeaderAction resource={resource} open={openResourceActionsMenu} />
                                             ) : ""
                                         }
@@ -82,6 +83,11 @@ const ResourcesListTemplate = ({
                                 resource={resource}
                                 mainActions={
                                     <Box sx={{display: "flex", alignItems: "center", gap: 2}}>
+                                        {
+                                            showAddToGroupAction && resource.type === 'file' ? (
+                                                <ResourceGroups resource={resource} />
+                                            ) : ""
+                                        }
                                         {
                                             showDownloads && resource.type === "file" ? (
                                                 <ResourceDownloads resource={resource}></ResourceDownloads>
