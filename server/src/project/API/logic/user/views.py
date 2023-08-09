@@ -204,8 +204,11 @@ class AccountDeletionView(APIView):
             return Response(data={'detail': 'Пользователь не найден'}, status=status.HTTP_404_NOT_FOUND)
         except Exception:
             return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-        user_instance.delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)
+        user_instance.is_active = False
+        user_instance.save(update_fields=['is_active'])
+        response = Response(status=status.HTTP_204_NO_CONTENT)
+        response = delete_cookie(response)
+        return response
 
 
 # Confirm email change with link from email #
