@@ -84,7 +84,7 @@ const ResourcesViewSettings = ({filterAndSortObj, viewModeObj, apply}) => {
                 <DialogTitle>Настройка фильтра</DialogTitle>
                 <DialogContent>
                     <Select fullWidth={true} value={type} onChange={(e) => setType(e.target.value)}>
-                        <MenuItem value="">Все</MenuItem>
+                        <MenuItem value="all">Все</MenuItem>
                         <MenuItem value="file">Файлы</MenuItem>
                         <MenuItem value="group">Группы</MenuItem>
                     </Select>
@@ -104,6 +104,7 @@ const ResourcesViewSettings = ({filterAndSortObj, viewModeObj, apply}) => {
                         <MenuItem value="name">По названию</MenuItem>
                         <MenuItem value="created_at">По дате</MenuItem>
                         <MenuItem value="favorites">По количеству добавлений в избранное</MenuItem>
+                        <MenuItem value="downloads">По количеству скачиваний</MenuItem>
                     </Select>
                     <RadioGroup
                         value={sortDirection}

@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from 'react';
-import {Divider, ListItemIcon, ListItemText, Menu, MenuItem, Typography} from "@mui/material";
+import {ListItemIcon, ListItemText, Menu, MenuItem, Typography} from "@mui/material";
 import {Download} from "@mui/icons-material";
 import {useFetchResource} from "../../entities/resource/index.js";
 import {Link} from "react-router-dom";
@@ -39,11 +39,6 @@ const ResourceDownloadsMenu = ({
                 'aria-labelledby': 'resource-downloads-menu',
             }}
         >
-
-            <MenuItem>
-                <ListItemText><Typography>Скачать</Typography></ListItemText>
-            </MenuItem>
-            <Divider />
             {
                 resourceData?.file?.extensions ? (
                     resourceData?.file?.extensions.split(" ").map(ext =>

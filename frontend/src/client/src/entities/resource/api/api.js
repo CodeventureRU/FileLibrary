@@ -36,7 +36,7 @@ const useFetchResources = (url, handleResult=r=>r) => {
                 order_by: options?.sort,
                 order_direction: options?.sortDirection,
                 search: options?.search ? options?.search : "",
-                type: options?.type,
+                type: (options?.type !== "all" ? options?.type : ""),
             }
         });
 
@@ -95,7 +95,7 @@ const useUpdateResource = (id) => {
         if (tags !== undefined) {
             fd.append("tags", tags);
         }
-        if (image !== undefined && image !== null) {
+        if (image !== undefined) {
             fd.append("image", image);
         }
 
