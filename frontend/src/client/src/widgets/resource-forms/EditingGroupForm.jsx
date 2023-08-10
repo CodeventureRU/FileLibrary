@@ -18,7 +18,7 @@ const EditingGroupForm = ({resource}) => {
         await updateRequest({
             name: resourceInfo.name,
             description: resourceInfo.description,
-            image: resourceInfo.usingImage ? resourceInfo.imageFile : null,
+            image: resourceInfo.usingImage ? (resourceInfo.imageFile ? resourceInfo.imageFile : undefined) : "",
         });
     }
 

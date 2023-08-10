@@ -109,6 +109,8 @@ class RUDResourceView(APIView, MyPaginationMixin):
         self.check_object_permissions(request, resource)
         # Getting data and files from request #
         data = get_data(request)
+        if 'image' in data and data['image'] == '':
+            data['image'] = None
         image = request.FILES.get('image')
         if image is not None:
             data['image'] = image_processing(request, image)
@@ -116,7 +118,7 @@ class RUDResourceView(APIView, MyPaginationMixin):
         serializer = self.serializer_class(resource, data=data, partial=True)
         serializer.is_valid(raise_exception=True)
         # Deleting image if image replaced or deleted #
-        if (data['image'] is None) or (resource.image and 'image' in serializer.data):
+        if 'image' in data and ((data['image'] is None) or (resource.image and 'image' in serializer.data)):
             resource.image.delete()
         # Setting new data in instance #
         for key, value in serializer.validated_data.items():
