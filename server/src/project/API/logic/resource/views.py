@@ -109,6 +109,8 @@ class RUDResourceView(APIView, MyPaginationMixin):
         self.check_object_permissions(request, resource)
         # Getting data and files from request #
         data = get_data(request)
+        if data['image'] == '':
+            data['image'] = None
         image = request.FILES.get('image')
         if image is not None:
             data['image'] = image_processing(request, image)
