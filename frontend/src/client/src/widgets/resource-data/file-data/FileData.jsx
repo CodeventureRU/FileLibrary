@@ -13,7 +13,7 @@ const FileData = ({loading, requested, resource}) => {
                             {
                                 resource.file.extensions.split(" ").map(ext => (
                                     ext !== "" ?
-                                    <Link key={ext} to={`/api/v1/resources/download/${resource.slug}/${ext}/`} style={{textDecoration: "none", color: "inherit"}}><Typography
+                                    <Link target="_blank" key={ext} to={`/api/v1/resources/download/${resource.slug}/${ext}/`} style={{textDecoration: "none", color: "inherit"}}><Typography
                                         color="primary"
                                         sx={{
                                             textTransform: 'uppercase',
