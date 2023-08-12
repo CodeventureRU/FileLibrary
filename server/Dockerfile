@@ -8,12 +8,9 @@ WORKDIR /usr/src/app
 ENV PYTHONDONTWRITEBYTECODE 1
 ENV PYTHONUNBUFFERED 1
 
-# Установите необходимые пакеты, включая tmux
-RUN apk update && apk add --no-cache tmux
-
 # install psycopg2 dependencies
-RUN apk update \
-    && apk add postgresql-dev gcc python3-dev musl-dev
+RUN apk add --no-cache gcc musl-dev postgresql-dev python3-dev libffi-dev \
+    && pip install --upgrade pip
 
 # Обновите индекс пакетов и установите необходимые пакеты
 RUN apk add --no-cache supervisor
