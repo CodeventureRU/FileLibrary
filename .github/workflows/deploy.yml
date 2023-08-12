@@ -1,7 +1,7 @@
 name: "Deployment"
 on:
   push:
-    branches: ["build/preparing-for-containerization"]
+    branches: ["main"]
 
 jobs:
   deploy:
@@ -17,6 +17,6 @@ jobs:
           private_key: ${{secrets.SSH_PRIVATE_KEY}}
           command: |
             cd ${{ secrets.SERVER_PROJECT_FOLDER }};
-            git checkout build/preparing-for-containerization;
+            git checkout main
             git pull;
             docker compose -f docker-compose.prod.yml up -d --build;
