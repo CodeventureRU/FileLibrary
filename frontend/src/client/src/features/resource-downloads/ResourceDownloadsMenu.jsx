@@ -44,7 +44,7 @@ const ResourceDownloadsMenu = ({
                     resourceData?.file?.extensions.split(" ").map(ext =>
                     (
                         ext !== "" ? (
-                            <Link key={ext} style={{textDecoration: 'none', color: 'inherit'}} to={`http://localhost:8000/api/v1/resources/download/${resourceData.slug}/${ext}`}>
+                            <Link target="_blank" key={ext} style={{textDecoration: 'none', color: 'inherit'}} to={`/api/v1/resources/download/${resourceData.slug}/${ext}/`}>
                                 <MenuItem onClick={handleClick}>
                                     <ListItemIcon>
                                         <Download fontSize="small" />

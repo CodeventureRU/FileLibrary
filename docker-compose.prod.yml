@@ -1,0 +1,68 @@
+version: '3.8'
+
+services:
+  postgres:
+    container_name: fl_postgres
+    image: postgres:15-alpine
+    env_file:
+      - .env.prod.postgres
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/
+    networks:
+      - app-network
+
+  django:
+    container_name: fl_django
+    build: ./server
+    env_file:
+      - .env.prod.django
+    command: "supervisord -c supervisord.conf"
+    ports:
+      - 8000:8000
+    networks:
+      - app-network
+    depends_on:
+      - postgres
+      - rabbit
+    volumes:
+      - media_images:/usr/src/app/media/images
+      - media_files:/usr/src/app/media/files
+
+  rabbit:
+    container_name: fl_rabbit
+    image: rabbitmq:3.12-management
+    ports:
+      - 5672:5672
+      - 15672:15672
+    networks:
+      - app-network
+
+  frontend:
+    container_name: fl_frontend
+    build:
+      context: ./frontend
+      args:
+        VITE_REACT_BACKEND_API_URL: /api/v1
+    env_file:
+      - .env.prod.frontend
+    networks:
+      - app-network
+    ports:
+      - 80:80
+    depends_on:
+      - django
+
+    volumes:
+      - media_images:/usr/src/app/media/images
+
+volumes:
+  postgres_data:
+  static_volume:
+  media_images: {}
+  media_files: {}
+
+networks:
+  app-network:
+    driver: bridge
+  shared_network:
+    external: true

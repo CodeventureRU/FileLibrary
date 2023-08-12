@@ -1,0 +1,41 @@
+
+upstream django {
+    server django:8000;
+}
+
+server {
+
+  listen ${PORT};
+  server_name 0.0.0.0;
+
+  location / {
+    root   /usr/share/nginx/html;
+    index  index.html index.htm;
+    try_files $uri $uri/ /index.html;
+    client_max_body_size 80m;
+  }
+
+  error_page   500 502 503 504  /50x.html;
+
+  location = /50x.html {
+    root   /usr/share/nginx/html;
+  }
+
+      # Параметры проксирования
+      location /api/ {
+          # Если будет открыта корневая страница
+          # все запросу пойдут к одному из серверов
+          # в upstream django_proj
+          proxy_pass http://django;
+          # Устанавливаем заголовки
+          proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+          proxy_set_header Host $http_host;
+          client_max_body_size 100m;
+          # Отключаем перенаправление
+          proxy_redirect off;
+      }
+      # Статика и медиа
+      location /media/images/ {
+          alias /usr/src/app/media/images/;
+     }
+}

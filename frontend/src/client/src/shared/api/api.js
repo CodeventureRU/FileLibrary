@@ -1,7 +1,7 @@
 import axios from "axios";
 import {useState} from "react";
 
-export const API_URL = 'http://localhost:8000/api/v1';
+export const API_URL = import.meta.env.VITE_REACT_BACKEND_API_URL;
 
 const $api = axios.create({
     withCredentials: true,
@@ -16,7 +16,7 @@ $api.interceptors.response.use(
         if (error.response.status === 401 && error.config && !error.config._isRetry) {
             originalRequest._isRetry = true;
             try {
-                await axios.post(`${API_URL}/users/verification/`, {}, {withCredentials: true});
+                await axios.post(`${API_URL}users/verification/`, {}, {withCredentials: true});
                 return $api.request(originalRequest);
             } catch (e) {
 
