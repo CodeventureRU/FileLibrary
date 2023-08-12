@@ -9,7 +9,7 @@ ENV PYTHONDONTWRITEBYTECODE 1
 ENV PYTHONUNBUFFERED 1
 
 # install psycopg2 dependencies
-RUN apk add --no-cache gcc musl-dev postgresql-dev python3-dev libffi-dev \
+RUN apk add --no-cache postgresql-dev python3-dev \
     && pip install --upgrade pip
 
 # Обновите индекс пакетов и установите необходимые пакеты
