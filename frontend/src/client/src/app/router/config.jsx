@@ -85,7 +85,7 @@ export const router = createBrowserRouter([
             },
             {
                 path: "/email-confirmation/:uidb64/:email/:token",
-                element: <GuestGuard><ConfirmEmail/></GuestGuard>,
+                element: <ConfirmEmail/>,
             },
         ]
     },
