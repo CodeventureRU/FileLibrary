@@ -25,7 +25,8 @@ services:
       - postgres
       - rabbit
     volumes:
-      - media:/usr/src/app/media
+      - media_images:/usr/src/app/media/images
+      - media_files:/usr/src/app/media/files
 
   rabbit:
     container_name: fl_rabbit
@@ -52,12 +53,13 @@ services:
       - django
 
     volumes:
-      - media:/usr/src/app/media
+      - media_images:/usr/src/app/media/images
 
 volumes:
   postgres_data:
   static_volume:
-  media: {}
+  media_images: {}
+  media_files: {}
 
 networks:
   app-network:
