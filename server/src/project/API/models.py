@@ -24,7 +24,7 @@ class Resource(models.Model):
 
     slug = models.SlugField(unique=True, default=uuid.uuid4)
     name = models.CharField(max_length=64)
-    description = models.CharField(max_length=256, blank=True)
+    description = models.CharField(max_length=2048, blank=True)
     image = models.ImageField(upload_to='images/', blank=True, null=True)
     privacy_level = models.CharField(max_length=9, choices=[
         ('public', 'Все'),
