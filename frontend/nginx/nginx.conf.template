@@ -5,7 +5,8 @@ upstream django {
 
 server {
 
-  listen 8080;
+  listen ${PORT};
+  server_name 0.0.0.0;
 
   location / {
     root   /usr/share/nginx/html;

@@ -27,6 +27,9 @@ RUN npm run build
 FROM nginx:stable-alpine
 COPY --from=build /usr/app/dist /usr/share/nginx/html
 # new
-COPY ./nginx/nginx.conf /etc/nginx/conf.d/default.conf
-EXPOSE 8080
-CMD ["nginx", "-g", "daemon off;"]
+#COPY ./nginx/nginx.conf /etc/nginx/conf.d/default.conf
+#EXPOSE 8080
+#CMD ["nginx", "-g", "daemon off;"]
+
+COPY ./nginx/nginx.conf.template /nginx.conf.template
+CMD ["/bin/sh" , "-c" , "envsubst '$PORT' < /nginx.conf.template > /etc/nginx/conf.d/default.conf && exec nginx -g 'daemon off;'"]
