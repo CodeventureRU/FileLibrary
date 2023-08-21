@@ -47,8 +47,9 @@ services:
       - .env.prod.frontend
     networks:
       - app-network
+      - shared_network
     ports:
-      - 80:80
+      - 5000:5000
     depends_on:
       - django
 
