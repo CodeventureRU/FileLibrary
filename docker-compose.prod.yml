@@ -18,7 +18,7 @@ services:
       - .env.prod.django
     command: "supervisord -c supervisord.conf"
     ports:
-      - 8000:8000
+      - 8070:8070
     networks:
       - app-network
     depends_on:
@@ -49,7 +49,7 @@ services:
       - app-network
       - shared_network
     ports:
-      - 5000:5000
+      - 5070:5070
     depends_on:
       - django
 
