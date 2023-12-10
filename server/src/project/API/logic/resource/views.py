@@ -152,7 +152,7 @@ class GroupResourcesView(MyPaginationMixin, APIView):
     def get(self, request, id):
         resource = Resource.objects.prefetch_related('groups').filter(slug=id).first()
         ids = ResourceGroup.objects.filter(group_id=resource.groups.pk).values_list('resource_id', flat=True)
-        queryset = Resource.objects.filter(pk__in=ids, privacy_level='public')
+        queryset = Resource.objects.filter(pk__in=ids, privacy_level__in=['public', 'link_only'])
         queryset = resource_filtering(request, queryset)
         queryset = self.paginate_queryset(queryset)
         serializer = self.serializer_class(queryset, many=True, context={'request': request})
